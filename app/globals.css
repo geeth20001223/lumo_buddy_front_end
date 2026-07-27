@@ -208,3 +208,12 @@
 .daily-routine-page *::-webkit-scrollbar {
   display: none;
 }
+
+/* Hide scrollbar utility — used for horizontal chip scrollers */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

@@ -11,24 +11,29 @@ import { HeaderQuoteBar } from "./HeaderQuoteBar";
 export default function Navigation() {
   const pathname = usePathname();
   const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function getSession() {
       try {
-        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        const {
+          data: { session: currentSession },
+          error,
+        } = await supabase.auth.getSession();
         if (error) {
-          if (error.message.includes("Refresh Token Not Found")) {
+          if (error.message?.includes("Refresh Token Not Found")) {
             await supabase.auth.signOut();
           }
           throw error;
         }
-        setSession(currentSession);
+        if (!cancelled) setSession(currentSession);
       } catch (err) {
         console.warn("[Navigation] Session check failed:", err);
-        setSession(null);
+        if (!cancelled) setSession(null);
       } finally {
-        setLoading(false);
+        if (!cancelled) setReady(true);
       }
     }
 
@@ -36,33 +41,34 @@ export default function Navigation() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setLoading(false);
+    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (!cancelled) {
+        setSession(newSession);
+        setReady(true);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Early return for immersive game play pages (e.g. /games/[childId]/[gameSlug])
   const isGamePlayPage = Boolean(
     pathname &&
-    pathname.startsWith("/games/") &&
-    pathname.split("/").filter(Boolean).length > 2
+      pathname.startsWith("/games/") &&
+      pathname.split("/").filter(Boolean).length > 2
   );
 
   if (isGamePlayPage) {
     return null;
   }
 
-  if (loading) {
-    return (
-      <header className="sticky top-0 z-50 w-full">
-        <HeaderQuoteBar />
-        <div className="bg-white/80 backdrop-blur-2xl border-b border-sky-100/80 h-16 sm:h-20 w-full" />
-      </header>
-    );
-  }
+  // ALWAYS render the full header immediately.
+  // Before Supabase resolves, show GuestNavbar (with logo, links, buttons).
+  // Once session is confirmed, swap to AuthNavbar seamlessly.
+  const showAuth = ready && session;
 
   return (
     <>
@@ -74,10 +80,14 @@ export default function Navigation() {
           {/* Specular Bottom Glowing Line */}
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-sky-400 via-fuchsia-400 to-indigo-500 opacity-70" />
 
-          {session ? <AuthNavbar userEmail={session.user?.email || ""} /> : <GuestNavbar />}
+          {showAuth ? (
+            <AuthNavbar userEmail={session.user?.email || ""} />
+          ) : (
+            <GuestNavbar />
+          )}
         </div>
       </header>
-      {session && <MobileBottomNav />}
+      {showAuth && <MobileBottomNav />}
     </>
   );
 }

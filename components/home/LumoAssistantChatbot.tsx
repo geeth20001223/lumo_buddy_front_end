@@ -177,6 +177,20 @@ export function LumoAssistantChatbot() {
   ]);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Lock body scroll when chatbot is open on mobile
+  useEffect(() => {
+    const isMobile = window.innerWidth < 640;
+    if (isOpen && isMobile) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const scrollChatToBottom = () => {
     if (chatContainerRef.current) {
@@ -271,18 +285,19 @@ export function LumoAssistantChatbot() {
       `}} />
 
       {/* ===== FLOATING WIDGET TRIGGER BUTTON (BOTTOM RIGHT) ===== */}
-      <div className="fixed bottom-22 right-4 md:bottom-6 md:right-6 z-40">
+      {/* On mobile: sits above MobileBottomNav (bottom-[5.5rem]). On desktop: bottom-6. */}
+      <div className="fixed bottom-[5.5rem] sm:bottom-6 right-3 sm:right-6 z-40">
         <motion.button
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.94 }}
           onClick={() => setIsOpen(!isOpen)}
-          className="relative overflow-hidden flex items-center gap-2.5 px-4 py-2.5 sm:px-4.5 sm:py-3 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-600 text-slate-950 font-black text-xs uppercase tracking-wider shadow-2xl shadow-amber-500/45 border-2 border-white/90"
+          className="relative overflow-hidden flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-600 text-slate-950 font-black text-[11px] sm:text-xs uppercase tracking-wider shadow-2xl shadow-amber-500/45 border-2 border-white/90"
         >
           {/* MODERN GLOWING LIGHT STRIP BEAM SWEEPER */}
           <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none animate-light-strip" />
 
-          <NextLevelCyberBee className="w-7 h-7 sm:w-8 sm:h-8 filter drop-shadow-md" />
-          <span className="drop-shadow-sm text-slate-950 font-black relative z-10">{isOpen ? "Close Chat" : "Ask Lumo Buddy AI"}</span>
+          <NextLevelCyberBee className="w-6 h-6 sm:w-8 sm:h-8 filter drop-shadow-md" />
+          <span className="drop-shadow-sm text-slate-950 font-black relative z-10">{isOpen ? "Close" : "Ask Lumo AI"}</span>
           <span className="relative flex h-2 w-2 z-10">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
@@ -290,7 +305,8 @@ export function LumoAssistantChatbot() {
         </motion.button>
       </div>
 
-      {/* ===== CHATBOT MODAL POPUP (ANCHORED CLEANLY AT BOTTOM-24 RIGHT-2 SM:RIGHT-6) ===== */}
+      {/* ===== CHATBOT MODAL POPUP ===== */}
+      {/* On mobile: full-screen takeover. On sm+: anchored bottom-right popup. */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -298,18 +314,18 @@ export function LumoAssistantChatbot() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.88, y: 30 }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
-            className="fixed bottom-24 right-2 sm:bottom-20 sm:right-6 w-[calc(100vw-1rem)] max-w-[380px] sm:w-[400px] h-[480px] sm:h-[520px] max-h-[calc(100vh-120px)] bg-white/95 backdrop-blur-3xl border-4 border-amber-300/90 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_25px_60px_rgba(245,158,11,0.35)] z-50 flex flex-col overflow-hidden"
+            className="fixed inset-0 sm:inset-auto sm:bottom-20 sm:right-6 sm:w-[400px] sm:h-[520px] sm:max-h-[calc(100vh-120px)] w-full h-full sm:rounded-[2.5rem] bg-white/98 backdrop-blur-3xl border-0 sm:border-4 sm:border-amber-300/90 rounded-none shadow-none sm:shadow-[0_25px_60px_rgba(245,158,11,0.35)] z-50 flex flex-col overflow-hidden"
           >
             {/* Chatbot Header */}
-            <div className="relative p-4 px-6 bg-gradient-to-r from-amber-400 via-emerald-500 to-fuchsia-600 text-white flex items-center justify-between">
+            <div className="relative p-4 px-5 sm:px-6 bg-gradient-to-r from-amber-400 via-emerald-500 to-fuchsia-600 text-white flex items-center justify-between safe-area-top">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-white/25 backdrop-blur-md border border-white/40 flex items-center justify-center shadow-sm p-0.5">
                   <NextLevelCyberBee className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="font-black text-sm uppercase tracking-wider text-white drop-shadow-sm">Lumo Buddy AI Assistant</h3>
+                  <h3 className="font-black text-sm uppercase tracking-wider text-white drop-shadow-sm">Lumo Buddy AI</h3>
                   <p className="text-[10px] text-amber-100 font-extrabold flex items-center gap-1">
-                    <Sparkles size={10} className="text-amber-300 animate-pulse" /> Lumo Buddy AI • Online
+                    <Sparkles size={10} className="text-amber-300 animate-pulse" /> Online
                   </p>
                 </div>
               </div>
@@ -318,26 +334,26 @@ export function LumoAssistantChatbot() {
                 <button
                   onClick={handleResetChat}
                   title="Restart Chat"
-                  className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white"
+                  className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white active:scale-90"
                 >
-                  <RotateCcw size={15} />
+                  <RotateCcw size={16} />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white"
+                  className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white active:scale-90"
                 >
-                  <X size={18} />
+                  <X size={20} />
                 </button>
               </div>
             </div>
 
             {/* MODERN GLOWING ELECTRIC LIGHT STRIP BAR BENEATH HEADER */}
-            <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-emerald-400 to-fuchsia-400 animate-pulse shadow-md shadow-amber-400/50" />
+            <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-emerald-400 to-fuchsia-400 animate-pulse shadow-md shadow-amber-400/50 shrink-0" />
 
             {/* Messages Body */}
             <div
               ref={chatContainerRef}
-              className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-amber-50/30 via-slate-50 to-emerald-50/40"
+              className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-amber-50/30 via-slate-50 to-emerald-50/40 overscroll-contain"
             >
               {messages.map((msg) => (
                 <div
@@ -386,14 +402,14 @@ export function LumoAssistantChatbot() {
               )}
             </div>
 
-            {/* Suggestion Chips */}
-            <div className="px-3 py-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto select-none no-scrollbar">
+            {/* Suggestion Chips — Horizontally scrollable with proper touch scrolling */}
+            <div className="px-3 py-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto select-none shrink-0 touch-pan-x" style={{ WebkitOverflowScrolling: "touch" }}>
               {DEFAULT_SUGGESTIONS.map((sugg, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(sugg)}
                   disabled={isTyping}
-                  className="px-2.5 py-1 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-900 text-[10px] font-black whitespace-nowrap border border-amber-200 flex items-center gap-1 transition-colors disabled:opacity-50"
+                  className="px-2.5 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-900 text-[10px] font-black whitespace-nowrap border border-amber-200 flex items-center gap-1 transition-colors disabled:opacity-50 min-h-[32px]"
                 >
                   <HelpCircle size={10} />
                   <span>{sugg}</span>
@@ -401,23 +417,31 @@ export function LumoAssistantChatbot() {
               ))}
             </div>
 
-            {/* Input Bar */}
-            <div className="p-3 bg-white border-t border-slate-100 flex items-center gap-2">
+            {/* Input Bar — Safe area padding for mobile bottom notch */}
+            <div className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white border-t border-slate-100 flex items-center gap-2 shrink-0">
               <input
+                ref={inputRef}
                 type="text"
                 value={inputQuery}
                 onChange={(e) => setInputQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
                 placeholder={isTyping ? "Lumo is thinking..." : "Ask me anything..."}
                 disabled={isTyping}
-                className="flex-1 px-4 py-2.5 rounded-full bg-slate-100 border border-slate-200 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-emerald-400 transition-colors disabled:opacity-60"
+                className="flex-1 px-4 py-3 rounded-full bg-slate-100 border border-slate-200 text-sm font-extrabold text-slate-800 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-colors disabled:opacity-60"
+                enterKeyHint="send"
+                autoComplete="off"
               />
               <button
                 onClick={() => handleSendMessage()}
                 disabled={isTyping || !inputQuery.trim()}
-                className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-400 via-emerald-500 to-fuchsia-600 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all font-black disabled:opacity-40"
+                className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-400 via-emerald-500 to-fuchsia-600 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all font-black disabled:opacity-40 min-w-[48px] min-h-[48px]"
               >
-                <Send size={16} />
+                <Send size={18} />
               </button>
             </div>
           </motion.div>
