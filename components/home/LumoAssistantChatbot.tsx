@@ -298,7 +298,7 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
 
       {/* ===== FLOATING WIDGET TRIGGER BUTTON (BOTTOM RIGHT) ===== */}
       {/* On mobile: sits above MobileBottomNav (bottom-[5.5rem]). On desktop: bottom-6. */}
-      <div className="fixed bottom-[5.5rem] sm:bottom-6 right-3 sm:right-6 z-40">
+      <div className="fixed bottom-[5.5rem] sm:bottom-6 right-3 sm:right-6 z-[60]">
         <motion.button
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.94 }}
@@ -326,7 +326,7 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.88, y: 30 }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
-            className="fixed inset-0 sm:inset-auto sm:bottom-20 sm:right-6 sm:w-[400px] sm:h-[520px] sm:max-h-[calc(100vh-120px)] w-full h-full sm:rounded-[2.5rem] bg-white/98 backdrop-blur-3xl border-0 sm:border-4 sm:border-amber-300/90 rounded-none shadow-none sm:shadow-[0_25px_60px_rgba(245,158,11,0.35)] z-50 flex flex-col overflow-hidden"
+            className="fixed inset-0 sm:inset-auto sm:bottom-20 sm:right-6 sm:w-[400px] sm:h-[520px] sm:max-h-[calc(100vh-120px)] w-full h-full sm:rounded-[2.5rem] bg-white/98 backdrop-blur-3xl border-0 sm:border-4 sm:border-amber-300/90 rounded-none shadow-none sm:shadow-[0_25px_60px_rgba(245,158,11,0.35)] z-[60] flex flex-col overflow-hidden"
           >
             {/* Chatbot Header */}
             <div className="relative p-4 px-5 sm:px-6 bg-gradient-to-r from-amber-400 via-emerald-500 to-fuchsia-600 text-white flex items-center justify-between safe-area-top">

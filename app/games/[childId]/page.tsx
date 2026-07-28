@@ -126,13 +126,14 @@ export default function GamesPage() {
   };
 
   return (
-    <main className="min-h-screen relative overflow-hidden pb-20 bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40">
-      <AnimatedBackground />
-
-      {/* Lumi Chatbot — floats over the page with child's game context */}
+    <>
+      {/* Lumi Chatbot — outside main so overflow-x-hidden never clips it */}
       <LumoAssistantChatbot context={chatContext} />
 
-      {/* Extra floating color orbs */}
+      <main className="min-h-screen relative overflow-x-hidden pb-32 bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40">
+        <AnimatedBackground />
+
+        {/* Extra floating color orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-5">
         <div className="absolute top-[-10%] left-[-5%] w-[45vw] h-[45vw] rounded-full bg-fuchsia-200/35 blur-[100px]" style={{ animation: 'blob 18s ease-in-out infinite' }}></div>
         <div className="absolute bottom-[-15%] right-[-10%] w-[45vw] h-[45vw] rounded-full bg-rose-200/30 blur-[100px]" style={{ animation: 'blob 22s ease-in-out infinite', animationDelay: '5s' }}></div>
@@ -158,18 +159,19 @@ export default function GamesPage() {
         </Link>
       </div>
 
-      <div className="relative z-10">
-        <LearningJourneyHero
-          childName={child?.child_name || "your child"}
-          assessment={assessment}
-        />
+        <div className="relative z-10">
+          <LearningJourneyHero
+            childName={child?.child_name || "your child"}
+            assessment={assessment}
+          />
 
-        {/* The Guided Journey Timeline */}
-        <JourneyTimeline
-          childId={params.childId}
-          games={games}
-        />
-      </div>
-    </main>
+          {/* The Guided Journey Timeline */}
+          <JourneyTimeline
+            childId={params.childId}
+            games={games}
+          />
+        </div>
+      </main>
+    </>
   );
 }
