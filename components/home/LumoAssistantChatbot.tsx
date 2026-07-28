@@ -11,14 +11,20 @@ interface ChatMessage {
   timestamp: string;
 }
 
-const DEFAULT_SUGGESTIONS = [
-  "How does the screening survey work?",
-  "Tell me about the 8 learning games",
+export interface ChildChatContext {
+  childName?: string;
+  assessmentLevel?: number | null;
+  nextGame?: { name: string; level: number; area: string; slug: string } | null;
+  gamesPlayed?: number;
+  totalGames?: number;
+  gameList?: string;
+}
+
+const BASE_SUGGESTIONS = [
   "How do game unlock levels work?",
-  "How do parents track child progress?",
+  "Tell me about the 8 learning games",
+  "How does the screening survey work?",
   "Can parents retake the survey?",
-  "How do boy & girl avatar profiles work?",
-  "What if my child makes a mistake?",
   "Is Lumo Buddy completely free?",
 ];
 
@@ -163,15 +169,21 @@ function playBotChimeSound() {
   } catch (err) { }
 }
 
-export function LumoAssistantChatbot() {
+export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputQuery, setInputQuery] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+
+  // Build a context-aware welcome message
+  const welcomeText = context?.nextGame
+    ? `Bzzzz-beep! 👋 Hi${context.childName ? ` ${context.childName}` : ""}! I'm Lumo 🐝✨ Your next game is "${context.nextGame.name}" (Level ${context.nextGame.level})! Ask me anything about your games or progress!`
+    : "Bzzzz-beep! 👋 Hi there! I'm Lumo Buddy AI 🐝✨ Welcome to Lumo Buddy! Ask me any question about screening surveys, games, child profiles, or progress reports!";
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
       sender: "bot",
-      text: "Bzzzz-beep! 👋 Hi there! I'm Lumo Buddy AI 🐝✨ Welcome to Lumo Buddy! Ask me any question about screening surveys, games, child profiles, or progress reports!",
+      text: welcomeText,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -231,7 +243,7 @@ export function LumoAssistantChatbot() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: text, history }),
+        body: JSON.stringify({ prompt: text, history, context }),
       });
 
       const data = await res.json();
@@ -402,9 +414,29 @@ export function LumoAssistantChatbot() {
               )}
             </div>
 
-            {/* Suggestion Chips — Horizontally scrollable with proper touch scrolling */}
+            {/* Suggestion Chips — context-aware + base, horizontally scrollable */}
             <div className="px-3 py-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto select-none shrink-0 touch-pan-x" style={{ WebkitOverflowScrolling: "touch" }}>
-              {DEFAULT_SUGGESTIONS.map((sugg, idx) => (
+              {/* Context-aware chips first */}
+              {context?.nextGame && (
+                <button
+                  onClick={() => handleSendMessage("What should I play next?")}
+                  disabled={isTyping}
+                  className="px-2.5 py-1.5 rounded-full bg-fuchsia-50 hover:bg-fuchsia-100 text-fuchsia-800 text-[10px] font-black whitespace-nowrap border border-fuchsia-200 flex items-center gap-1 transition-colors disabled:opacity-50 min-h-[32px]"
+                >
+                  🌟 <span>What should I play next?</span>
+                </button>
+              )}
+              {context?.childName && (
+                <button
+                  onClick={() => handleSendMessage(`How many games has ${context.childName} completed?`)}
+                  disabled={isTyping}
+                  className="px-2.5 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-black whitespace-nowrap border border-emerald-200 flex items-center gap-1 transition-colors disabled:opacity-50 min-h-[32px]"
+                >
+                  📊 <span>Show my progress</span>
+                </button>
+              )}
+              {/* Base suggestion chips */}
+              {BASE_SUGGESTIONS.map((sugg, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(sugg)}

@@ -11,15 +11,13 @@ export function GameCard({ childId, game }: GameCardProps) {
   const isUnlocked = game.is_unlocked;
 
   return (
-    <div className={`relative flex flex-col h-full rounded-3xl border transition-all duration-300 ${
-      isUnlocked 
-        ? "bg-white border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-1" 
-        : "bg-slate-50 border-slate-200 opacity-80"
-    }`}>
-      {/* Level Badge */}
-      <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-        isUnlocked ? "bg-blue-100 text-blue-700" : "bg-slate-200 text-slate-500"
+    <div className={`relative flex flex-col h-full rounded-3xl border transition-all duration-300 ${isUnlocked
+      ? "bg-white border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-1"
+      : "bg-slate-50 border-slate-200 opacity-80"
       }`}>
+      {/* Level Badge */}
+      <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isUnlocked ? "bg-blue-100 text-blue-700" : "bg-slate-200 text-slate-500"
+        }`}>
         Level {game.level}
       </div>
 

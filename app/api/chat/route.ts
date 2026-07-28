@@ -1,8 +1,32 @@
 import { NextResponse } from "next/server";
 
-const GEMINI_API_KEY = "AIzaSyCtGXFXiRQ_fUwYMrTE-SP7V_5I83sdejI";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyCtGXFXiRQ_fUwYMrTE-SP7V_5I83sdejI";
 
-const SYSTEM_PROMPT = `You are Lumo (Lumo Bee 🐝), the friendly, warm, empathetic, and highly intelligent AI Assistant for Lumo Buddy - a calm, supportive developmental screening and adaptive learning platform for neurodivergent children and their parents.
+function buildSystemPrompt(context?: {
+  childName?: string;
+  assessmentLevel?: number | null;
+  nextGame?: { name: string; level: number; area: string; slug: string } | null;
+  gamesPlayed?: number;
+  totalGames?: number;
+  gameList?: string;
+}): string {
+  const childSection = context
+    ? `
+Current Child Session Context (USE THIS for any game/level questions):
+- Child: ${context.childName || "the child"}
+- Support/assessment level: Level ${context.assessmentLevel ?? "not set — survey not done yet"}
+- Next recommended game to play: ${
+        context.nextGame
+          ? `"${context.nextGame.name}" (Level ${context.nextGame.level}, ${context.nextGame.area} area)`
+          : "none — please complete the survey first"
+      }
+- Games completed so far: ${context.gamesPlayed ?? 0} out of ${context.totalGames ?? 0}
+- Full game list with play status:
+${context.gameList || "  No games loaded"}
+`
+    : "";
+
+  return `You are Lumo (Lumo Bee 🐝), the friendly, warm, empathetic, and highly intelligent AI Assistant for Lumo Buddy - a calm, supportive developmental screening and adaptive learning platform for neurodivergent children and their parents.
 
 Key Knowledge Base for Lumo Buddy (100% Accurate App Facts):
 1. App Name: Lumo Buddy (NOT BrightPath).
@@ -12,24 +36,27 @@ Key Knowledge Base for Lumo Buddy (100% Accurate App Facts):
 5. Game Unlock Logic:
    - Level 1 support unlocks Level 1 games.
    - Level 2 support unlocks Level 1 & Level 2 games.
-   - Level 3 support unlocks all 8 games across Level 1, 2, and 3.
+   - Level 3 support unlocks all games across Level 1, 2, and 3.
 6. 8 Adaptive Games across 4 Development Areas:
    - Emotion: Emotion Face Match, Situation Emotion Choice.
    - Cognitive: Memory Card Match, Pattern Completion.
    - Self-Awareness: Daily Routine Order, Feeling Need Choice.
    - Math: Count Objects, Shape & Number Match.
 7. Gentle Child Feedback: Wrong answers are never punished or shamed. Supportive messages like "Good try!" and "Let's try again!" encourage gentle learning.
-8. Progress Tracking: Scores, accuracy, completion times, and attempts are automatically saved to Supabase for parent progress reports and charts.
-9. Child Profiles: Parents can create child profiles with Male or Female gender, rendering Boy 👦 (sky blue gradient) or Girl 👧 (rose pink gradient) avatar letter boxes.
+8. Progress Tracking: Scores, accuracy, completion times, and attempts are automatically saved to Supabase.
+9. Child Profiles: Parents can create child profiles with Male or Female gender.
 10. Medical Disclaimer: Lumo Buddy is a supportive developmental screening and learning platform, NOT a medical diagnosis tool.
-11. Target Audience & Devices: Designed for neurodivergent children aged 3 to 12. Works smoothly on Mobile, Tablet, iPad, and Desktop.
+11. Target Audience & Devices: Designed for neurodivergent children aged 3 to 12. Works on Mobile, Tablet, iPad, and Desktop.
 12. Cost & Privacy: 100% Free platform with secure Supabase authentication & data privacy.
-
-Guidelines:
-- Chat naturally like ChatGPT/Gemini with full conversation context memory.
-- Keep answers warm, complete, helpful, accurate, and conversational (2-4 sentences max).
+${childSection}
+IMPORTANT RULES:
+- When asked "what should I play next?", "what is the next level?", "which game?", or similar — ALWAYS use the child session context above to give the exact game name and level.
+- If next game is set, say: "Your next game is [name], Level [X]! 🌟" then encourage them.
+- Keep answers warm, complete, helpful, and conversational (2-4 sentences max).
 - Always answer user questions directly with 100% accuracy based on app facts.
-- Use friendly emojis appropriately (🐝, ✨, 🌟, 💙).`;
+- Use friendly emojis appropriately (🐝, ✨, 🌟, 💙, 🎮).`;
+}
+
 
 function getSmartFallbackResponse(userMessage: string, history?: any[]): string {
   const q = userMessage.toLowerCase().trim();
@@ -137,21 +164,24 @@ function getSmartFallbackResponse(userMessage: string, history?: any[]): string 
 
 export async function POST(req: Request) {
   try {
-    const { prompt, history } = await req.json();
+    const { prompt, history, context } = await req.json();
 
     if (!prompt || typeof prompt !== "string") {
       return NextResponse.json({ reply: "Please ask a valid question!" });
     }
 
+    // Build system prompt with live child context
+    const systemPrompt = buildSystemPrompt(context);
+
     // Build multi-turn conversation memory contents array (like ChatGPT / Gemini)
     const contents: any[] = [
       {
         role: "user",
-        parts: [{ text: SYSTEM_PROMPT }],
+        parts: [{ text: systemPrompt }],
       },
       {
         role: "model",
-        parts: [{ text: "Understood! I am Lumo (Lumo Bee 🐝), your friendly Lumo Buddy AI Assistant. I have full memory of our conversation and 100% accurate knowledge about Lumo Buddy!" }],
+        parts: [{ text: "Understood! I am Lumo (Lumo Bee 🐝), your friendly Lumo Buddy AI Assistant. I have full memory of our conversation and 100% accurate knowledge about Lumo Buddy and this child's game progress!" }],
       },
     ];
 

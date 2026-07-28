@@ -115,13 +115,14 @@ export default function GameResultPage() {
         <div className="absolute top-[40%] right-[5%] w-[30vw] h-[30vw] rounded-full bg-amber-200/25 blur-[80px]" style={{ animation: 'drift 20s ease-in-out infinite' }}></div>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes blob { 0% { transform: translate(0,0) scale(1); } 25% { transform: translate(40px,-50px) scale(1.08); } 50% { transform: translate(-30px,30px) scale(0.92); } 75% { transform: translate(20px,-20px) scale(1.04); } 100% { transform: translate(0,0) scale(1); } }
         @keyframes drift { 0%,100% { transform: translate(0,0); } 25% { transform: translate(15px,-25px); } 50% { transform: translate(-10px,15px); } 75% { transform: translate(20px,10px); } }
       `}} />
 
       <div className="relative z-10 mx-auto w-full max-w-4xl space-y-8">
-        
+
         {/* Top Header Navigation */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -218,7 +219,7 @@ export default function GameResultPage() {
 
         {/* ── INSIGHT & NEXT STEPS SECTION ── */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          
+
           {/* Left Column: Performance Analysis */}
           <div className="lg:col-span-2 space-y-6">
             <motion.section
@@ -293,7 +294,7 @@ export default function GameResultPage() {
               className="flex flex-col gap-6 rounded-[2.5rem] bg-slate-900 p-7 sm:p-8 text-white shadow-2xl relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-fuchsia-500/20 via-purple-500/10 to-transparent pointer-events-none" />
-              
+
               <div className="space-y-3 relative z-10">
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center shadow-md">
                   💡

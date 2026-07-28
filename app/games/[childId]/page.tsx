@@ -15,6 +15,8 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { LearningJourneyHero } from "@/components/games/redesign/LearningJourneyHero";
 import { JourneyTimeline } from "@/components/games/redesign/JourneyTimeline";
 import AnimatedBackground from "@/components/layout/AnimatedBackground";
+import { LumoAssistantChatbot } from "@/components/home/LumoAssistantChatbot";
+import type { ChildChatContext } from "@/components/home/LumoAssistantChatbot";
 
 // Types
 import type { ChildProfile } from "@/types/child";
@@ -108,9 +110,27 @@ export default function GamesPage() {
     );
   }
 
+  // Build chat context from loaded data
+  const nextGame = games.find((g) => g.is_next_recommended);
+  const chatContext: ChildChatContext = {
+    childName: child?.child_name,
+    assessmentLevel: assessment?.predicted_level ?? null,
+    nextGame: nextGame
+      ? { name: nextGame.game_name, level: nextGame.level, area: nextGame.area, slug: nextGame.game_slug }
+      : null,
+    gamesPlayed: games.filter((g) => g.is_played).length,
+    totalGames: games.filter((g) => g.is_unlocked).length,
+    gameList: games
+      .map((g) => `  - ${g.game_name} (Level ${g.level}, ${g.area}): ${g.is_played ? "✓ Played" : g.is_unlocked ? "Unlocked" : "Locked"}`)
+      .join("\n"),
+  };
+
   return (
     <main className="min-h-screen relative overflow-hidden pb-20 bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40">
       <AnimatedBackground />
+
+      {/* Lumi Chatbot — floats over the page with child's game context */}
+      <LumoAssistantChatbot context={chatContext} />
 
       {/* Extra floating color orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-5">

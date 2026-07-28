@@ -18,6 +18,14 @@ export interface Game {
 export interface GameWithUnlockState extends Game {
   is_unlocked: boolean;
   unlock_message?: string;
+  /** true if this child has played this exact game+level at least once */
+  is_played?: boolean;
+  /** ISO timestamp of the most recent play for this game+level */
+  last_played_at?: string | null;
+  /** true if played within the last 3 minutes */
+  is_recently_played?: boolean;
+  /** true if this is the single next recommended level for the child */
+  is_next_recommended?: boolean;
 }
 
 export interface GameScore {
