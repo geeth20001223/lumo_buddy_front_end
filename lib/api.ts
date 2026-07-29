@@ -14,49 +14,27 @@ export class MLApiError extends Error {
   }
 }
 
-/**
- * Calculates a fallback support level based on survey total score if ML API is offline or unreachable.
- */
-
-function calculateFallbackPrediction(scores: SurveyScores): PredictionResponse {
-  // Max possible score for 20 questions (0-4 each) is 80
-  const total = scores.total_score;
-  let level = 1;
-  let recommendation = "Recommended Level 1: Gentle guided activities focusing on core emotional recognition and foundational skills.";
-
-  if (total > 50) {
-    level = 3;
-    recommendation = "Recommended Level 3: Advanced interactive challenges across emotional, cognitive, and mathematical growth areas.";
-  } else if (total > 25) {
-    level = 2;
-    recommendation = "Recommended Level 2: Intermediate developmental games supporting progressive pattern matching and daily routines.";
-  }
-
-  return {
-    screening_prediction: level,
-    predicted_level: level,
-    confidence: 0.85,
-    recommendation,
-  };
-}
-
 export async function predictSupportLevel(
   scores: SurveyScores,
 ): Promise<PredictionResponse> {
-  let apiUrl = process.env.NEXT_PUBLIC_ML_API_URL || "https://huggingface.co/spaces/geeth20001223/lumo_buddy_back_end";
+  let apiUrl =
+    process.env.NEXT_PUBLIC_ML_API_URL ||
+    "https://huggingface.co/spaces/geeth20001223/lumo_buddy_back_end";
 
-  // In browser on mobile devices accessing via LAN IP (e.g. 192.168.x.x),
-  // replace 'localhost' in apiUrl with the current window host IP so fetch reaches the host machine!
-  if (typeof window !== "undefined" && apiUrl.includes("localhost")) {
-    const hostName = window.location.hostname;
-    if (hostName && hostName !== "localhost" && hostName !== "127.0.0.1") {
-      apiUrl = apiUrl.replace("localhost", hostName);
+  // Convert Hugging Face Space web page URL (e.g. https://huggingface.co/spaces/user/space)
+  // into direct API URL (e.g. https://user-space.hf.space)
+  if (apiUrl.includes("huggingface.co/spaces/")) {
+    const match = apiUrl.match(/huggingface\.co\/spaces\/([^/]+)\/([^/]+)/);
+    if (match) {
+      const username = match[1];
+      const spacename = match[2].replace(/_/g, "-");
+      apiUrl = `https://${username}-${spacename}.hf.space`;
     }
   }
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for ML inference
 
     const response = await fetch(`${apiUrl}/predict`, {
       method: "POST",
@@ -82,11 +60,15 @@ export async function predictSupportLevel(
         recommendation: data.recommendation ?? "Recommended game levels updated based on support assessment.",
       };
     } else {
-      console.warn("[lumo buddy] ML API responded with error status:", response.status, "— Using rule-based fallback.");
-      return calculateFallbackPrediction(scores);
+      const errText = await response.text().catch(() => "");
+      throw new MLApiError(`ML API error status ${response.status}: ${errText || response.statusText}`);
     }
   } catch (err) {
-    console.warn("[lumo buddy] ML API fetch failed or timed out:", err, "— Using rule-based fallback.");
-    return calculateFallbackPrediction(scores);
+    if (err instanceof MLApiError) {
+      throw err;
+    }
+    throw new MLApiError(
+      `Could not get prediction from Hugging Face ML API at ${apiUrl}: ${(err as Error).message}`,
+    );
   }
 }
