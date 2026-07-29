@@ -19,7 +19,12 @@ export async function predictSupportLevel(
 ): Promise<PredictionResponse> {
   let apiUrl =
     process.env.NEXT_PUBLIC_ML_API_URL ||
-    "https://huggingface.co/spaces/geeth20001223/lumo_buddy_back_end";
+    "http://localhost:8000";
+
+  // Fix common mistake: Next.js runs on 3000, FastAPI runs on 8000
+  if (apiUrl.includes("localhost:3000") || apiUrl.includes("127.0.0.1:3000")) {
+    apiUrl = apiUrl.replace(":3000", ":8000");
+  }
 
   // Convert Hugging Face Space web page URL (e.g. https://huggingface.co/spaces/user/space)
   // into direct API URL (e.g. https://user-space.hf.space)
