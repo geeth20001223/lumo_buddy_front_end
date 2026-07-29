@@ -34,7 +34,7 @@ export async function predictSupportLevel(
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout for ML inference
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for ML inference
 
     const response = await fetch(`${apiUrl}/predict`, {
       method: "POST",
@@ -61,7 +61,9 @@ export async function predictSupportLevel(
       };
     } else {
       const errText = await response.text().catch(() => "");
-      throw new MLApiError(`ML API error status ${response.status}: ${errText || response.statusText}`);
+      throw new MLApiError(
+        `Hugging Face ML API error status ${response.status}: ${errText || response.statusText}`,
+      );
     }
   } catch (err) {
     if (err instanceof MLApiError) {
