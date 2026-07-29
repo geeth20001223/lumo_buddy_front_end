@@ -43,7 +43,7 @@ function calculateFallbackPrediction(scores: SurveyScores): PredictionResponse {
 export async function predictSupportLevel(
   scores: SurveyScores,
 ): Promise<PredictionResponse> {
-  let apiUrl = process.env.NEXT_PUBLIC_ML_API_URL || "http://localhost:8000";
+  let apiUrl = process.env.NEXT_PUBLIC_ML_API_URL || "https://huggingface.co/spaces/geeth20001223/lumo_buddy_back_end";
 
   // In browser on mobile devices accessing via LAN IP (e.g. 192.168.x.x),
   // replace 'localhost' in apiUrl with the current window host IP so fetch reaches the host machine!
