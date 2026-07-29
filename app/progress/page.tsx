@@ -117,7 +117,7 @@ export default function ProgressPage() {
 
             <footer className="py-10 border-t border-slate-100 text-center">
                 <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em]">
-                    BrightPath · Family Progress Dashboard
+                    Lumo Buddy · Family Progress Dashboard
                 </p>
             </footer>
         </main>

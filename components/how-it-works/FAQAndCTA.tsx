@@ -7,12 +7,12 @@ import Link from "next/link";
 
 const faqs = [
     {
-        question: "How does BrightPath create recommendations?",
-        answer: "BrightPath uses the results from your initial parent assessment to analyze your child's specific developmental needs. Our system then identifies activities that align with their current support level in areas like emotion skills, cognition, and self-awareness."
+        question: "How does Lumo Buddy create recommendations?",
+        answer: "Lumo Buddy uses the results from your initial parent assessment to analyze your child's specific developmental needs. Our system then identifies activities that align with their current support level in areas like emotion skills, cognition, and self-awareness."
     },
     {
         question: "Do I need technical knowledge?",
-        answer: "Not at all. BrightPath is designed to be intuitive and parent-friendly. Every dashboard and activity is clearly labeled, and we provide simple guidance at every step of the journey."
+        answer: "Not at all. Lumo Buddy is designed to be intuitive and parent-friendly. Every dashboard and activity is clearly labeled, and we provide simple guidance at every step of the journey."
     },
     {
         question: "How long should my child play each day?",
@@ -93,7 +93,7 @@ export function FinalCTA() {
                             Ready to Begin Your Child's Learning Journey?
                         </h2>
                         <p className="text-base md:text-lg text-slate-400 font-medium leading-relaxed px-4">
-                            Create a profile, complete the assessment, and start personalized learning activities today. BrightPath is here to support you at every stage.
+                            Create a profile, complete the assessment, and start personalized learning activities today. Lumo Buddy is here to support you at every stage.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 md:pt-6">

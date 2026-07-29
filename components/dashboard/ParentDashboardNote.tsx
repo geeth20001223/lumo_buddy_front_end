@@ -11,7 +11,7 @@ export function ParentDashboardNote() {
       <div>
         <p className="text-xs font-black uppercase tracking-widest text-sky-600 mb-1">Important Note</p>
         <p className="text-sm font-semibold text-sky-900 leading-relaxed">
-          BrightPath tracks learning activity progress and supports gentle practice. This dashboard provides learning insights to help guide your child, but it is not a medical diagnosis report.
+          Lumo Buddy tracks learning activity progress and supports gentle practice. This dashboard provides learning insights to help guide your child, but it is not a medical diagnosis report.
         </p>
       </div>
     </div>

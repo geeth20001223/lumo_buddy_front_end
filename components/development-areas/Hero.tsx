@@ -32,7 +32,7 @@ export function DevelopmentHero() {
                             transition={{ duration: 0.6, delay: 0.1 }}
                             className="text-base md:text-xl text-slate-600 font-semibold leading-relaxed max-w-2xl mx-auto lg:mx-0"
                         >
-                            Understand the developmental skills supported by BrightPath. We focus on core areas that help your child build confidence and navigate the world with greater independence.
+                            Understand the developmental skills supported by Lumo Buddy. We focus on core areas that help your child build confidence and navigate the world with greater independence.
                         </motion.p>
 
                         <motion.div

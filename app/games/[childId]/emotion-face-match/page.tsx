@@ -81,7 +81,7 @@ export default function EmotionFaceMatchGamePage() {
         setQuestions(levelQuestions);
         setGameState("start");
       } catch (err) {
-        console.error("[BrightPath] Initialization failed:", err);
+        console.error("[Lumo Buddy] Initialization failed:", err);
         setGameState("error");
       }
     }

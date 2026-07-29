@@ -69,7 +69,7 @@ export function SupportFlows() {
                         </span>
                         <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">Personalized for Every Child</h2>
                         <p className="text-slate-600 font-semibold leading-relaxed">
-                            No two children are the same. BrightPath adapts activity difficulty and recommendations based on individual assessment results and continuous play.
+                            No two children are the same. Lumo Buddy adapts activity difficulty and recommendations based on individual assessment results and continuous play.
                         </p>
                     </div>
 

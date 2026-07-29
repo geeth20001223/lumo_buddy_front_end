@@ -8,7 +8,7 @@ import Link from "next/link";
 const faqs = [
     {
         question: "At what age should my child start?",
-        answer: "BrightPath is designed for children at various developmental stages. We focus on skill levels rather than strict age brackets to ensure every child gets the support they need at their own pace."
+        answer: "Lumo Buddy is designed for children at various developmental stages. We focus on skill levels rather than strict age brackets to ensure every child gets the support they need at their own pace."
     },
     {
         question: "How often are skills assessed?",

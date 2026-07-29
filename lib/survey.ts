@@ -94,9 +94,9 @@ export async function submitSurvey({
       Object.getOwnPropertyNames(assessmentError ?? {}).forEach((k) => {
         errObj[k] = (assessmentError as unknown as Record<string, unknown>)[k];
       });
-      console.error("[BrightPath] Assessment insert failed:", JSON.stringify(errObj, null, 2));
+      console.error("[Lumo Buddy] Assessment insert failed:", JSON.stringify(errObj, null, 2));
     } catch {
-      console.error("[BrightPath] Assessment insert failed (could not serialize error)");
+      console.error("[Lumo Buddy] Assessment insert failed (could not serialize error)");
     }
     throw new SurveyFlowError("assessment_save_failed");
   }
@@ -110,7 +110,7 @@ export async function submitSurvey({
       .then(({ error }) => {
         if (error) {
           console.warn(
-            "[BrightPath] Could not save confidence (column may not exist):",
+            "[Lumo Buddy] Could not save confidence (column may not exist):",
             error.message,
           );
         }
@@ -132,7 +132,7 @@ export async function submitSurvey({
     .insert(responseRows);
 
   if (responsesError) {
-    console.error("[BrightPath] Survey responses save failed:", {
+    console.error("[Lumo Buddy] Survey responses save failed:", {
       code: responsesError.code,
       message: responsesError.message,
     });

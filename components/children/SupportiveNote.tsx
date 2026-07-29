@@ -6,7 +6,7 @@ export function SupportiveNote() {
       </div>
       <p className="text-sm font-medium text-amber-800 leading-relaxed">
         <strong className="font-bold">Note: </strong>
-        BrightPath supports learning and progress tracking through simple activities. It is not a medical diagnosis tool.
+        Lumo Buddy supports learning and progress tracking through simple activities. It is not a medical diagnosis tool.
       </p>
     </div>
   );

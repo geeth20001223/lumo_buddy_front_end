@@ -1,5 +1,5 @@
 /**
- * Standardized scoring formula for BrightPath games.
+ * Standardized scoring formula for Lumo Buddy games.
  * final_score = (correct * 10) - (wrong * 3) - (time_taken / 30)
  * Minimum score is always 0.
  */

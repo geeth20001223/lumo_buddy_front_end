@@ -135,7 +135,7 @@ export function TrustSection() {
                 <div className="text-center mb-10 md:mb-16">
                     <h2 className="text-2xl md:text-3xl sm:text-4xl font-black text-slate-900 tracking-tight mb-4 px-4">Safety & Privacy First</h2>
                     <p className="text-base md:text-lg text-slate-600 font-medium max-w-2xl mx-auto px-4">
-                        BrightPath is built on a foundation of trust. We prioritize your family's privacy above all else.
+                        Lumo Buddy is built on a foundation of trust. We prioritize your family's privacy above all else.
                     </p>
                 </div>
 

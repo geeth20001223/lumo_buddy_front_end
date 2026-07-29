@@ -8,7 +8,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 if (!supabaseUrl || !supabaseAnonKey) {
   if (typeof window !== "undefined" || process.env.NODE_ENV === "development") {
     console.error(
-      "[BrightPath] Missing Supabase environment variables. " +
+      "[Lumo Buddy] Missing Supabase environment variables. " +
         "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
     );
   }

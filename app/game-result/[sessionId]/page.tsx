@@ -331,7 +331,7 @@ export default function GameResultPage() {
         {/* Footer Disclaimer */}
         <div className="pt-8 text-center">
           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">
-            BrightPath Supportive Learning Platform — Analytical Summary 💙
+            Lumo Buddy Supportive Learning Platform — Analytical Summary 💙
           </p>
         </div>
       </div>

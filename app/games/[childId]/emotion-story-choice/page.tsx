@@ -101,7 +101,7 @@ export default function EmotionStoryChoicePage() {
         setStories(levelStories);
         setGameState("start");
       } catch (err) {
-        console.error("[BrightPath] Initialization failed:", err);
+        console.error("[Lumo Buddy] Initialization failed:", err);
         setGameState("error");
       }
     }
@@ -134,7 +134,7 @@ export default function EmotionStoryChoicePage() {
       const nextStory = stories[roundNumber - 1];
       if (!nextStory) {
         console.error(
-          `[BrightPath] Missing Emotion Story Choice content for level ${level}, round ${roundNumber}.`,
+          `[Lumo Buddy] Missing Emotion Story Choice content for level ${level}, round ${roundNumber}.`,
         );
         setGameState("error");
         return;

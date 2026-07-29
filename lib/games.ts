@@ -13,11 +13,11 @@ export async function getActiveGames() {
     .order("level", { ascending: true });
 
   if (error) {
-    console.error("[BrightPath] Error fetching games:", error);
+    console.error("[Lumo Buddy] Error fetching games:", error);
     return [];
   }
 
-  console.log("[BrightPath] Active games fetched from DB:", data);
+  console.log("[Lumo Buddy] Active games fetched from DB:", data);
   return data as Game[];
 }
 
@@ -56,7 +56,7 @@ export async function getGameBySlugAndLevel(gameSlug: string, level: number) {
     .maybeSingle();
 
   if (error) {
-    console.error("[BrightPath] Error fetching single game:", error);
+    console.error("[Lumo Buddy] Error fetching single game:", error);
     return null;
   }
 
