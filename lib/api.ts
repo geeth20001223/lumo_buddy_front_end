@@ -82,11 +82,11 @@ export async function predictSupportLevel(
         recommendation: data.recommendation ?? "Recommended game levels updated based on support assessment.",
       };
     } else {
-      console.warn("[BrightPath] ML API responded with error status:", response.status, "— Using rule-based fallback.");
+      console.warn("[lumo buddy] ML API responded with error status:", response.status, "— Using rule-based fallback.");
       return calculateFallbackPrediction(scores);
     }
   } catch (err) {
-    console.warn("[BrightPath] ML API fetch failed or timed out:", err, "— Using rule-based fallback.");
+    console.warn("[lumo buddy] ML API fetch failed or timed out:", err, "— Using rule-based fallback.");
     return calculateFallbackPrediction(scores);
   }
 }
