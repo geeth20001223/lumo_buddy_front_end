@@ -57,7 +57,7 @@ export async function submitSurvey({
   try {
     prediction = await predictSupportLevel(scores);
   } catch (err) {
-    console.error("[BrightPath] ML prediction error:", err);
+    console.error("[Lumo Buddy] ML prediction error:", err);
     throw new SurveyFlowError("prediction_failed");
   }
 
