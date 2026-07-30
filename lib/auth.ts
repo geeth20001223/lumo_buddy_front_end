@@ -189,6 +189,23 @@ export async function requestPasswordReset(email: string) {
   return { success: true };
 }
 
+export async function resendConfirmationEmail(email: string) {
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: {
+      emailRedirectTo: `${SITE_URL}/children`,
+    },
+  });
+
+  if (error) {
+    console.warn("[Lumo Auth] Resend confirmation note:", error.message);
+    return { success: false, message: error.message };
+  }
+
+  return { success: true };
+}
+
 export async function updateParentPassword(password: string) {
   const { data, error } = await supabase.auth.updateUser({
     password,
