@@ -79,13 +79,16 @@ export function ResetPasswordForm() {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
 
-      // Sign out the recovery session so the user starts fresh on the login page
+      // Sign out the recovery session so the user starts fresh on the login page.
+      // We wait for signOut to fully resolve before navigating so no stale
+      // recovery session is present when LoginForm mounts.
       await supabase.auth.signOut();
 
       setPageState("success");
       toast.success("Password updated successfully! 🎉");
-      // Redirect to login — user must sign in with email + new password
-      setTimeout(() => router.push("/login"), 2500);
+      // Small extra delay ensures the Supabase session storage is cleared
+      // before LoginForm's checkExistingUser() runs.
+      setTimeout(() => router.push("/login?reset=success"), 2500);
     } catch (err: unknown) {
       const msg =
         err instanceof Error

@@ -42,9 +42,21 @@ function LoginFormInner() {
 
   useEffect(() => {
     async function checkExistingUser() {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        router.push("/children");
+      // Check the full session — not just the user — so we can inspect the
+      // session type.  A PASSWORD_RECOVERY session should NOT auto-redirect;
+      // the user must log in with their new credentials first.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        // Supabase marks recovery sessions with amr "recovery" entry.
+        // If that is present, skip auto-redirect so the user can log in fresh.
+        const amr = (session as { amr?: { method: string }[] } & typeof session).amr;
+        const isRecoverySession = Array.isArray(amr)
+          ? amr.some((a) => a.method === "recovery")
+          : false;
+
+        if (!isRecoverySession) {
+          router.push("/children");
+        }
       }
     }
     checkExistingUser();
