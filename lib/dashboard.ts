@@ -169,6 +169,18 @@ export function calculateAreaStats(scores: GameScore[]): AreaStat[] {
   return stats;
 }
 
+const GAME_REASONS: Record<string, string> = {
+  "emotion-story-choice": "Help characters navigate real feelings and make kind choices in guided stories.",
+  "emotion-face-match": "Recognize facial expressions and connect with different feelings.",
+  "memory-match": "Train your memory and focus with fun, colorful matching cards.",
+  "pattern-builder": "Complete shape and color patterns to build logic and problem-solving skills.",
+  "count-the-objects": "Count colorful items together to strengthen early math and attention skills.",
+  "shape-number-match": "Match numbers with shapes to build foundational math confidence.",
+  "daily-routine-order": "Organize daily activities step-by-step for independence and self-awareness.",
+  "emotion-reflection-board": "Explore your daily emotions and reflect on how you feel.",
+  "personal-choice-adventure": "Make positive choices in everyday scenarios and discover the outcomes.",
+};
+
 export function getRecommendedNextActivity(
   child: ChildProfile,
   assessment: AssessmentResult | null,
@@ -176,56 +188,52 @@ export function getRecommendedNextActivity(
   games: Game[],
   areaStats: AreaStat[]
 ): RecommendedActivity | null {
-  if (games.length === 0) return null;
+  if (!games || games.length === 0) return null;
 
-  // Recommended level is based on assessment, or default to 1
-  const recommendedLevel = assessment?.predicted_level || 1;
-  const unlockedGames = games.filter(g => g.level <= recommendedLevel);
-  
-  if (unlockedGames.length === 0) return { game: games[0], reason: "Try your first activity!" };
+  // Filter unlocked games based on assessment predicted level
+  const predictedLevel = assessment?.predicted_level || 1;
+  const unlockedGames = games.filter(g => g.level <= predictedLevel);
 
-  // 1. If no scores, recommend first unlocked game
-  if (scores.length === 0) {
+  if (unlockedGames.length === 0) {
     return {
-      game: unlockedGames[0],
-      reason: "This is a great starting point for your learning journey."
+      game: games[0],
+      reason: "Start your first activity to begin your developmental learning journey!",
     };
   }
 
-  // 2. Check if latest assessment has main_support_area
-  if (assessment?.main_support_area) {
-    const supportAreaGames = unlockedGames.filter(g => g.area === assessment.main_support_area);
-    if (supportAreaGames.length > 0) {
-       // pick one not played recently if possible, or just the first one
-       return {
-         game: supportAreaGames[0],
-         reason: "Based on the recent survey, this activity provides excellent gentle support."
-       };
-    }
-  }
+  // 1. If child did exceptionally well in the latest game (score >= 40), prioritize its next level if available
+  const latestScore = scores[0];
+  const latestGameIdStr = latestScore && latestScore.game_id ? String(latestScore.game_id) : "";
 
-  // 3. Find area with lowest average score (needs practice)
-  const playedAreas = areaStats.filter(stat => stat.gamesPlayed > 0);
-  if (playedAreas.length > 0) {
-    let lowestScoreArea = playedAreas[0];
-    for (const stat of playedAreas) {
-      if (stat.averageScore < lowestScoreArea.averageScore) {
-        lowestScoreArea = stat;
-      }
-    }
-    const practiceGames = unlockedGames.filter(g => g.area === lowestScoreArea.area);
-    if (practiceGames.length > 0) {
+  if (latestScore && latestScore.final_score >= 40 && latestGameIdStr) {
+    const searchSlug = latestGameIdStr.toLowerCase().replace(/-/g, " ");
+    const nextLevelGame = unlockedGames.find(
+      g =>
+        (g.game_slug === latestGameIdStr || g.id === latestGameIdStr || g.game_name.toLowerCase().includes(searchSlug)) &&
+        g.level === latestScore.level + 1
+    );
+    if (nextLevelGame) {
       return {
-        game: practiceGames[0],
-        reason: "This activity helps practice an area where calm repetition is beneficial."
+        game: nextLevelGame,
+        reason: `Awesome progress! Ready to try Level ${nextLevelGame.level} in ${nextLevelGame.game_name}.`,
       };
     }
   }
 
-  // 4. Default to continuing current level games
+  // 2. Rotate dynamically every 2 minutes (120,000 ms) through all unlocked games for variety
+  const timeSlot = Math.floor(Date.now() / (2 * 60 * 1000));
+  const selectedIndex = timeSlot % unlockedGames.length;
+  const selectedGame = unlockedGames[selectedIndex];
+
+  // Tailored recommendation quote matching the specific game details
+  const customReason = GAME_REASONS[selectedGame.game_slug] ||
+    (assessment?.main_support_area && selectedGame.area === assessment.main_support_area
+      ? `Recommended activity in ${formatAreaName(assessment.main_support_area)} for targeted developmental support.`
+      : `Recommended Level ${selectedGame.level} activity to build ${formatAreaName(selectedGame.area)} skills.`);
+
   return {
-    game: unlockedGames[Math.floor(Math.random() * unlockedGames.length)],
-    reason: "A great choice for continuing everyday practice and building confidence."
+    game: selectedGame,
+    reason: customReason,
   };
 }
 

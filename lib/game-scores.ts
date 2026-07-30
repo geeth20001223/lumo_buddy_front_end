@@ -48,6 +48,26 @@ export async function saveGameScore(input: SaveScoreInput, retryCount = 0) {
     }
 
     console.log("[Lumo Buddy] Score saved successfully. Session ID:", data.id);
+
+    // Save to browser sessionStorage so ticks persist during active app session and disappear when app is closed
+    if (typeof window !== "undefined") {
+      try {
+        const sessionKey = `lumo_session_played_${input.child_id}`;
+        const existing: string[] = JSON.parse(sessionStorage.getItem(sessionKey) || "[]");
+        const identifiers = [
+          String(input.game_id),
+          `${input.area}-${input.level}`,
+          `${input.game_id}-${input.level}`
+        ];
+        identifiers.forEach(id => {
+          if (!existing.includes(id)) existing.push(id);
+        });
+        sessionStorage.setItem(sessionKey, JSON.stringify(existing));
+      } catch (e) {
+        console.error("[Lumo Buddy] Error writing session played games:", e);
+      }
+    }
+
     return data.id; // Returns the sessionId
   } catch (error: any) {
     // Retry logic for network-related errors (like Failed to fetch)

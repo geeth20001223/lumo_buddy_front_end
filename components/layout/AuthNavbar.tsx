@@ -21,18 +21,18 @@ export default function AuthNavbar({ userEmail }: { userEmail: string }) {
   return (
     <div className="flex items-center justify-between h-16 sm:h-20 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
       {/* Left side: Logo & Navigation Links */}
-      <div className="flex items-center gap-4 sm:gap-6 xl:gap-8">
+      <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
         <Logo href="/" />
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-1.5 p-1.5 rounded-full bg-slate-100/80 border border-slate-200/90 backdrop-blur-md shadow-2xs">
+        <nav className="hidden md:flex items-center gap-1 p-1 rounded-full bg-slate-100/80 border border-slate-200/90 backdrop-blur-md shadow-2xs shrink-0">
           {navLinks.map((link) => {
             const isActive = pathname === link.href || (link.href !== "/" && pathname?.startsWith(link.href));
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative text-xs font-black uppercase tracking-wider px-4 py-2 rounded-full transition-all duration-300 ${
+                className={`relative text-[11px] font-black uppercase tracking-wider px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-300 ${
                   isActive
                     ? "text-sky-700 bg-white shadow-sm border border-sky-100"
                     : "text-slate-600 hover:text-sky-600 hover:bg-white/50"
@@ -53,9 +53,9 @@ export default function AuthNavbar({ userEmail }: { userEmail: string }) {
       </div>
 
       {/* Middle & Right Actions */}
-      <div className="flex items-center gap-2 sm:gap-4">
+      <div className="flex items-center gap-3 sm:gap-4 shrink-0">
         {/* Sleek Adaptive Level Unlocks Status Badge in Header */}
-        <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-400/20 via-emerald-400/20 to-fuchsia-400/20 border border-amber-300/60 text-slate-800 text-[11px] font-black uppercase tracking-wider backdrop-blur-md shadow-2xs">
+        <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-400/20 via-emerald-400/20 to-fuchsia-400/20 border border-amber-300/60 text-slate-800 text-[10px] font-black uppercase tracking-wider backdrop-blur-md shadow-2xs shrink-0">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>

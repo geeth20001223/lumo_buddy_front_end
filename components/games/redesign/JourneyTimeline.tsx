@@ -6,9 +6,17 @@ import { JourneyCard } from "./JourneyCard";
 import { Brain, Heart, Calculator, Compass } from "lucide-react";
 import { MascotGuide } from "@/components/ui/MascotGuide";
 
+import { useEffect, useRef } from "react";
+
+import { getGameSlugVariants } from "@/lib/game-routes";
+
 interface JourneyTimelineProps {
   childId: string;
   games: GameWithUnlockState[];
+  highlightPractice?: boolean;
+  highlightGameId?: string;
+  highlightSlug?: string;
+  highlightLevel?: number;
 }
 
 const AREA_METADATA = {
@@ -42,7 +50,9 @@ const AREA_METADATA = {
   },
 };
 
-export function JourneyTimeline({ childId, games }: JourneyTimelineProps) {
+export function JourneyTimeline({ childId, games, highlightPractice, highlightGameId, highlightSlug, highlightLevel }: JourneyTimelineProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   // Group games by area
   const gamesByArea = games.reduce((acc, game) => {
     if (!acc[game.area]) acc[game.area] = [];
@@ -51,6 +61,30 @@ export function JourneyTimeline({ childId, games }: JourneyTimelineProps) {
   }, {} as Record<string, GameWithUnlockState[]>);
 
   const areaOrder = ["emotion", "cognitive", "self_awareness", "mathematical"];
+
+  // Find the target or recommended game to highlight
+  const targetGame = games.find(g => {
+    if (highlightGameId && String(g.id) === String(highlightGameId)) return true;
+    if (highlightSlug && (g.game_slug === highlightSlug || getGameSlugVariants(highlightSlug).includes(g.game_slug))) {
+      return highlightLevel !== undefined ? g.level === highlightLevel : true;
+    }
+    return false;
+  }) || (highlightPractice ? games.find(g => g.is_unlocked) : null);
+  const recommendedGame = targetGame || games.find(g => g.is_next_recommended && g.is_unlocked) || games.find(g => g.is_unlocked);
+
+  useEffect(() => {
+    if (highlightPractice) {
+      const timer = setTimeout(() => {
+        const target = document.getElementById("practice-highlight-target");
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else if (containerRef.current) {
+          containerRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightPractice]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 pt-4 pb-12 space-y-24">
@@ -111,13 +145,22 @@ export function JourneyTimeline({ childId, games }: JourneyTimelineProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 max-w-7xl mx-auto items-stretch">
                       {typeGames.map((game) => {
                         const globalIdx = sortedGames.indexOf(game);
+                        const isCardHighlighted = Boolean(
+                          highlightPractice &&
+                          game.is_unlocked &&
+                          (recommendedGame
+                            ? (game.id === recommendedGame.id || (game.game_slug === recommendedGame.game_slug && game.level === recommendedGame.level))
+                            : globalIdx === firstUnlockedIndex)
+                        );
                         return (
-                          <JourneyCard
-                            key={game.id}
-                            childId={childId}
-                            game={game}
-                            isFirstUnlocked={globalIdx === firstUnlockedIndex}
-                          />
+                          <div key={game.id} id={isCardHighlighted ? "practice-highlight-target" : undefined} className="h-full">
+                            <JourneyCard
+                              childId={childId}
+                              game={game}
+                              isFirstUnlocked={globalIdx === firstUnlockedIndex}
+                              isHighlighted={isCardHighlighted}
+                            />
+                          </div>
                         );
                       })}
                     </div>

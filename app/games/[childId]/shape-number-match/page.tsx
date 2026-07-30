@@ -12,6 +12,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 
 import { CalmCompletionScreen } from "@/components/games/CalmCompletionScreen";
 import { CalmBackground } from "@/components/ui/CalmBackground";
+import { GameIntroScreen } from "@/components/games/redesign/GameIntroScreen";
 
 // Components
 import { ShapeMatchHeader } from "@/components/games/shape-number-match/ShapeMatchHeader";
@@ -93,9 +94,6 @@ export default function ShapeNumberMatchPage() {
           levelConfig.optionsCount
         );
         setQuestions(generatedQuestions);
-
-        startTimeRef.current = Date.now();
-        setGameState("playing");
       } catch (error) {
         console.error("[ShapeMatch] Initialization failed:", error);
       } finally {
@@ -104,6 +102,11 @@ export default function ShapeNumberMatchPage() {
     }
     init();
   }, [params.childId, level, levelConfig]);
+
+  const startGame = () => {
+    startTimeRef.current = Date.now();
+    setGameState("playing");
+  };
 
   const handleSelectAnswer = (option: ShapeMatchOption) => {
     if (isAnswered) return;
@@ -212,13 +215,33 @@ export default function ShapeNumberMatchPage() {
 
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-sky-50 via-cyan-50/20 to-violet-50/20 opacity-60" />
 
-      <ShapeMatchHeader
-        childId={params.childId}
-        score={displayScore}
-        level={level}
-      />
+      {gameState !== "start" && (
+        <ShapeMatchHeader
+          childId={params.childId}
+          score={displayScore}
+          level={level}
+        />
+      )}
 
-      <div className="relative z-10 flex-1 flex flex-col">
+      <div className="relative z-10 flex-1 flex flex-col px-4 sm:px-6 lg:px-8">
+        {gameState === "start" && (
+          <GameIntroScreen
+            title="Number & Shape Match"
+            description="Match shapes, numbers, and quantities! Explore and connect matching numbers."
+            level={level}
+            levelLabel={`Level ${level} Activity`}
+            mascotImage="/images/games/memory-match.png"
+            buttonText="Start Matching Activity"
+            onStart={startGame}
+            onBack={() => router.push(`/games/${params.childId}`)}
+            accentColor="rose"
+            chips={[
+              { icon: "📐", text: "Shape Recognition" },
+              { icon: "🔢", text: "Number Skills" }
+            ]}
+          />
+        )}
+
         {gameState === "playing" && questions.length > 0 && (
           <div className="flex-1 flex flex-col items-center justify-center gap-8 sm:gap-12">
             <div className="hidden w-full sm:block">

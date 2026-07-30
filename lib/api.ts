@@ -17,65 +17,49 @@ export class MLApiError extends Error {
 export async function predictSupportLevel(
   scores: SurveyScores,
 ): Promise<PredictionResponse> {
-  let apiUrl =
-    process.env.NEXT_PUBLIC_ML_API_URL ||
-    "http://localhost:8000";
+  const payload = {
+    emotion_score: scores.emotion_score,
+    cognitive_score: scores.cognitive_score,
+    self_awareness_score: scores.self_awareness_score,
+    math_score: scores.math_score,
+    total_score: scores.total_score,
+  };
 
-  // Fix common mistake: Next.js runs on 3000, FastAPI runs on 8000
-  if (apiUrl.includes("localhost:3000") || apiUrl.includes("127.0.0.1:3000")) {
-    apiUrl = apiUrl.replace(":3000", ":8000");
-  }
-
-  // Convert Hugging Face Space web page URL (e.g. https://huggingface.co/spaces/user/space)
-  // into direct API URL (e.g. https://user-space.hf.space)
-  if (apiUrl.includes("huggingface.co/spaces/")) {
-    const match = apiUrl.match(/huggingface\.co\/spaces\/([^/]+)\/([^/]+)/);
-    if (match) {
-      const username = match[1];
-      const spacename = match[2].replace(/_/g, "-");
-      apiUrl = `https://${username}-${spacename}.hf.space`;
-    }
-  }
+  let response: Response;
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for ML inference
-
-    const response = await fetch(`${apiUrl}/predict`, {
+    // 1. Primary: Use Next.js /api/predict server route (bypasses browser CORS restrictions completely)
+    response = await fetch("/api/predict", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      signal: controller.signal,
-      body: JSON.stringify({
-        emotion_score: scores.emotion_score,
-        cognitive_score: scores.cognitive_score,
-        self_awareness_score: scores.self_awareness_score,
-        math_score: scores.math_score,
-        total_score: scores.total_score,
-      }),
+      body: JSON.stringify(payload),
     });
 
-    clearTimeout(timeoutId);
-
+    // If proxy endpoint is ok, return parsed json prediction
     if (response.ok) {
-      const data = await response.json();
-      return {
-        screening_prediction: data.screening_prediction ?? data.predicted_level ?? 1,
-        predicted_level: data.predicted_level ?? 1,
-        confidence: data.confidence ?? 0.9,
-        recommendation: data.recommendation ?? "Recommended game levels updated based on support assessment.",
-      };
-    } else {
-      const errText = await response.text().catch(() => "");
-      throw new MLApiError(
-        `Hugging Face ML API error status ${response.status}: ${errText || response.statusText}`,
-      );
+      return (await response.json()) as PredictionResponse;
     }
-  } catch (err) {
-    if (err instanceof MLApiError) {
-      throw err;
-    }
-    throw new MLApiError(
-      `Could not get prediction from Hugging Face ML API at ${apiUrl}: ${(err as Error).message}`,
-    );
+  } catch (proxyErr) {
+    console.warn("[LumoBuddy] Proxy route fetch failed, trying direct ML API:", proxyErr);
   }
+
+  // 2. Direct fetch fallback to ML API URL
+  const directUrl = process.env.NEXT_PUBLIC_ML_API_URL || "http://127.0.0.1:8000";
+  try {
+    response = await fetch(`${directUrl.replace(/\/+$/, "")}/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.error("[LumoBuddy] Direct ML API fetch failed:", err);
+    throw new MLApiError("prediction_network_error");
+  }
+
+  if (!response.ok) {
+    console.error("[LumoBuddy] ML API responded with status:", response.status);
+    throw new MLApiError("prediction_failed");
+  }
+
+  return response.json() as Promise<PredictionResponse>;
 }

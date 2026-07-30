@@ -28,13 +28,33 @@ export async function getGamesForChild(childId: string) {
   // 2. Fetch all active games
   const games = await getActiveGames();
 
-  // 3. Apply unlock logic
+  // 3. Read session-played games from browser sessionStorage (cleared when app is closed)
+  let sessionPlayedSet = new Set<string>();
+  if (typeof window !== "undefined") {
+    try {
+      const sessionKey = `lumo_session_played_${childId}`;
+      const sessionPlayed: string[] = JSON.parse(sessionStorage.getItem(sessionKey) || "[]");
+      sessionPlayedSet = new Set(sessionPlayed.map(String));
+    } catch (e) {
+      console.error("[Lumo Buddy] Error reading sessionStorage:", e);
+    }
+  }
+
+  // 4. Apply unlock & session-played logic
   const gamesWithStatus: GameWithUnlockState[] = games.map((game) => {
     const { isUnlocked, message } = isGameUnlocked(game, assessment);
+    const isPlayed =
+      sessionPlayedSet.has(String(game.id)) ||
+      sessionPlayedSet.has(game.game_slug) ||
+      sessionPlayedSet.has(`${game.game_slug}-${game.level}`) ||
+      sessionPlayedSet.has(`${game.area}-${game.level}`) ||
+      sessionPlayedSet.has(`${game.id}-${game.level}`);
+
     return {
       ...game,
       is_unlocked: isUnlocked,
       unlock_message: message,
+      is_played: isPlayed,
     };
   });
 

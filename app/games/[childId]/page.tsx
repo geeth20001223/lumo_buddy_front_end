@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -25,6 +25,7 @@ import type { GameWithUnlockState } from "@/types/game";
 
 export default function GamesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const params = useParams<{ childId: string }>();
 
   const [child, setChild] = useState<ChildProfile | null>(null);
@@ -34,6 +35,10 @@ export default function GamesPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const devMode = isGameDevModeEnabled();
+  const highlightPractice = searchParams?.get("highlight") === "practice";
+  const highlightSlug = searchParams?.get("slug") || undefined;
+  const highlightLevel = searchParams?.get("level") ? Number(searchParams.get("level")) : undefined;
+  const highlightGameId = searchParams?.get("game_id") || undefined;
 
   useEffect(() => {
     let isMounted = true;
@@ -169,6 +174,10 @@ export default function GamesPage() {
           <JourneyTimeline
             childId={params.childId}
             games={games}
+            highlightPractice={highlightPractice}
+            highlightGameId={highlightGameId}
+            highlightSlug={highlightSlug}
+            highlightLevel={highlightLevel}
           />
         </div>
       </main>

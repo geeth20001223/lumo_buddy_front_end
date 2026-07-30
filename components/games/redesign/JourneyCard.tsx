@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { Play, Lock, Sparkles } from "lucide-react";
+import { Play, Lock, Sparkles, CheckCircle2 } from "lucide-react";
 import type { GameWithUnlockState } from "@/types/game";
 import { getGameHref } from "@/lib/game-routes";
 
@@ -11,6 +11,7 @@ interface JourneyCardProps {
   childId: string;
   game: GameWithUnlockState;
   isFirstUnlocked?: boolean;
+  isHighlighted?: boolean;
 }
 
 const GAME_ASSETS: Record<string, { image: string; label: string; desc: string; mascotState: "normal" | "correct" | "incorrect" }> = {
@@ -25,7 +26,7 @@ const GAME_ASSETS: Record<string, { image: string; label: string; desc: string; 
   "shape-number-match": { image: "/images/games/shapes-&-number-match.png", label: "Shapes", desc: "Find the shapes", mascotState: "normal" },
 };
 
-export function JourneyCard({ childId, game, isFirstUnlocked }: JourneyCardProps) {
+export function JourneyCard({ childId, game, isFirstUnlocked, isHighlighted }: JourneyCardProps) {
   const isUnlocked = game.is_unlocked;
   const assets = GAME_ASSETS[game.game_slug] || {
     image: "/images/games/emotion-face-match.png",
@@ -83,8 +84,21 @@ export function JourneyCard({ childId, game, isFirstUnlocked }: JourneyCardProps
       whileHover={isUnlocked ? { scale: 1.03 } : { scale: 0.99 }}
       className="relative w-full min-w-0 box-border flex flex-col h-full select-none"
     >
+      {/* Recommended Highlight Callout */}
+      {isHighlighted && isUnlocked && (
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: [0.95, 1.05, 1], opacity: 1 }}
+          transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
+          className="absolute -top-6 left-1/2 -translate-x-1/2 z-40 px-5 py-2 rounded-full bg-gradient-to-r from-amber-400 via-orange-500 to-rose-500 text-white shadow-xl border-2 border-white flex items-center gap-2 whitespace-nowrap"
+        >
+          <Sparkles size={16} className="text-yellow-200 fill-yellow-200 animate-spin" />
+          <span className="text-[11px] font-black uppercase tracking-widest">Recommended Level ✨</span>
+        </motion.div>
+      )}
+
       {/* "Ready to Play" Callout */}
-      {isFirstUnlocked && isUnlocked && (
+      {!isHighlighted && isFirstUnlocked && isUnlocked && (
         <motion.div
           animate={{ y: [0, -5, 0] }}
           transition={{ duration: 3, repeat: Infinity }}
@@ -97,13 +111,23 @@ export function JourneyCard({ childId, game, isFirstUnlocked }: JourneyCardProps
 
       <div className={`
         relative overflow-hidden rounded-[3rem] border-3 transition-all duration-500 flex flex-col justify-between h-full w-full
-        ${isUnlocked
-          ? `${theme.bg} ${theme.border} border-2 shadow-lg hover:shadow-xl`
-          : 'bg-slate-100/80 border-slate-200/90 shadow-sm'}
+        ${isHighlighted && isUnlocked
+          ? `${theme.bg} border-4 border-amber-400 ring-4 ring-amber-300/80 shadow-[0_0_40px_rgba(251,191,36,0.5)] scale-[1.02]`
+          : isUnlocked
+            ? `${theme.bg} ${theme.border} border-2 shadow-lg hover:shadow-xl`
+            : 'bg-slate-100/80 border-slate-200/90 shadow-sm'}
       `}>
         {/* Level Badge */}
-        <div className={`absolute left-5 top-5 z-20 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] shadow-xs border ${isUnlocked ? theme.badge : "bg-slate-200/90 border-slate-300 text-slate-500"}`}>
-          Level {game.level} {isUnlocked ? "" : "🔒"}
+        <div className="absolute left-5 top-5 z-20 flex flex-col gap-1.5 items-start">
+          <div className={`rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] shadow-xs border ${isUnlocked ? theme.badge : "bg-slate-200/90 border-slate-300 text-slate-500"}`}>
+            Level {game.level} {isUnlocked ? "" : "🔒"}
+          </div>
+          {game.is_played && (
+            <div className="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-emerald-500 text-white shadow-md flex items-center gap-1 border border-emerald-400">
+              <CheckCircle2 size={13} className="stroke-[3]" />
+              <span>Completed</span>
+            </div>
+          )}
         </div>
 
         {/* Top Mascot Peek */}
@@ -156,12 +180,21 @@ export function JourneyCard({ childId, game, isFirstUnlocked }: JourneyCardProps
               <Link
                 href={getGameHref(childId, game.game_slug, game.level)}
                 className={`
-                  w-full py-4.5 rounded-2xl ${theme.button} text-white text-sm font-extrabold uppercase tracking-widest
+                  w-full py-4.5 rounded-2xl ${game.is_played ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 shadow-emerald-500/25" : theme.button} text-white text-sm font-extrabold uppercase tracking-widest
                   flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg hover:shadow-xl hover:scale-[1.02]
                 `}
               >
-                <Play size={18} fill="currentColor" />
-                Let&apos;s Play
+                {game.is_played ? (
+                  <>
+                    <CheckCircle2 size={18} className="stroke-[3]" />
+                    <span>Completed • Replay</span>
+                  </>
+                ) : (
+                  <>
+                    <Play size={18} fill="currentColor" />
+                    Let&apos;s Play
+                  </>
+                )}
               </Link>
             ) : (
               <div className="w-full py-4.5 rounded-2xl bg-slate-200/80 text-slate-500 text-xs font-black uppercase tracking-widest px-4 text-center border border-slate-300/80 shadow-xs flex items-center justify-center gap-2 opacity-90 cursor-not-allowed">

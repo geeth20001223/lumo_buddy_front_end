@@ -12,6 +12,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 
 import { CalmCompletionScreen } from "@/components/games/CalmCompletionScreen";
 import { CountingAtmosphere } from "@/components/games/count-the-objects/CountingAtmosphere";
+import { GameIntroScreen } from "@/components/games/redesign/GameIntroScreen";
 
 // Components
 import { CountingGameHeader } from "@/components/games/count-the-objects/CountingGameHeader";
@@ -93,10 +94,6 @@ export default function CountTheObjectsPage() {
           levelConfig.optionsCount
         );
         setQuestions(generatedQuestions);
-
-        // Auto-start for counting
-        startTimeRef.current = Date.now();
-        setGameState("playing");
       } catch (error) {
         console.error("[CountObjects] Initialization failed:", error);
       } finally {
@@ -105,6 +102,11 @@ export default function CountTheObjectsPage() {
     }
     init();
   }, [params.childId, level, levelConfig]);
+
+  const startGame = () => {
+    startTimeRef.current = Date.now();
+    setGameState("playing");
+  };
 
   // Interaction
   const handleSelectAnswer = (value: number) => {
@@ -218,13 +220,33 @@ export default function CountTheObjectsPage() {
     <main className="relative flex min-h-screen flex-col bg-[#f0fdff] pb-24 sm:pb-10">
       <CountingAtmosphere />
 
-      <CountingGameHeader
-        childId={params.childId}
-        score={displayScore}
-        level={level}
-      />
+      {gameState !== "start" && (
+        <CountingGameHeader
+          childId={params.childId}
+          score={displayScore}
+          level={level}
+        />
+      )}
 
       <div className="relative z-10 flex flex-1 flex-col px-4 sm:px-6 lg:px-8">
+        {gameState === "start" && (
+          <GameIntroScreen
+            title="Count the Objects"
+            description="Look closely at the fun objects on screen and choose the correct number! Let's practice counting together."
+            level={level}
+            levelLabel={`Up to ${levelConfig.maxQuantity}`}
+            mascotImage="/images/games/emotion-face-match.png"
+            buttonText="Start Counting Activity"
+            onStart={startGame}
+            onBack={() => router.push(`/games/${params.childId}`)}
+            accentColor="blue"
+            chips={[
+              { icon: "🔢", text: "Number Recognition" },
+              { icon: "👀", text: "Visual Focus" }
+            ]}
+          />
+        )}
+
         {gameState === "playing" && questions.length > 0 && (
           <div className="mx-auto flex w-full max-w-[1180px] flex-1 flex-col items-center justify-center gap-5 rounded-[2.75rem] border border-white/80 bg-white/75 p-4 shadow-[0_26px_74px_rgba(34,211,238,0.12)] backdrop-blur-xl sm:p-6 lg:gap-6 lg:p-8">
             <div className="hidden sm:block">

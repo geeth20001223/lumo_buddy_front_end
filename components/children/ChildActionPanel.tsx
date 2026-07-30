@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 type ChildActionPanelProps = {
   childId: string;
@@ -12,20 +13,51 @@ type ChildActionPanelProps = {
 
 export function ChildActionPanel({ childId, hasAssessment, gameSummary }: ChildActionPanelProps) {
 
-  const getRecommendation = () => {
-    if (!hasAssessment) return "Complete the assessment first to personalize learning.";
-    if (gameSummary && gameSummary.totalGamesPlayed > 0) return "Continue learning activities and review progress regularly.";
-    return "Start the recommended games based on this assessment.";
+  const getRecommendationText = () => {
+    if (!hasAssessment) return "Complete the survey assessment first to unlock personalized games.";
+    if (gameSummary && gameSummary.totalGamesPlayed > 0) return "Continue developmental learning activities and practice regularly.";
+    return "Start your child's recommended games based on the assessment.";
+  };
+
+  const getButtonText = () => {
+    if (!hasAssessment) return "Start Survey Assessment 📋";
+    return "Continue to Game Dashboard 🚀";
+  };
+
+  const getButtonHref = () => {
+    if (!hasAssessment) return `/survey/${childId}`;
+    return `/games/${childId}`;
   };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Recommended Next Step Section */}
-      <div className="bg-gradient-to-br from-amber-50 to-orange-50/70 border-2 border-amber-200/70 p-5 rounded-3xl shadow-sm">
-        <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-2">Recommended Next Step</p>
-        <p className="text-sm font-extrabold text-slate-800 leading-relaxed">
-          {getRecommendation()}
-        </p>
+      {/* Recommended Next Step Section as interactive card */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50/80 to-rose-50/60 border-2 border-amber-200/80 p-6 rounded-3xl shadow-md hover:shadow-lg transition-all duration-300">
+        <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-amber-300/30 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div className="relative z-10 space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="w-8 h-8 rounded-xl bg-amber-200/70 flex items-center justify-center text-sm font-bold">💡</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-amber-700">Recommended Next Step</span>
+          </div>
+
+          <p className="text-sm font-extrabold text-slate-800 leading-relaxed">
+            {getRecommendationText()}
+          </p>
+
+          <motion.div
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="inline-block"
+          >
+            <Link
+              href={getButtonHref()}
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 mt-2 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-orange-500/30 hover:shadow-xl hover:shadow-amber-500/40 active:scale-95 transition-all duration-300 ring-4 ring-orange-300/40"
+            >
+              {getButtonText()}
+            </Link>
+          </motion.div>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -38,7 +70,7 @@ export function ChildActionPanel({ childId, hasAssessment, gameSummary }: ChildA
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               </svg>
-              Continue to Games 🎮
+              Explore All Games 🎮
             </Link>
             <Link
               href={`/survey/${childId}`}
