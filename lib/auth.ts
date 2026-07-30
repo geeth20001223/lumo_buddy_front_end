@@ -1,5 +1,10 @@
 import { supabase } from "./supabase";
 
+/** Production app URL — used for all auth email redirect links */
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (typeof window !== "undefined" ? window.location.origin : "");
+
 export type AuthErrorCode =
   | "email_rate_limit"
   | "email_already_registered"
@@ -95,6 +100,7 @@ export async function registerParent({
       data: {
         full_name: fullName,
       },
+      emailRedirectTo: `${SITE_URL}/children`,
     },
   });
 
@@ -171,9 +177,8 @@ export async function loginParent({ email, password }: LoginParentInput) {
 }
 
 export async function requestPasswordReset(email: string) {
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/reset-password`,
+    redirectTo: `${SITE_URL}/reset-password`,
   });
 
   if (error) {
@@ -198,11 +203,10 @@ export async function updateParentPassword(password: string) {
 }
 
 export async function loginWithGoogle() {
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${origin}/children`,
+      redirectTo: `${SITE_URL}/children`,
     },
   });
 

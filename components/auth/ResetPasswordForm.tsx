@@ -75,13 +75,34 @@ export function ResetPasswordForm() {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) {
-        throw error;
+      // Capture email from the active recovery session before updating
+      const { data: { session } } = await supabase.auth.getSession();
+      const userEmail = session?.user?.email ?? "";
+
+      // Update the password (recovery session is already active)
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) throw updateError;
+
+      toast.success("Password updated! Signing you in… 🎉");
+
+      // Auto sign-in with the new password — no manual login needed
+      if (userEmail) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: userEmail,
+          password,
+        });
+        if (signInError) {
+          // Auto sign-in failed (rare) — fall back to login page
+          console.warn("[Lumo Auth] Auto sign-in after reset failed:", signInError.message);
+          setPageState("success");
+          setTimeout(() => router.push("/login"), 2000);
+          return;
+        }
       }
+
+      // Signed in successfully — go straight to the dashboard
       setPageState("success");
-      toast.success("Password updated successfully! 🎉");
-      setTimeout(() => router.push("/login"), 2500);
+      setTimeout(() => router.push("/children"), 1500);
     } catch (err: unknown) {
       const msg =
         err instanceof Error
@@ -142,14 +163,8 @@ export function ResetPasswordForm() {
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm font-semibold text-emerald-800 space-y-1">
           <p className="text-base font-black text-emerald-900">Password updated!</p>
-          <p>Your password has been changed successfully. Redirecting to login…</p>
+          <p>You&apos;re now signed in. Taking you to your dashboard…</p>
         </div>
-        <Link
-          href="/login"
-          className="inline-flex w-full items-center justify-center py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm font-extrabold shadow-md"
-        >
-          Go to Login →
-        </Link>
       </div>
     );
   }
