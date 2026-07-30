@@ -16,6 +16,7 @@ export function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [updatedEmail, setUpdatedEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // When Supabase redirects back after clicking the email link, it appends
@@ -75,20 +76,41 @@ export function ResetPasswordForm() {
     setIsSubmitting(true);
 
     try {
+      // Retrieve current user email before session signout
+      const { data: { user } } = await supabase.auth.getUser();
+      const userEmail = user?.email || "";
+      if (userEmail) {
+        setUpdatedEmail(userEmail);
+      }
+
       // Update the password using the active recovery session
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
 
+      // Send password changed notification email via API route
+      if (userEmail) {
+        try {
+          await fetch("/api/send-password-changed-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: userEmail }),
+          });
+        } catch (emailErr) {
+          console.warn("[Lumo Auth] Notification email trigger note:", emailErr);
+        }
+      }
+
       // Sign out the recovery session so the user starts fresh on the login page.
-      // We wait for signOut to fully resolve before navigating so no stale
-      // recovery session is present when LoginForm mounts.
       await supabase.auth.signOut();
 
       setPageState("success");
       toast.success("Password updated successfully! 🎉");
-      // Small extra delay ensures the Supabase session storage is cleared
-      // before LoginForm's checkExistingUser() runs.
-      setTimeout(() => router.push("/login?reset=success"), 2500);
+
+      const redirectUrl = userEmail
+        ? `/login?email=${encodeURIComponent(userEmail)}&reset=success`
+        : "/login?reset=success";
+
+      setTimeout(() => router.push(redirectUrl), 3000);
     } catch (err: unknown) {
       const msg =
         err instanceof Error
@@ -142,17 +164,27 @@ export function ResetPasswordForm() {
 
   // ── Success state ──────────────────────────────────────────────
   if (pageState === "success") {
+    const loginLink = updatedEmail
+      ? `/login?email=${encodeURIComponent(updatedEmail)}&reset=success`
+      : "/login?reset=success";
+
     return (
       <div className="space-y-5 text-center">
         <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 text-4xl mx-auto">
           🎉
         </div>
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm font-semibold text-emerald-800 space-y-1">
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm font-semibold text-emerald-800 space-y-2">
           <p className="text-base font-black text-emerald-900">Password updated successfully!</p>
-          <p>Please log in using your email and your new password.</p>
+          <p>
+            A notification email has been sent to{" "}
+            {updatedEmail ? <strong className="text-emerald-950 underline">{updatedEmail}</strong> : "your email"}.
+          </p>
+          <p className="text-xs text-emerald-700">
+            You can now log in to the system using your email address and your new password.
+          </p>
         </div>
         <Link
-          href="/login"
+          href={loginLink}
           className="inline-flex w-full items-center justify-center py-3 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all"
         >
           Go to Login →
