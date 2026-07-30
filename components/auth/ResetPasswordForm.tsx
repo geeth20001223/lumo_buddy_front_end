@@ -75,34 +75,17 @@ export function ResetPasswordForm() {
     setIsSubmitting(true);
 
     try {
-      // Capture email from the active recovery session before updating
-      const { data: { session } } = await supabase.auth.getSession();
-      const userEmail = session?.user?.email ?? "";
+      // Update the password using the active recovery session
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw error;
 
-      // Update the password (recovery session is already active)
-      const { error: updateError } = await supabase.auth.updateUser({ password });
-      if (updateError) throw updateError;
+      // Sign out the recovery session so the user starts fresh on the login page
+      await supabase.auth.signOut();
 
-      toast.success("Password updated! Signing you in… 🎉");
-
-      // Auto sign-in with the new password — no manual login needed
-      if (userEmail) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: userEmail,
-          password,
-        });
-        if (signInError) {
-          // Auto sign-in failed (rare) — fall back to login page
-          console.warn("[Lumo Auth] Auto sign-in after reset failed:", signInError.message);
-          setPageState("success");
-          setTimeout(() => router.push("/login"), 2000);
-          return;
-        }
-      }
-
-      // Signed in successfully — go straight to the dashboard
       setPageState("success");
-      setTimeout(() => router.push("/children"), 1500);
+      toast.success("Password updated successfully! 🎉");
+      // Redirect to login — user must sign in with email + new password
+      setTimeout(() => router.push("/login"), 2500);
     } catch (err: unknown) {
       const msg =
         err instanceof Error
@@ -162,9 +145,15 @@ export function ResetPasswordForm() {
           🎉
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm font-semibold text-emerald-800 space-y-1">
-          <p className="text-base font-black text-emerald-900">Password updated!</p>
-          <p>You&apos;re now signed in. Taking you to your dashboard…</p>
+          <p className="text-base font-black text-emerald-900">Password updated successfully!</p>
+          <p>Please log in using your email and your new password.</p>
         </div>
+        <Link
+          href="/login"
+          className="inline-flex w-full items-center justify-center py-3 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-extrabold shadow-md hover:shadow-lg transition-all"
+        >
+          Go to Login →
+        </Link>
       </div>
     );
   }
