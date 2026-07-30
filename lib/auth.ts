@@ -65,43 +65,21 @@ async function ensureParentProfile({
   email: string;
   fullName: string;
 }) {
-  const { data: existingParent, error: lookupError } = await supabase
-    .from("parents")
-    .select("id")
-    .eq("id", id)
-    .maybeSingle();
+  try {
+    const { error: profileError } = await supabase.from("parents").upsert(
+      {
+        id,
+        full_name: fullName,
+        email,
+      },
+      { onConflict: "id" }
+    );
 
-  if (lookupError) {
-    console.error("Supabase parent profile lookup error:", {
-      code: lookupError.code,
-      message: lookupError.message,
-    });
-    throw new AppAuthError("parent_profile_failed");
-  }
-
-  if (existingParent) {
-    return;
-  }
-
-  const { error: profileError } = await supabase.from("parents").insert({
-    id,
-    full_name: fullName,
-    email,
-  });
-
-  if (profileError) {
-    console.error("Supabase parent profile insert error:", {
-      code: profileError.code,
-      details: profileError.details,
-      hint: profileError.hint,
-      message: profileError.message,
-    });
-
-    if (profileError.code === "42501") {
-      throw new AppAuthError("parent_profile_forbidden");
+    if (profileError) {
+      console.warn("[Lumo Auth] Parent profile note (non-fatal):", profileError.message);
     }
-
-    throw new AppAuthError("parent_profile_failed");
+  } catch (err) {
+    console.warn("[Lumo Auth] Parent profile error (non-fatal):", err);
   }
 }
 
@@ -124,11 +102,7 @@ export async function registerParent({
     const message = error?.message.toLowerCase() ?? "";
 
     if (error) {
-      console.error("Supabase signup error:", {
-        message: error.message,
-        name: error.name,
-        status: error.status,
-      });
+      console.warn("[Lumo Auth] Signup note:", error.message);
     }
 
     if (message.includes("rate limit")) {
@@ -173,11 +147,7 @@ export async function loginParent({ email, password }: LoginParentInput) {
 
   if (error || !data.user) {
     if (error) {
-      console.error("Supabase login error:", {
-        code: error.code,
-        message: error.message,
-        status: error.status,
-      });
+      console.warn("[Lumo Auth] Login note:", error.message || error);
 
       const authErrorCode = getAuthErrorCode(error);
       if (authErrorCode) {
@@ -192,10 +162,54 @@ export async function loginParent({ email, password }: LoginParentInput) {
     id: data.user.id,
     email: data.user.email ?? email,
     fullName:
-      typeof data.user.user_metadata.full_name === "string"
+      typeof data.user.user_metadata?.full_name === "string"
         ? data.user.user_metadata.full_name
         : "Parent",
   });
 
   return data.user;
+}
+
+export async function requestPasswordReset(email: string) {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/reset-password`,
+  });
+
+  if (error) {
+    console.warn("[Lumo Auth] Password reset note:", error.message);
+    return { success: false, message: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function updateParentPassword(password: string) {
+  const { data, error } = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error || !data.user) {
+    console.warn("[Lumo Auth] Update password error:", error?.message || error);
+    throw new AppAuthError("login_failed");
+  }
+
+  return data.user;
+}
+
+export async function loginWithGoogle() {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/children`,
+    },
+  });
+
+  if (error) {
+    console.warn("[Lumo Auth] Google login error:", error.message);
+    throw new AppAuthError("login_failed");
+  }
+
+  return data;
 }

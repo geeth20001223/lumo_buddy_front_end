@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { AppAuthError, registerParent } from "@/lib/auth";
+import { AppAuthError, registerParent, requestPasswordReset } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -16,7 +17,7 @@ const createErrorMessage =
 const emailRateLimitMessage =
   "Too many signup emails were requested. Please wait a few minutes and try again.";
 const emailAlreadyRegisteredMessage =
-  "This email already has an account. Please log in or use a different email.";
+  "This email already has an account. Please log in or request a password reset below.";
 const parentProfilePermissionMessage =
   "Your account was created, but we could not save the parent profile. Please check the parents table access policy.";
 
@@ -28,12 +29,58 @@ export function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function checkExistingUser() {
+      const { data } = await supabase.auth.getUser();
+      if (data?.user) {
+        router.push("/children");
+      }
+    }
+    checkExistingUser();
+  }, [router]);
+
+  async function handleSendReset() {
+    if (!email.trim()) {
+      setErrorMessage("Please enter your email address first.");
+      return;
+    }
+    setIsSendingReset(true);
+    setErrorMessage("");
+    try {
+      const res = await requestPasswordReset(email.trim());
+      if (res.success) {
+        const msg = "Password reset email sent! Please check your Gmail inbox & Spam folder 📧";
+        setSuccessMessage(msg);
+        toast.success(msg);
+      } else {
+        if (res.message?.includes("rate limit") || res.message?.includes("60 seconds") || res.message?.includes("security purposes")) {
+          const msg = "Password reset link was sent! Please check your Gmail Inbox & Spam folder 📧";
+          setSuccessMessage(msg);
+          toast.success(msg);
+        } else {
+          const msg = res.message || "We could not send password reset email. Please try again.";
+          setErrorMessage(msg);
+          toast.error(msg);
+        }
+      }
+    } catch {
+      const msg = "We could not send password reset email. Please try again in a moment.";
+      setErrorMessage(msg);
+      toast.error(msg);
+    } finally {
+      setIsSendingReset(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
+    setIsAlreadyRegistered(false);
 
     const trimmedName = fullName.trim();
     const trimmedEmail = email.trim();
@@ -83,6 +130,7 @@ export function RegisterForm() {
 
         if (error.code === "email_already_registered") {
           message = emailAlreadyRegisteredMessage;
+          setIsAlreadyRegistered(true);
         }
 
         if (error.code === "parent_profile_forbidden") {
@@ -113,7 +161,34 @@ export function RegisterForm() {
           </div>
         ) : null}
 
-        {errorMessage ? (
+        {isAlreadyRegistered && (
+          <div className="rounded-2xl border-2 border-amber-200 bg-amber-50/90 p-4 text-xs font-bold text-amber-900 space-y-3 shadow-sm">
+            <p className="flex items-center gap-1.5 text-sm font-extrabold text-amber-950">
+              💡 Account Already Exists
+            </p>
+            <p className="text-slate-700">
+              This email is already registered. You can log in directly or request a password reset email below.
+            </p>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Link
+                href={`/login?email=${encodeURIComponent(email)}`}
+                className="px-4 py-2 rounded-xl bg-sky-600 text-white font-extrabold shadow-sm hover:bg-sky-700 transition-all text-xs inline-flex items-center justify-center"
+              >
+                Go to Login 🔑
+              </Link>
+              <button
+                type="button"
+                onClick={handleSendReset}
+                disabled={isSendingReset}
+                className="px-4 py-2 rounded-xl bg-white border border-amber-300 text-amber-900 font-extrabold hover:bg-amber-100 transition-all text-xs inline-flex items-center justify-center"
+              >
+                {isSendingReset ? "Sending Reset..." : "Send Password Reset Email 📧"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {errorMessage && !isAlreadyRegistered ? (
           <div
             className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700"
             role="alert"

@@ -54,8 +54,9 @@ export function ChildProfileForm() {
       toast.success("Child profile saved 🎉");
       router.push("/children");
       router.refresh();
-    } catch {
-      const message = "We could not save the child profile.";
+    } catch (err: any) {
+      console.error("Child profile save error:", err);
+      const message = err?.message && err.message !== "child_save_failed" ? err.message : "We could not save the child profile.";
       setErrorMessage(message);
       toast.error(message);
     } finally {

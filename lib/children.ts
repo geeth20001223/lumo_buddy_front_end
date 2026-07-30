@@ -42,17 +42,37 @@ export async function getCurrentParent() {
     throw new ChildProfileError("not_authenticated");
   }
 
-  const { data: parent, error: parentError } = await supabase
+  const { data: parent } = await supabase
     .from("parents")
     .select("id, full_name, email")
     .eq("id", user.id)
-    .single<ParentProfile>();
+    .maybeSingle<ParentProfile>();
 
-  if (parentError || !parent) {
-    throw new ChildProfileError("parent_not_found");
+  if (parent) {
+    return parent;
   }
 
-  return parent;
+  // Auto-upsert parent if missing in parents table to prevent FK constraint failures
+  const parentName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Parent";
+  const { data: newParent, error: createError } = await supabase
+    .from("parents")
+    .upsert({
+      id: user.id,
+      email: user.email || "",
+      full_name: parentName,
+    })
+    .select("id, full_name, email")
+    .maybeSingle<ParentProfile>();
+
+  if (createError) {
+    console.warn("Parent upsert warning:", createError);
+  }
+
+  return newParent || {
+    id: user.id,
+    full_name: parentName,
+    email: user.email || "",
+  };
 }
 
 export async function getChildrenForCurrentParent() {
@@ -81,29 +101,63 @@ export async function getChildrenForCurrentParent() {
   };
 }
 
+export function generateUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      // Fallback if HTTP non-secure context
+    }
+  }
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    try {
+      const buf = new Uint8Array(16);
+      crypto.getRandomValues(buf);
+      buf[6] = (buf[6] & 0x0f) | 0x40; // Version 4
+      buf[8] = (buf[8] & 0x3f) | 0x80; // Variant
+      const hex = Array.from(buf, (b) => b.toString(16).padStart(2, "0")).join("");
+      return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+    } catch {
+      // Math.random fallback
+    }
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export async function createChildForCurrentParent(input: NewChildProfile) {
   const parent = await getCurrentParent();
+  const childId = generateUUID();
 
   const { data, error } = await supabase
     .from("children")
     .insert({
-      id: crypto.randomUUID(),
+      id: childId,
       parent_id: parent.id,
       child_name: input.childName,
       age: input.age,
       gender: input.gender || null,
     })
     .select("id, parent_id, child_name, age, gender, created_at")
-    .single<ChildProfileRow>();
+    .maybeSingle<ChildProfileRow>();
 
-  if (error || !data) {
-    if (error) {
-      console.error("Supabase child profile insert error:", {
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-        message: error.message,
-      });
+  if (error) {
+    console.error("Supabase child profile insert error:", error);
+    throw new ChildProfileError(error.message || "child_save_failed");
+  }
+
+  if (!data) {
+    const { data: fallback } = await supabase
+      .from("children")
+      .select("id, parent_id, child_name, age, gender, created_at")
+      .eq("id", childId)
+      .maybeSingle<ChildProfileRow>();
+
+    if (fallback) {
+      return normalizeChildProfile(fallback);
     }
 
     throw new ChildProfileError("child_save_failed");
