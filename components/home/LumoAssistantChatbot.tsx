@@ -190,6 +190,7 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragConstraintsRef = useRef<HTMLDivElement>(null);
 
   // Lock body scroll when chatbot is open on mobile
   useEffect(() => {
@@ -296,25 +297,38 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
         }
       `}} />
 
-      {/* ===== FLOATING WIDGET TRIGGER BUTTON (BOTTOM RIGHT) ===== */}
-      {/* On mobile: sits above MobileBottomNav (bottom-[5.5rem]). On desktop: bottom-6. */}
-      <div className="fixed bottom-[5.5rem] sm:bottom-6 right-3 sm:right-6 z-[60]">
-        <motion.button
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.94 }}
-          onClick={() => setIsOpen(!isOpen)}
-          className="relative overflow-hidden flex items-center gap-2 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-600 text-slate-950 font-black text-[11px] sm:text-xs uppercase tracking-wider shadow-2xl shadow-amber-500/45 border-2 border-white/90"
+      {/* Viewport Bounds Container for Draggable Lumo AI Widget */}
+      <div ref={dragConstraintsRef} className="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
+        <motion.div
+          drag
+          dragConstraints={dragConstraintsRef}
+          dragElastic={0.08}
+          dragMomentum={false}
+          whileDrag={{ scale: 1.08 }}
+          className="pointer-events-auto absolute bottom-[5.5rem] sm:bottom-6 right-3 sm:right-6 touch-none select-none"
         >
-          {/* MODERN GLOWING LIGHT STRIP BEAM SWEEPER */}
-          <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none animate-light-strip" />
+          <motion.button
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
+            onClick={() => setIsOpen(!isOpen)}
+            className="relative overflow-hidden flex items-center gap-2.5 px-4 py-3 sm:px-6 sm:py-4 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-emerald-600 text-slate-950 font-black text-xs sm:text-base uppercase tracking-wider shadow-2xl shadow-amber-500/45 border-2 border-white/90 cursor-grab active:cursor-grabbing"
+          >
+            {/* Drag Handle Grip Dots Icon */}
+            <span className="text-slate-950/70 font-extrabold text-sm sm:text-base leading-none select-none tracking-tighter" title="Drag Lumo AI anywhere on screen">
+              ⋮⋮
+            </span>
 
-          <NextLevelCyberBee className="w-6 h-6 sm:w-8 sm:h-8 filter drop-shadow-md" />
-          <span className="drop-shadow-sm text-slate-950 font-black relative z-10">{isOpen ? "Close" : "Ask Lumo AI"}</span>
-          <span className="relative flex h-2 w-2 z-10">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
-          </span>
-        </motion.button>
+            {/* MODERN GLOWING LIGHT STRIP BEAM SWEEPER */}
+            <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-transparent via-white/50 to-transparent pointer-events-none animate-light-strip" />
+
+            <NextLevelCyberBee className="w-8 h-8 sm:w-10 sm:h-10 filter drop-shadow-md shrink-0" />
+            <span className="drop-shadow-sm text-slate-950 font-black relative z-10">{isOpen ? "Close" : "Ask Lumo AI"}</span>
+            <span className="relative flex h-3 w-3 z-10 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-80"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
+            </span>
+          </motion.button>
+        </motion.div>
       </div>
 
       {/* ===== CHATBOT MODAL POPUP ===== */}
@@ -326,35 +340,35 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.88, y: 30 }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
-            className="fixed inset-0 sm:inset-auto sm:bottom-20 sm:right-6 sm:w-[400px] sm:h-[520px] sm:max-h-[calc(100vh-120px)] w-full h-full sm:rounded-[2.5rem] bg-white/98 backdrop-blur-3xl border-0 sm:border-4 sm:border-amber-300/90 rounded-none shadow-none sm:shadow-[0_25px_60px_rgba(245,158,11,0.35)] z-[60] flex flex-col overflow-hidden"
+            className="fixed inset-0 sm:inset-auto sm:bottom-20 sm:right-6 sm:w-[480px] sm:h-[620px] sm:max-h-[calc(100vh-100px)] w-full h-full sm:rounded-[2.5rem] bg-white/98 backdrop-blur-3xl border-0 sm:border-4 sm:border-amber-300/90 rounded-none shadow-none sm:shadow-[0_25px_60px_rgba(245,158,11,0.35)] z-[60] flex flex-col overflow-hidden"
           >
             {/* Chatbot Header */}
             <div className="relative p-4 px-5 sm:px-6 bg-gradient-to-r from-amber-400 via-emerald-500 to-fuchsia-600 text-white flex items-center justify-between safe-area-top">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-white/25 backdrop-blur-md border border-white/40 flex items-center justify-center shadow-sm p-0.5">
-                  <NextLevelCyberBee className="w-8 h-8" />
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-white/25 backdrop-blur-md border border-white/40 flex items-center justify-center shadow-sm p-0.5">
+                  <NextLevelCyberBee className="w-10 h-10" />
                 </div>
                 <div>
-                  <h3 className="font-black text-sm uppercase tracking-wider text-white drop-shadow-sm">Lumo Buddy AI</h3>
-                  <p className="text-[10px] text-amber-100 font-extrabold flex items-center gap-1">
-                    <Sparkles size={10} className="text-amber-300 animate-pulse" /> Online
+                  <h3 className="font-black text-lg sm:text-xl uppercase tracking-wider text-white drop-shadow-sm">Lumo Buddy AI</h3>
+                  <p className="text-xs sm:text-sm text-amber-100 font-extrabold flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-amber-300 animate-pulse" /> Online & Ready
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={handleResetChat}
                   title="Restart Chat"
-                  className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white active:scale-90"
+                  className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white active:scale-90"
                 >
-                  <RotateCcw size={16} />
+                  <RotateCcw size={18} />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white active:scale-90"
+                  className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors text-white active:scale-90"
                 >
-                  <X size={20} />
+                  <X size={22} />
                 </button>
               </div>
             </div>
@@ -365,31 +379,31 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
             {/* Messages Body */}
             <div
               ref={chatContainerRef}
-              className="flex-1 p-4 overflow-y-auto space-y-4 bg-gradient-to-b from-amber-50/30 via-slate-50 to-emerald-50/40 overscroll-contain"
+              className="flex-1 p-4 sm:p-5 overflow-y-auto space-y-5 bg-gradient-to-b from-amber-50/30 via-slate-50 to-emerald-50/40 overscroll-contain"
             >
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex gap-2.5 ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"}`}
+                  className={`flex gap-3 ${msg.sender === "user" ? "flex-row-reverse" : "flex-row"}`}
                 >
                   <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-black shadow-xs ${msg.sender === "user"
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-black shadow-xs ${msg.sender === "user"
                       ? "bg-gradient-to-r from-fuchsia-600 to-pink-600 text-white"
                       : "bg-gradient-to-r from-amber-400 to-emerald-500 text-slate-900 p-0.5"
                       }`}
                   >
-                    {msg.sender === "user" ? <User size={14} /> : <NextLevelCyberBee className="w-6 h-6" />}
+                    {msg.sender === "user" ? <User size={18} /> : <NextLevelCyberBee className="w-8 h-8" />}
                   </div>
 
                   <div
-                    className={`max-w-[82%] p-3.5 rounded-2xl text-xs font-extrabold leading-relaxed shadow-xs whitespace-pre-wrap ${msg.sender === "user"
+                    className={`max-w-[85%] p-4 sm:p-5 rounded-2xl shadow-xs whitespace-pre-wrap ${msg.sender === "user"
                       ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-tr-none"
-                      : "bg-white text-slate-800 border border-amber-200/80 rounded-tl-none"
+                      : "bg-white text-slate-900 border border-amber-200/90 rounded-tl-none"
                       }`}
                   >
-                    <p className="leading-relaxed">{msg.text}</p>
+                    <p className="text-base sm:text-lg font-bold leading-relaxed">{msg.text}</p>
                     <span
-                      className={`block text-[9px] mt-1.5 font-bold ${msg.sender === "user" ? "text-emerald-200 text-right" : "text-amber-700/80 text-left"
+                      className={`block text-xs sm:text-sm mt-2 font-extrabold ${msg.sender === "user" ? "text-emerald-200 text-right" : "text-amber-800/85 text-left"
                         }`}
                     >
                       {msg.timestamp}
@@ -400,39 +414,39 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
 
               {/* REAL CHATBOT TYPING INDICATOR */}
               {isTyping && (
-                <div className="flex gap-2.5 items-center">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-r from-amber-400 to-emerald-500 text-slate-900 p-0.5 flex items-center justify-center">
-                    <NextLevelCyberBee className="w-6 h-6 animate-pulse" />
+                <div className="flex gap-3 items-center">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-amber-400 to-emerald-500 text-slate-900 p-0.5 flex items-center justify-center">
+                    <NextLevelCyberBee className="w-8 h-8 animate-pulse" />
                   </div>
-                  <div className="bg-white p-3 rounded-2xl border border-amber-200/70 rounded-tl-none flex items-center gap-1.5 shadow-2xs">
-                    <span className="text-[10px] font-black text-amber-600 mr-1">LUMO BUDDY is thinking</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="bg-white p-4 rounded-2xl border border-amber-200/80 rounded-tl-none flex items-center gap-2 shadow-2xs">
+                    <span className="text-sm sm:text-base font-black text-amber-600 mr-1">LUMO BUDDY is thinking...</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               )}
             </div>
 
             {/* Suggestion Chips — context-aware + base, horizontally scrollable */}
-            <div className="px-3 py-2 bg-white border-t border-slate-100 flex gap-1.5 overflow-x-auto select-none shrink-0 touch-pan-x" style={{ WebkitOverflowScrolling: "touch" }}>
+            <div className="p-3 sm:p-4 bg-white border-t border-slate-100 flex gap-2 overflow-x-auto select-none shrink-0 touch-pan-x" style={{ WebkitOverflowScrolling: "touch" }}>
               {/* Context-aware chips first */}
               {context?.nextGame && (
                 <button
                   onClick={() => handleSendMessage("What should I play next?")}
                   disabled={isTyping}
-                  className="px-2.5 py-1.5 rounded-full bg-fuchsia-50 hover:bg-fuchsia-100 text-fuchsia-800 text-[10px] font-black whitespace-nowrap border border-fuchsia-200 flex items-center gap-1 transition-colors disabled:opacity-50 min-h-[32px]"
+                  className="px-3.5 py-2.5 rounded-full bg-fuchsia-50 hover:bg-fuchsia-100 text-fuchsia-900 text-xs sm:text-sm font-black whitespace-nowrap border border-fuchsia-200 flex items-center gap-2 transition-colors disabled:opacity-50 min-h-[40px]"
                 >
-                  🌟 <span>What should I play next?</span>
+                  🌟 <span className="text-xs sm:text-sm font-black">What should I play next?</span>
                 </button>
               )}
               {context?.childName && (
                 <button
                   onClick={() => handleSendMessage(`How many games has ${context.childName} completed?`)}
                   disabled={isTyping}
-                  className="px-2.5 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-black whitespace-nowrap border border-emerald-200 flex items-center gap-1 transition-colors disabled:opacity-50 min-h-[32px]"
+                  className="px-3.5 py-2.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs sm:text-sm font-black whitespace-nowrap border border-emerald-200 flex items-center gap-2 transition-colors disabled:opacity-50 min-h-[40px]"
                 >
-                  📊 <span>Show my progress</span>
+                  📊 <span className="text-xs sm:text-sm font-black">Show my progress</span>
                 </button>
               )}
               {/* Base suggestion chips */}
@@ -441,16 +455,16 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
                   key={idx}
                   onClick={() => handleSendMessage(sugg)}
                   disabled={isTyping}
-                  className="px-2.5 py-1.5 rounded-full bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-900 text-[10px] font-black whitespace-nowrap border border-amber-200 flex items-center gap-1 transition-colors disabled:opacity-50 min-h-[32px]"
+                  className="px-3.5 py-2.5 rounded-full bg-amber-50 hover:bg-amber-100 active:bg-amber-200 text-amber-950 text-xs sm:text-sm font-black whitespace-nowrap border border-amber-200 flex items-center gap-2 transition-colors disabled:opacity-50 min-h-[40px]"
                 >
-                  <HelpCircle size={10} />
-                  <span>{sugg}</span>
+                  <HelpCircle size={14} className="text-amber-600 shrink-0" />
+                  <span className="text-xs sm:text-sm font-black">{sugg}</span>
                 </button>
               ))}
             </div>
 
             {/* Input Bar — Safe area padding for mobile bottom notch */}
-            <div className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white border-t border-slate-100 flex items-center gap-2 shrink-0">
+            <div className="p-3.5 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white border-t border-slate-100 flex items-center gap-2.5 shrink-0">
               <input
                 ref={inputRef}
                 type="text"
@@ -464,16 +478,16 @@ export function LumoAssistantChatbot({ context }: { context?: ChildChatContext }
                 }}
                 placeholder={isTyping ? "Lumo is thinking..." : "Ask me anything..."}
                 disabled={isTyping}
-                className="flex-1 px-4 py-3 rounded-full bg-slate-100 border border-slate-200 text-sm font-extrabold text-slate-800 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-colors disabled:opacity-60"
+                className="flex-1 px-5 py-4 rounded-full bg-slate-100 border border-slate-200 text-base sm:text-lg font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-colors disabled:opacity-60"
                 enterKeyHint="send"
                 autoComplete="off"
               />
               <button
                 onClick={() => handleSendMessage()}
                 disabled={isTyping || !inputQuery.trim()}
-                className="w-12 h-12 rounded-full bg-gradient-to-r from-amber-400 via-emerald-500 to-fuchsia-600 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all font-black disabled:opacity-40 min-w-[48px] min-h-[48px]"
+                className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-amber-400 via-emerald-500 to-fuchsia-600 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all font-black disabled:opacity-40 min-w-[50px] min-h-[50px]"
               >
-                <Send size={18} />
+                <Send size={22} />
               </button>
             </div>
           </motion.div>
