@@ -14,25 +14,148 @@ interface JourneyCardProps {
   isHighlighted?: boolean;
 }
 
-const GAME_ASSETS: Record<string, { image: string; label: string; desc: string; mascotState: "normal" | "correct" | "incorrect" }> = {
-  "emotion-face-match": { image: "/images/games/emotion-face-match.png", label: "Face Match", desc: "Pick the feeling", mascotState: "normal" },
-  "count-the-objects": { image: "/images/games/count-the-objects.png", label: "Counting", desc: "Count together", mascotState: "normal" },
-  "daily-routine-order": { image: "/images/games/daily-routine.png", label: "My Day", desc: "Plan your day", mascotState: "normal" },
-  "emotion-reflection-board": { image: "/images/games/emotion-story.png", label: "Feelings", desc: "Check your mood", mascotState: "normal" },
-  "emotion-story-choice": { image: "/images/games/emotion-story.png", label: "Stories", desc: "Choose the story", mascotState: "normal" },
-  "memory-match": { image: "/images/games/memory-match.png", label: "Memory", desc: "Match the cards", mascotState: "normal" },
-  "pattern-builder": { image: "/images/games/pattern-builder.png", label: "Patterns", desc: "Build a path", mascotState: "normal" },
-  "personal-choice-adventure": { image: "/images/games/personal-choice.png", label: "Adventure", desc: "You decide", mascotState: "normal" },
-  "shape-number-match": { image: "/images/games/shapes-&-number-match.png", label: "Shapes", desc: "Find the shapes", mascotState: "normal" },
+const LEVEL_GAME_ASSETS: Record<string, { image: string; label: string; desc: string }> = {
+  // Emotion Area (Feeling Skills) - Warm Pastel Pink/Rose Theme
+  "emotion-face-match-1": {
+    image: "/images/games/emotion-face-match-1.png",
+    label: "Basic Emotions",
+    desc: "Match happy, sad & smiling faces",
+  },
+  "emotion-face-match-2": {
+    image: "/images/games/emotion-face-match-2.png",
+    label: "Expressive Emotions",
+    desc: "Recognize surprise, excitement & fear",
+  },
+  "emotion-face-match-3": {
+    image: "/images/games/emotion-face-match-3.png",
+    label: "Social Emotions",
+    desc: "Understand calm, proud & soft feelings",
+  },
+  "emotion-story-choice-1": {
+    image: "/images/games/emotion-story-choice-1.png",
+    label: "Sharing & Helping",
+    desc: "Choose happy story actions with friends",
+  },
+  "emotion-story-choice-2": {
+    image: "/images/games/emotion-story-choice-2.png",
+    label: "Managing Feelings",
+    desc: "Learn to pause and take deep breaths",
+  },
+  "emotion-story-choice-3": {
+    image: "/images/games/emotion-story-choice-3.svg",
+    label: "Empathy Stories",
+    desc: "Understand how friends feel in stories",
+  },
+  "emotion-reflection-board-1": {
+    image: "/images/games/emotion-story-choice-1.png",
+    label: "Feelings Check-In",
+    desc: "Tap how you feel right now",
+  },
+
+  // Cognitive Area (Thinking Skills) - Cool Sky Blue/Cyan Theme
+  "memory-match-1": {
+    image: "/images/games/memory-match-1.png",
+    label: "Card Match 4-Pair",
+    desc: "Find simple matching cards",
+  },
+  "memory-match-2": {
+    image: "/images/games/memory-match-2.png",
+    label: "Color & Object Match",
+    desc: "Match colorful pairs from memory",
+  },
+  "memory-match-3": {
+    image: "/images/games/memory-match-3.svg",
+    label: "Spatial Pattern Match",
+    desc: "Challenge your visual memory path",
+  },
+  "pattern-builder-1": {
+    image: "/images/games/pattern-builder-1.png",
+    label: "Color Patterns",
+    desc: "Complete simple repeating color series",
+  },
+  "pattern-builder-2": {
+    image: "/images/games/pattern-builder-2.svg",
+    label: "Shape Sequences",
+    desc: "Build repeating shape sequences",
+  },
+  "pattern-builder-3": {
+    image: "/images/games/pattern-builder-3.svg",
+    label: "Complex Logic Path",
+    desc: "Solve multi-attribute visual patterns",
+  },
+
+  // Self-Awareness Area (Me & My Day) - Sunny Amber/Orange Theme
+  "daily-routine-order-1": {
+    image: "/images/games/daily-routine-order-1.png",
+    label: "Morning Routine",
+    desc: "Order waking up, brushing & breakfast",
+  },
+  "daily-routine-order-2": {
+    image: "/images/games/daily-routine-order-2.png",
+    label: "School & Afternoon",
+    desc: "Arrange packing bag, school & play",
+  },
+  "daily-routine-order-3": {
+    image: "/images/games/daily-routine-order-3.svg",
+    label: "Bedtime Routine",
+    desc: "Order bath, storytime & sleeping",
+  },
+  "personal-choice-adventure-1": {
+    image: "/images/games/personal-choice-1.svg",
+    label: "Expressing Needs",
+    desc: "Pick what you need when thirsty or tired",
+  },
+  "personal-choice-adventure-2": {
+    image: "/images/games/daily-routine-order-2.png",
+    label: "Calming Choices",
+    desc: "Choose quiet activities to relax",
+  },
+  "personal-choice-adventure-3": {
+    image: "/images/games/daily-routine-order-1.png",
+    label: "Daily Decision Maker",
+    desc: "Make healthy personal choices",
+  },
+
+  // Mathematical Skills Area (Number Skills) - Fresh Emerald/Teal Theme
+  "count-the-objects-1": {
+    image: "/images/games/count-the-objects-1.png",
+    label: "Counting 1 to 5",
+    desc: "Count cute toys and ducks together",
+  },
+  "count-the-objects-2": {
+    image: "/images/games/count-the-objects-2.svg",
+    label: "Counting 6 to 10",
+    desc: "Count colorful objects & balloons",
+  },
+  "count-the-objects-3": {
+    image: "/images/games/count-the-objects-3.svg",
+    label: "Comparing Quantities",
+    desc: "Count bigger groups & compare sets",
+  },
+  "shape-number-match-1": {
+    image: "/images/games/shape-number-match-1.png",
+    label: "Basic Shapes",
+    desc: "Match circle, square, triangle & star",
+  },
+  "shape-number-match-2": {
+    image: "/images/games/shape-number-match-2.svg",
+    label: "Number & Quantity",
+    desc: "Match written numbers to dots",
+  },
+  "shape-number-match-3": {
+    image: "/images/games/shape-number-match-3.svg",
+    label: "Shape & Math Puzzle",
+    desc: "Combine shape puzzles with counting",
+  },
 };
 
 export function JourneyCard({ childId, game, isFirstUnlocked, isHighlighted }: JourneyCardProps) {
   const isUnlocked = game.is_unlocked;
-  const assets = GAME_ASSETS[game.game_slug] || {
-    image: "/images/games/emotion-face-match.png",
+  const levelKey = `${game.game_slug}-${game.level}`;
+  const assets = LEVEL_GAME_ASSETS[levelKey] || LEVEL_GAME_ASSETS[game.game_slug] || {
+    image: `/images/games/${game.game_slug}.png`,
     label: game.game_name,
-    desc: "Let's play",
-    mascotState: "normal"
+    desc: "Let's play and learn",
   };
 
   const themes = {

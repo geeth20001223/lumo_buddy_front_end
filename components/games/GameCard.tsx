@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { GameWithUnlockState } from "@/types/game";
 import { getGameHref } from "@/lib/game-routes";
 
@@ -7,18 +8,57 @@ type GameCardProps = {
   game: GameWithUnlockState;
 };
 
+const GAME_CARD_IMAGES: Record<string, string> = {
+  "emotion-face-match-1": "/images/games/emotion-face-match-1.png",
+  "emotion-face-match-2": "/images/games/emotion-face-match-2.png",
+  "emotion-face-match-3": "/images/games/emotion-face-match-3.png",
+  "emotion-story-choice-1": "/images/games/emotion-story-choice-1.png",
+  "emotion-story-choice-2": "/images/games/emotion-story-choice-2.png",
+  "emotion-story-choice-3": "/images/games/emotion-story-choice-3.svg",
+  "emotion-reflection-board-1": "/images/games/emotion-story-choice-1.png",
+  "memory-match-1": "/images/games/memory-match-1.png",
+  "memory-match-2": "/images/games/memory-match-2.png",
+  "memory-match-3": "/images/games/memory-match-3.svg",
+  "pattern-builder-1": "/images/games/pattern-builder-1.png",
+  "pattern-builder-2": "/images/games/pattern-builder-2.svg",
+  "pattern-builder-3": "/images/games/pattern-builder-3.svg",
+  "daily-routine-order-1": "/images/games/daily-routine-order-1.png",
+  "daily-routine-order-2": "/images/games/daily-routine-order-2.png",
+  "daily-routine-order-3": "/images/games/daily-routine-order-3.svg",
+  "personal-choice-adventure-1": "/images/games/personal-choice-1.svg",
+  "personal-choice-adventure-2": "/images/games/daily-routine-order-2.png",
+  "personal-choice-adventure-3": "/images/games/daily-routine-order-1.png",
+  "count-the-objects-1": "/images/games/count-the-objects-1.png",
+  "count-the-objects-2": "/images/games/count-the-objects-2.svg",
+  "count-the-objects-3": "/images/games/count-the-objects-3.svg",
+  "shape-number-match-1": "/images/games/shape-number-match-1.png",
+  "shape-number-match-2": "/images/games/shape-number-match-2.svg",
+  "shape-number-match-3": "/images/games/shape-number-match-3.svg",
+};
+
 export function GameCard({ childId, game }: GameCardProps) {
   const isUnlocked = game.is_unlocked;
+  const levelKey = `${game.game_slug}-${game.level}`;
+  const imageSrc = GAME_CARD_IMAGES[levelKey] || `/images/games/${game.game_slug}.png`;
 
   return (
-    <div className={`relative flex flex-col h-full rounded-3xl border transition-all duration-300 ${isUnlocked
+    <div className={`relative flex flex-col h-full rounded-3xl border overflow-hidden transition-all duration-300 ${isUnlocked
       ? "bg-white border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-1"
       : "bg-slate-50 border-slate-200 opacity-80"
       }`}>
-      {/* Level Badge */}
-      <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isUnlocked ? "bg-blue-100 text-blue-700" : "bg-slate-200 text-slate-500"
-        }`}>
-        Level {game.level}
+      {/* Thumbnail Area */}
+      <div className="relative w-full h-36 bg-slate-100 flex items-center justify-center p-4">
+        <Image
+          src={imageSrc}
+          alt={game.game_name}
+          fill
+          className={`object-contain p-2 ${!isUnlocked ? "grayscale opacity-40" : ""}`}
+        />
+        {/* Level Badge */}
+        <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isUnlocked ? "bg-white/90 text-blue-700 backdrop-blur-xs shadow-xs" : "bg-slate-200 text-slate-500"
+          }`}>
+          Level {game.level}
+        </div>
       </div>
 
       <div className="p-6 flex flex-col flex-1">

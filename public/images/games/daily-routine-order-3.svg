@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Warm Amber/Bedtime Background Gradient -->
+    <linearGradient id="bgGradRoutine3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEFCBF" />
+      <stop offset="50%" stop-color="#FBD38D" />
+      <stop offset="100%" stop-color="#F6AD55" />
+    </linearGradient>
+
+    <linearGradient id="moonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF089" />
+      <stop offset="100%" stop-color="#ECC94B" />
+    </linearGradient>
+
+    <linearGradient id="bedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B794F4" />
+      <stop offset="100%" stop-color="#6B46C1" />
+    </linearGradient>
+
+    <!-- Shadows -->
+    <filter id="shadowR3" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#744210" flood-opacity="0.15" />
+    </filter>
+
+    <filter id="glowR3" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#DD6B20" flood-opacity="0.2" />
+    </filter>
+  </defs>
+
+  <!-- Base Circle Frame -->
+  <circle cx="250" cy="250" r="230" fill="url(#bgGradRoutine3)" filter="url(#glowR3)" />
+
+  <!-- Crescent Moon & Night Stars -->
+  <g filter="url(#shadowR3)">
+    <path d="M 130 110 A 55 55 0 1 0 210 190 A 45 45 0 1 1 130 110 Z" fill="url(#moonGrad)" />
+    <path d="M 230 110 L 233 118 L 241 121 L 233 124 L 230 132 L 227 124 L 219 121 L 227 118 Z" fill="#FFFFFF" />
+    <path d="M 100 210 L 103 218 L 111 221 L 103 224 L 100 232 L 97 224 L 89 221 L 97 218 Z" fill="#FFFFFF" />
+  </g>
+
+  <!-- Bedtime Cards (Bath, Storybook, Sleeping) -->
+  <g filter="url(#shadowR3)">
+    <!-- Card 1: Toothbrush & Bath -->
+    <rect x="90" y="240" width="90" height="110" rx="20" fill="#FFFFFF" stroke="#F6AD55" stroke-width="3" />
+    <rect x="125" y="260" width="16" height="60" rx="8" fill="#4FD1C5" />
+    <rect x="121" y="255" width="24" height="18" rx="4" fill="#E6FFFA" stroke="#319795" stroke-width="2" />
+    <text x="135" y="335" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="12" fill="#744210" text-anchor="middle">1. BRUSH</text>
+
+    <!-- Card 2: Bedtime Storybook -->
+    <rect x="205" y="220" width="90" height="110" rx="20" fill="#FFFFFF" stroke="#ED64A6" stroke-width="3" />
+    <path d="M 220 250 C 235 240, 265 240, 280 250 L 280 295 C 265 285, 235 285, 220 295 Z" fill="#FED7E2" />
+    <path d="M 250 245 L 250 290" stroke="#D53F8C" stroke-width="2" />
+    <text x="250" y="315" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="12" fill="#744210" text-anchor="middle">2. STORY</text>
+
+    <!-- Card 3: Sleeping Bed -->
+    <rect x="320" y="240" width="90" height="110" rx="20" fill="#FFFFFF" stroke="#6B46C1" stroke-width="3" />
+    <rect x="330" y="270" width="70" height="40" rx="10" fill="url(#bedGrad)" />
+    <rect x="335" y="262" width="25" height="15" rx="5" fill="#FFFFFF" />
+    <text x="365" y="335" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="12" fill="#744210" text-anchor="middle">3. SLEEP</text>
+  </g>
+
+  <!-- Connecting Arrows -->
+  <g fill="#DD6B20">
+    <polygon points="188,295 198,290 198,300" />
+    <polygon points="303,275 313,270 313,280" />
+  </g>
+
+  <!-- Level Badge Pill -->
+  <g filter="url(#shadowR3)">
+    <rect x="150" y="390" width="200" height="44" rx="22" fill="#DD6B20" stroke="#FFFFFF" stroke-width="3" />
+    <text x="250" y="412" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="15" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">BEDTIME ROUTINE</text>
+  </g>
+</svg>

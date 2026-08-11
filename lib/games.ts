@@ -28,26 +28,63 @@ export async function getGamesForChild(childId: string) {
   // 2. Fetch all active games
   const games = await getActiveGames();
 
-  // 3. Read session-played games from browser sessionStorage (cleared when app is closed)
+  // 3. Fetch played game scores for this child from Supabase DB within the last 1 hour (3600 seconds)
+  const ONE_HOUR_MS = 60 * 60 * 1000;
+  const oneHourAgoISO = new Date(Date.now() - ONE_HOUR_MS).toISOString();
+
+  let dbPlayedGameIds = new Set<string>();
+  let dbPlayedSlugLevels = new Set<string>();
+
+  if (childId) {
+    const { data: playedScores, error } = await supabase
+      .from("game_scores")
+      .select("game_id, level, area, played_at")
+      .eq("child_id", childId)
+      .gte("played_at", oneHourAgoISO);
+
+    if (!error && playedScores) {
+      playedScores.forEach((score) => {
+        if (score.game_id) {
+          dbPlayedGameIds.add(String(score.game_id));
+          dbPlayedSlugLevels.add(`${score.game_id}-${score.level}`);
+        }
+      });
+    }
+  }
+
+  // 4. Read session-played games from browser sessionStorage (within 1 hour threshold)
   let sessionPlayedSet = new Set<string>();
   if (typeof window !== "undefined") {
     try {
       const sessionKey = `lumo_session_played_${childId}`;
-      const sessionPlayed: string[] = JSON.parse(sessionStorage.getItem(sessionKey) || "[]");
-      sessionPlayedSet = new Set(sessionPlayed.map(String));
+      const rawData = sessionStorage.getItem(sessionKey);
+      if (rawData) {
+        const sessionPlayed: Array<{ id: string; timestamp: number } | string> = JSON.parse(rawData);
+        const now = Date.now();
+        
+        sessionPlayed.forEach((item) => {
+          if (typeof item === "string") {
+            sessionPlayedSet.add(item);
+          } else if (item && typeof item === "object" && item.id) {
+            if (!item.timestamp || (now - item.timestamp < ONE_HOUR_MS)) {
+              sessionPlayedSet.add(item.id);
+            }
+          }
+        });
+      }
     } catch (e) {
       console.error("[Lumo Buddy] Error reading sessionStorage:", e);
     }
   }
 
-  // 4. Apply unlock & session-played logic
+  // 5. Apply unlock & exact game played logic (ONLY exact game ID or exact game_slug + level)
   const gamesWithStatus: GameWithUnlockState[] = games.map((game) => {
     const { isUnlocked, message } = isGameUnlocked(game, assessment);
     const isPlayed =
+      dbPlayedGameIds.has(String(game.id)) ||
+      dbPlayedSlugLevels.has(`${game.id}-${game.level}`) ||
       sessionPlayedSet.has(String(game.id)) ||
-      sessionPlayedSet.has(game.game_slug) ||
       sessionPlayedSet.has(`${game.game_slug}-${game.level}`) ||
-      sessionPlayedSet.has(`${game.area}-${game.level}`) ||
       sessionPlayedSet.has(`${game.id}-${game.level}`);
 
     return {

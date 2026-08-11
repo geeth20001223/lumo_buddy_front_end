@@ -35,6 +35,9 @@ export default function MobileMenu({ isAuthenticated = false, userEmail = "" }: 
 
   const handleLogout = async () => {
     setIsOpen(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.clear();
+    }
     await supabase.auth.signOut();
     router.push("/");
     router.refresh();

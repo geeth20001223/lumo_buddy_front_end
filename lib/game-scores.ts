@@ -49,20 +49,26 @@ export async function saveGameScore(input: SaveScoreInput, retryCount = 0) {
 
     console.log("[Lumo Buddy] Score saved successfully. Session ID:", data.id);
 
-    // Save to browser sessionStorage so ticks persist during active app session and disappear when app is closed
+    // Save to browser sessionStorage with timestamp so green ticks expire after 1 hour or on session reset
     if (typeof window !== "undefined") {
       try {
         const sessionKey = `lumo_session_played_${input.child_id}`;
-        const existing: string[] = JSON.parse(sessionStorage.getItem(sessionKey) || "[]");
+        const existing: Array<{ id: string; timestamp: number }> = JSON.parse(sessionStorage.getItem(sessionKey) || "[]");
+        const now = Date.now();
         const identifiers = [
           String(input.game_id),
-          `${input.area}-${input.level}`,
           `${input.game_id}-${input.level}`
         ];
+        
+        // Filter out expired entries (> 1 hour)
+        const updated = existing.filter(item => item && item.timestamp && (now - item.timestamp < 3600000));
+        
         identifiers.forEach(id => {
-          if (!existing.includes(id)) existing.push(id);
+          if (!updated.some(item => item.id === id)) {
+            updated.push({ id, timestamp: now });
+          }
         });
-        sessionStorage.setItem(sessionKey, JSON.stringify(existing));
+        sessionStorage.setItem(sessionKey, JSON.stringify(updated));
       } catch (e) {
         console.error("[Lumo Buddy] Error writing session played games:", e);
       }

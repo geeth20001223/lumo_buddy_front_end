@@ -57,7 +57,7 @@ export default function JourneyScrollSection() {
         </div>
 
         {/* Fixed Centered Header Title */}
-        <div className="absolute top-4 sm:top-6 left-0 w-full z-20 pointer-events-none flex flex-col items-center px-4">
+        <div className="absolute top-16 sm:top-20 left-0 w-full z-20 pointer-events-none flex flex-col items-center px-4">
           <div className="inline-flex items-center justify-center px-4 py-1.5 mb-2.5 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 text-slate-600 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] shadow-sm">
             <span className="w-2 h-2 rounded-full bg-primary-blue mr-2.5 animate-pulse"></span>
             The Journey
@@ -76,7 +76,7 @@ export default function JourneyScrollSection() {
         {/* The Track that moves horizontally */}
         <div
           ref={scrollTrackRef}
-          className="flex items-center h-full pt-[210px] sm:pt-[240px] lg:pt-[260px] pb-8 sm:pb-12 px-[10vw] will-change-transform"
+          className="flex items-center h-full pt-[220px] sm:pt-[250px] lg:pt-[270px] pb-8 sm:pb-12 px-[10vw] will-change-transform"
           style={{ width: "fit-content", transition: "transform 0.1s ease-out" }}
         >
           <div className="flex gap-10 sm:gap-16 items-center">

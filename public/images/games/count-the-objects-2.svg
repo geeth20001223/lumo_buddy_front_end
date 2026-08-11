@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGradCount2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E6FFFA" />
+      <stop offset="50%" stop-color="#B2F5EA" />
+      <stop offset="100%" stop-color="#38B2AC" />
+    </linearGradient>
+
+    <!-- Apple Gradient -->
+    <linearGradient id="appleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FEB2B2" />
+      <stop offset="100%" stop-color="#E53E3E" />
+    </linearGradient>
+
+    <!-- Star Gradient -->
+    <linearGradient id="starGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F6E05E" />
+      <stop offset="100%" stop-color="#D69E2E" />
+    </linearGradient>
+
+    <!-- Block Blue Gradient -->
+    <linearGradient id="blockBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#63B3ED" />
+      <stop offset="100%" stop-color="#3182CE" />
+    </linearGradient>
+
+    <!-- Shadows -->
+    <filter id="shadowCount2" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#1A202C" flood-opacity="0.15" />
+    </filter>
+
+    <filter id="glowCount2" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#319795" flood-opacity="0.2" />
+    </filter>
+  </defs>
+
+  <!-- Base Circle Frame -->
+  <circle cx="250" cy="250" r="230" fill="url(#bgGradCount2)" filter="url(#glowCount2)" />
+
+  <!-- Center Card Display: Counting 6 to 10 -->
+  <g filter="url(#shadowCount2)">
+    <rect x="90" y="80" width="320" height="340" rx="36" fill="#FFFFFF" opacity="0.9" />
+    <rect x="105" y="95" width="290" height="310" rx="28" fill="#E6FFFA" stroke="#319795" stroke-width="4" stroke-dasharray="10,8" />
+  </g>
+
+  <!-- Big Number "6-10" Header Badge -->
+  <g filter="url(#shadowCount2)">
+    <rect x="150" y="115" width="200" height="46" rx="23" fill="#319795" stroke="#FFFFFF" stroke-width="3" />
+    <text x="250" y="138" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="20" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">COUNT 6 TO 10</text>
+  </g>
+
+  <!-- Group of 6 Apples -->
+  <g filter="url(#shadowCount2)">
+    <circle cx="160" cy="210" r="22" fill="url(#appleGrad)" />
+    <path d="M 160 188 Q 163 182 168 185" stroke="#2F855A" stroke-width="3" fill="none" />
+
+    <circle cx="210" cy="210" r="22" fill="url(#appleGrad)" />
+    <path d="M 210 188 Q 213 182 218 185" stroke="#2F855A" stroke-width="3" fill="none" />
+
+    <circle cx="260" cy="210" r="22" fill="url(#appleGrad)" />
+    <path d="M 260 188 Q 263 182 268 185" stroke="#2F855A" stroke-width="3" fill="none" />
+
+    <circle cx="310" cy="210" r="22" fill="url(#appleGrad)" />
+    <path d="M 310 188 Q 313 182 318 185" stroke="#2F855A" stroke-width="3" fill="none" />
+
+    <circle cx="360" cy="210" r="22" fill="url(#appleGrad)" />
+    <path d="M 360 188 Q 363 182 368 185" stroke="#2F855A" stroke-width="3" fill="none" />
+  </g>
+
+  <!-- Number 6 Badge -->
+  <g filter="url(#shadowCount2)">
+    <circle cx="140" cy="285" r="24" fill="#ED8936" stroke="#FFFFFF" stroke-width="3" />
+    <text x="140" y="285" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="24" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">6</text>
+  </g>
+
+  <!-- Number 8 Badge -->
+  <g filter="url(#shadowCount2)">
+    <circle cx="250" cy="285" r="24" fill="#4299E1" stroke="#FFFFFF" stroke-width="3" />
+    <text x="250" y="285" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="24" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">8</text>
+  </g>
+
+  <!-- Number 10 Badge -->
+  <g filter="url(#shadowCount2)">
+    <circle cx="360" cy="285" r="24" fill="#9F7AEA" stroke="#FFFFFF" stroke-width="3" />
+    <text x="360" y="285" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="22" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">10</text>
+  </g>
+
+  <!-- Counting Blocks Row -->
+  <g filter="url(#shadowCount2)">
+    <rect x="140" y="335" width="40" height="40" rx="10" fill="url(#blockBlue)" />
+    <text x="160" y="355" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="20" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">7</text>
+
+    <rect x="230" y="335" width="40" height="40" rx="10" fill="url(#starGrad2)" />
+    <text x="250" y="355" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="20" fill="#744210" text-anchor="middle" dominant-baseline="central">9</text>
+
+    <rect x="320" y="335" width="40" height="40" rx="10" fill="url(#appleGrad)" />
+    <text x="340" y="355" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="18" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">10</text>
+  </g>
+
+  <!-- Sparkles -->
+  <g fill="#F6AD55">
+    <path d="M 65 140 L 68 148 L 76 151 L 68 154 L 65 162 L 62 154 L 54 151 L 62 148 Z" />
+    <path d="M 435 340 L 438 348 L 446 351 L 438 354 L 435 362 L 432 354 L 424 351 L 432 348 Z" />
+  </g>
+</svg>

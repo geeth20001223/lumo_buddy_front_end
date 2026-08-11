@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSyCtGXFXiRQ_fUwYMrTE-SP7V_5I83sdejI";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 function buildSystemPrompt(context?: {
   childName?: string;
@@ -15,11 +15,10 @@ function buildSystemPrompt(context?: {
 Current Child Session Context (USE THIS for any game/level questions):
 - Child: ${context.childName || "the child"}
 - Support/assessment level: Level ${context.assessmentLevel ?? "not set — survey not done yet"}
-- Next recommended game to play: ${
-        context.nextGame
-          ? `"${context.nextGame.name}" (Level ${context.nextGame.level}, ${context.nextGame.area} area)`
-          : "none — please complete the survey first"
-      }
+- Next recommended game to play: ${context.nextGame
+      ? `"${context.nextGame.name}" (Level ${context.nextGame.level}, ${context.nextGame.area} area)`
+      : "none — please complete the survey first"
+    }
 - Games completed so far: ${context.gamesPlayed ?? 0} out of ${context.totalGames ?? 0}
 - Full game list with play status:
 ${context.gameList || "  No games loaded"}

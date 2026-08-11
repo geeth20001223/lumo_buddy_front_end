@@ -31,6 +31,9 @@ export default function ProfileDropdown({ email }: { email: string }) {
   }, []);
 
   const handleLogout = async () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.clear();
+    }
     await supabase.auth.signOut();
     router.push("/");
     router.refresh();

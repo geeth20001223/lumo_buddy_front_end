@@ -75,7 +75,7 @@ export const ROUTINE_BANK: RoutineQuestion[] = [
       { id: "s17", text: "Wash hands", icon: "🧼", order: 1 },
       { id: "s18", text: "Sit at table", icon: "🪑", order: 2 },
       { id: "s19", text: "Eat food", icon: "🍱", order: 3 },
-      { id: "s20", text: "Clean plate", icon: "🧼", order: 4 },
+      { id: "s20", text: "Clean plate", icon: "🧽", order: 4 },
     ],
   },
   {

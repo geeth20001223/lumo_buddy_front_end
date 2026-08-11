@@ -13,15 +13,15 @@ interface RecommendedNextActivityProps {
 }
 
 const GAME_ASSETS: Record<string, string> = {
-  "emotion-face-match": "/images/games/emotion-face-match.png",
-  "count-the-objects": "/images/games/count-the-objects.png",
-  "daily-routine-order": "/images/games/daily-routine.png",
-  "emotion-reflection-board": "/images/games/emotion-story.png",
-  "emotion-story-choice": "/images/games/emotion-story.png",
-  "memory-match": "/images/games/memory-match.png",
-  "pattern-builder": "/images/games/pattern-builder.png",
+  "emotion-face-match": "/images/games/emotion-face-match-1.png",
+  "count-the-objects": "/images/games/count-the-objects-1.png",
+  "daily-routine-order": "/images/games/daily-routine-order-1.png",
+  "emotion-reflection-board": "/images/games/emotion-story-choice-1.png",
+  "emotion-story-choice": "/images/games/emotion-story-choice-3.svg",
+  "memory-match": "/images/games/memory-match-1.png",
+  "pattern-builder": "/images/games/pattern-builder-1.png",
   "personal-choice-adventure": "/images/games/personal-choice.png",
-  "shape-number-match": "/images/games/shapes-&-number-match.png",
+  "shape-number-match": "/images/games/shape-number-match-2.svg",
 };
 
 export function RecommendedNextActivity({ childId, recommendation }: RecommendedNextActivityProps) {
