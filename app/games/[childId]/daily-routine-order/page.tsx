@@ -254,15 +254,18 @@ export default function DailyRoutineOrderPage() {
     <main className="daily-routine-page relative min-h-screen bg-[#fffaf0] pb-24 sm:pb-10">
       <RoutineAtmosphere />
 
-      <RoutineGameHeader
-        childId={params.childId}
-        score={currentScore}
-        level={level}
-      />
+      {gameState !== "start" && (
+        <RoutineGameHeader
+          childId={params.childId}
+          score={currentScore}
+          level={level}
+        />
+      )}
 
       <div className="relative z-10 mx-auto w-full max-w-[1180px] px-4 sm:px-6 lg:px-8">
         {gameState === "start" && (
           <GameIntroScreen
+            gameTitle="Daily Routine"
             title="What Happens First?"
             description="Look at the mixed steps and tap them in the order they happen."
             level={level}

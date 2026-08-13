@@ -31,16 +31,12 @@ export function EmotionAnswerGrid({
 
   return (
     <div
-      className={`mx-auto grid w-full ${
-        compact
-          ? "grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:grid-cols-6"
-          : "grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:flex lg:flex-wrap lg:justify-center"
-      }`}
+      className={`mx-auto w-full ${compact
+        ? "flex flex-row justify-center items-stretch gap-2 sm:gap-3.5"
+        : "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:flex lg:flex-wrap lg:justify-center"
+        }`}
     >
       {options.map((emotion, index) => {
-        const centeredFiveOptionClass =
-          options.length === 5 && index === 3 ? "md:col-start-2" : "";
-
         return (
           <motion.button
             key={emotion.id}
@@ -57,23 +53,21 @@ export function EmotionAnswerGrid({
             onClick={() => onAnswer(emotion.label)}
             aria-label={emotion.label}
             className={`
-              group relative flex items-center transition-all
+              group relative flex items-center transition-all flex-1 min-w-0
               disabled:cursor-not-allowed disabled:opacity-40
               ${emotion.color} border-white
-              ${
-                compact
-                  ? `min-h-[96px] ${showImages ? "flex-row justify-start" : "flex-col justify-center"} gap-3 rounded-2xl border-2 px-3 py-3 duration-300 sm:min-h-[104px] md:col-span-2 md:gap-1 md:py-2.5 ${centeredFiveOptionClass}`
-                  : "flex-col rounded-[2rem] border-4 p-6 shadow-xl duration-500 sm:rounded-[3rem] sm:p-12 lg:p-16"
+              ${compact
+                ? `min-h-[76px] ${showImages ? "flex-row justify-start" : "flex-col justify-center"} gap-2.5 rounded-2xl border-2 px-3 py-2 duration-300 sm:min-h-[88px] md:py-2.5`
+                : "flex-col rounded-[2rem] border-4 p-6 shadow-xl duration-500 sm:rounded-[3rem] sm:p-12 lg:p-16"
               }
             `}
           >
             {showImages ? (
               <div
-                className={`relative shrink-0 overflow-hidden rounded-[1.25rem] bg-white shadow-sm ${
-                  compact
-                    ? "size-[68px] sm:size-[72px] md:size-20"
-                    : "size-24 sm:size-28"
-                }`}
+                className={`relative shrink-0 overflow-hidden rounded-[1.25rem] bg-white shadow-sm ${compact
+                  ? "size-[52px] sm:size-[60px]"
+                  : "size-24 sm:size-28"
+                  }`}
               >
                 {MOOD_IMAGES[emotion.id] ? (
                   <Image
@@ -91,11 +85,10 @@ export function EmotionAnswerGrid({
               </div>
             ) : null}
             <span
-              className={`relative z-10 font-black text-slate-800/80 whitespace-nowrap tracking-tight ${
-                compact
-                  ? `${showImages ? "text-sm sm:text-base" : "text-base sm:text-lg"} leading-none`
-                  : "text-2xl uppercase tracking-[0.2em] sm:text-3xl"
-              }`}
+              className={`relative z-10 font-black text-slate-800/80 whitespace-nowrap tracking-tight ${compact
+                ? `${showImages ? "text-sm sm:text-base" : "text-base sm:text-lg"} leading-none`
+                : "text-2xl uppercase tracking-[0.2em] sm:text-3xl"
+                }`}
             >
               {emotion.label}
             </span>

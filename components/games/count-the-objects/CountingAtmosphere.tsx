@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export function CountingAtmosphere() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div className="pointer-events-none fixed inset-0 w-screen h-screen -z-10 overflow-hidden select-none" aria-hidden="true">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_20%,rgba(165,243,252,0.45),transparent_30%),radial-gradient(circle_at_84%_18%,rgba(191,219,254,0.48),transparent_32%),radial-gradient(circle_at_52%_88%,rgba(221,214,254,0.34),transparent_34%),linear-gradient(135deg,#f0fdff_0%,#f6fbff_46%,#f7f5ff_100%)]" />
 
       <motion.div

@@ -283,19 +283,30 @@ export function JourneyCard({ childId, game, isFirstUnlocked, isHighlighted }: J
           )}
         </div>
 
-        {/* Top Mascot Peek with Floating & Waving Animation */}
+        {/* Top Mascot 3D Avatar Badge Peek with Level-Based Mascot Poses */}
         <motion.div
           animate={isUnlocked ? { y: [0, -8, 0], rotate: [0, 4, -4, 0] } : {}}
           transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-4 right-4 w-16 h-16 opacity-70 group-hover:opacity-100 z-20 pointer-events-none transition-opacity duration-300"
+          className="absolute top-4 right-4 z-20 pointer-events-none"
         >
-          <Image
-            src={theme.mascot}
-            alt="Mascot"
-            width={60}
-            height={60}
-            className={`object-contain ${!isUnlocked ? "grayscale" : ""}`}
-          />
+          <div className="relative flex size-14 sm:size-16 items-center justify-center rounded-full bg-white/95 shadow-[0_8px_25px_rgba(56,189,248,0.22)] ring-4 ring-white backdrop-blur-md p-1.5 transition-transform duration-300 group-hover:scale-110">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-200/50 via-purple-100/30 to-amber-100/40 blur-xs" />
+            <div className="relative size-full">
+              <Image
+                src={
+                  game.level === 1
+                    ? "/mascot/mascot-happy.png"
+                    : game.level === 2
+                    ? "/mascot/mascot-supportive.png"
+                    : "/mascot/mascot-normal.png"
+                }
+                alt="Mascot"
+                fill
+                className={`object-contain ${!isUnlocked ? "grayscale opacity-40" : ""}`}
+                priority
+              />
+            </div>
+          </div>
         </motion.div>
 
         {/* Decorative Floating Sparkles with Color Shifts */}

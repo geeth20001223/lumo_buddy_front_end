@@ -200,11 +200,12 @@ export default function EmotionFaceMatchGamePage() {
   if (gameState === "start") {
     return (
       <GameIntroScreen
+        gameTitle="Emotion Face Match"
         title="Emotion Face Match"
         description="Let's match faces to feelings together. We have fun rounds ahead!"
         level={level}
         levelLabel={levelConfig.label}
-        mascotImage="/images/games/emotion-face-match.png"
+        mascotImage="/mascot/mascot-happy.png"
         buttonText="Start Exploring"
         onStart={startGame}
         onBack={() => router.push(`/games/${params.childId}`)}
@@ -253,16 +254,16 @@ export default function EmotionFaceMatchGamePage() {
             </header>
 
             <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 sm:p-4">
-              <div className="grid items-center gap-4 rounded-[1.75rem] border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white p-4 shadow-sm sm:p-5 md:grid-cols-[minmax(230px,0.8fr)_1.2fr]">
+              <div className="grid items-center gap-3 rounded-[1.5rem] border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white p-2.5 shadow-sm sm:p-3 md:grid-cols-[minmax(180px,0.7fr)_1.3fr]">
                 <EmotionPromptCard
                   question={question}
                   feedbackVisible={!!feedback.type}
                   compact
                 />
 
-                <div className="flex flex-col items-center justify-center gap-3 text-center">
+                <div className="flex flex-col items-center justify-center gap-2 text-center">
                   <div
-                    className={`flex items-center justify-center gap-3 rounded-2xl border px-4 py-3 ${feedback.type === "success"
+                    className={`flex items-center justify-center gap-3 rounded-2xl border px-3.5 py-2 ${feedback.type === "success"
                       ? "border-emerald-200 bg-emerald-50"
                       : feedback.type === "info"
                         ? "border-amber-200 bg-amber-50"
@@ -275,7 +276,7 @@ export default function EmotionFaceMatchGamePage() {
                       size="sm"
                       className="hidden min-[679px]:block scale-75"
                     />
-                    <p className="max-w-52 text-sm font-extrabold leading-snug text-slate-700 sm:text-base">
+                    <p className="max-w-xs text-xs font-extrabold leading-snug text-slate-700 sm:text-sm">
                       <span className="min-[679px]:hidden">{mobileMascotMessage}</span>
                       <span className="hidden min-[679px]:inline">
                         {feedback.type ? feedback.message : "Look at the face. How do they feel?"}
@@ -283,10 +284,10 @@ export default function EmotionFaceMatchGamePage() {
                     </p>
                   </div>
 
-                  <h1 className="text-2xl font-black leading-tight tracking-tight text-slate-900 sm:text-3xl">
+                  <h1 className="text-xl font-black leading-tight tracking-tight text-slate-900 sm:text-2xl">
                     {question.instruction}
                   </h1>
-                  <div className="h-1.5 w-16 rounded-full bg-blue-400" />
+                  <div className="h-1 w-12 rounded-full bg-blue-400" />
                 </div>
               </div>
 
@@ -301,33 +302,29 @@ export default function EmotionFaceMatchGamePage() {
               </div>
             </div>
 
-            <footer className="grid gap-3 border-t border-slate-100 bg-white px-4 py-3 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:px-5">
+            <footer className="flex items-center justify-between gap-4 border-t border-slate-100 bg-white px-4 py-2.5 sm:px-6">
               <button
                 onClick={() => router.push(`/games/${params.childId}`)}
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-200"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 sm:text-sm"
               >
-                <LogOut size={17} aria-hidden="true" />
+                <LogOut size={16} aria-hidden="true" />
                 Exit game
               </button>
 
-              <div className="flex min-h-12 items-center justify-center gap-2 rounded-full bg-blue-50 px-4 text-center text-xs font-bold text-blue-700 sm:text-sm">
-                <Heart size={16} fill="currentColor" aria-hidden="true" />
-                It&apos;s okay to take your time. You&apos;re doing great!
+              <div className="flex flex-1 items-center justify-center px-2">
+                <div className="flex min-h-10 items-center justify-center gap-2 rounded-full bg-blue-50 px-4 text-center text-xs font-bold text-blue-700 sm:text-sm">
+                  <Heart size={16} fill="currentColor" aria-hidden="true" />
+                  It&apos;s okay to take your time. You&apos;re doing great!
+                </div>
               </div>
 
-              {levelConfig.timerEnabled && (
-                <span className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-black text-white shadow-md shadow-blue-200">
-                  <Zap size={17} fill="currentColor" aria-hidden="true" />
-                  Speed challenge
-                </span>
-              )}
-              {!levelConfig.timerEnabled && <span className="hidden sm:block" />}
+              <div className="hidden w-[100px] sm:block" />
             </footer>
           </section>
         )}
 
         {question && gameState === "playing" && (
-          <div className="fixed bottom-20 right-3 z-30 pointer-events-none min-[679px]:hidden">
+          <div className="hidden">
             <div className="relative pointer-events-auto">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -464,6 +461,7 @@ export default function EmotionFaceMatchGamePage() {
     </main>
   );
 }
+
 
 
 

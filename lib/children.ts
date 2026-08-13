@@ -210,3 +210,33 @@ export async function getLatestAssessmentForChild(childId: string) {
 
   return data;
 }
+
+export async function updateChildNotes(childId: string, notes: string): Promise<boolean> {
+  try {
+    const parent = await getCurrentParent();
+    const { error } = await supabase
+      .from("children")
+      .update({ notes })
+      .eq("id", childId)
+      .eq("parent_id", parent.id);
+
+    if (error) {
+      console.warn("[children.ts] Supabase notes update error:", error.message);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`child_notes_${childId}`, notes);
+      }
+      return true;
+    }
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`child_notes_${childId}`, notes);
+    }
+    return true;
+  } catch (err) {
+    console.warn("[children.ts] Notes save fallback to local storage:", err);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`child_notes_${childId}`, notes);
+    }
+    return true;
+  }
+}

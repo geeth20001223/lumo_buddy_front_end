@@ -232,6 +232,7 @@ export default function MemoryMatchPage() {
       <div className="relative z-10 mx-auto w-full max-w-[1220px] px-4 pb-24 sm:px-6 lg:px-8">
         {gameState === "start" && (
           <GameIntroScreen
+            gameTitle="Memory Match"
             title="Ready to Match?"
             description="Find the matching cards to practice your memory and focus. Let's explore together!"
             level={level}

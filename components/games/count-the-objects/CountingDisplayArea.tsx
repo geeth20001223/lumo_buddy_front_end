@@ -22,7 +22,7 @@ export function CountingDisplayArea({ emoji, count }: CountingDisplayAreaProps) 
       transition={{ duration: 0.45, ease: "easeOut" }}
       className="mx-auto w-full max-w-5xl"
     >
-      <div className="flex min-h-[250px] flex-col items-center justify-center gap-7 rounded-[2.5rem] border border-white/80 bg-white/80 p-6 text-center shadow-[0_22px_58px_rgba(34,211,238,0.11)] backdrop-blur-xl sm:min-h-[290px] sm:p-8 lg:p-10">
+      <div className="flex min-h-[140px] flex-col items-center justify-center gap-3.5 rounded-[2rem] border border-white/80 bg-white/80 p-3.5 text-center shadow-[0_22px_58px_rgba(34,211,238,0.11)] backdrop-blur-xl sm:min-h-[170px] sm:p-5">
         <div className={getGridLayout()}>
           {Array.from({ length: count }).map((_, i) => (
             <motion.span
@@ -30,15 +30,15 @@ export function CountingDisplayArea({ emoji, count }: CountingDisplayAreaProps) 
               initial={{ opacity: 0, y: 12, scale: 0.88 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.35, delay: i * 0.04, ease: "easeOut" }}
-              className="select-none rounded-2xl bg-white/60 px-2 py-1 text-4xl drop-shadow-sm sm:text-5xl lg:text-6xl"
+              className="select-none rounded-2xl bg-white/60 px-2 py-1 text-3xl drop-shadow-sm sm:text-4xl lg:text-5xl"
             >
               {emoji}
             </motion.span>
           ))}
         </div>
 
-        <div className="rounded-full border border-cyan-100 bg-white/75 px-6 py-2 shadow-[0_10px_22px_rgba(34,211,238,0.08)]">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+        <div className="rounded-full border border-cyan-100 bg-white/75 px-4 py-1.5 shadow-[0_10px_22px_rgba(34,211,238,0.08)]">
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 sm:text-xs">
             How many are there?
           </p>
         </div>

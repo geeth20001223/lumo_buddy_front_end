@@ -13,7 +13,7 @@ const FLOATING_ORBS = [
 
 export function CalmBackground() {
   return (
-    <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none select-none">
+    <div className="fixed inset-0 w-screen h-screen -z-10 overflow-hidden pointer-events-none select-none">
       {/* Base Soft Pastel Gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-sky-50/60 to-purple-50/40" />
 

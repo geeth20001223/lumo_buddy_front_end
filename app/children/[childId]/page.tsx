@@ -15,6 +15,7 @@ import { AreaLevelGrid } from "@/components/children/AreaLevelGrid";
 import { QuickLearningStatus } from "@/components/children/QuickLearningStatus";
 import { ChildNotesCard } from "@/components/children/ChildNotesCard";
 import { ChildActionPanel } from "@/components/children/ChildActionPanel";
+import { AnimatedLumiSupportWidget } from "@/components/children/AnimatedLumiSupportWidget";
 import { getChildGameSummary } from "@/lib/game-scores";
 import AnimatedBackground from "@/components/layout/AnimatedBackground";
 
@@ -166,7 +167,6 @@ export default function ChildDetailsPage() {
               </section>
             )}
 
-            <ChildNotesCard notes={child.notes} />
           </div>
 
           {/* Right Column: Quick Stats & Actions (Small) */}
@@ -206,8 +206,20 @@ export default function ChildDetailsPage() {
                 </div>
               </div>
             </div>
+
+            {/* Animated Learning Companion Box */}
+            <AnimatedLumiSupportWidget childName={child.child_name} />
           </div>
 
+        </div>
+
+        {/* Full-Width Parent Notes Bar (Spans 100% of max-w-7xl, completely filling empty space) */}
+        <div className="mt-8">
+          <ChildNotesCard
+            childId={child.id}
+            notes={child.notes}
+            childName={child.child_name}
+          />
         </div>
       </div>
     </main>

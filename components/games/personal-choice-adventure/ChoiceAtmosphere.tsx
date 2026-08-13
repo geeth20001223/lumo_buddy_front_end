@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export function ChoiceAtmosphere() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div className="pointer-events-none fixed inset-0 w-screen h-screen -z-10 overflow-hidden select-none" aria-hidden="true">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_20%,rgba(251,207,232,0.42),transparent_30%),radial-gradient(circle_at_84%_18%,rgba(191,219,254,0.48),transparent_32%),radial-gradient(circle_at_52%_88%,rgba(254,215,170,0.34),transparent_34%),linear-gradient(135deg,#fff8fb_0%,#f4fbff_46%,#faf7ff_100%)]" />
 
       <motion.div

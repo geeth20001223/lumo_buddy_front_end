@@ -23,6 +23,7 @@ import { CalmCompletionScreen } from "@/components/games/CalmCompletionScreen";
 import { StoryProgressBar } from "@/components/games/emotion-story-choice/StoryProgressBar";
 import { StoryCard } from "@/components/games/emotion-story-choice/StoryCard";
 import { StoryAnswerGrid } from "@/components/games/emotion-story-choice/StoryAnswerGrid";
+import { MascotFeedbackBar } from "@/components/games/redesign/MascotFeedbackBar";
 import { StoryAtmosphere } from "@/components/games/emotion-story-choice/StoryAtmosphere";
 import { GameIntroScreen } from "@/components/games/redesign/GameIntroScreen";
 import { LumiMascot } from "@/components/games/redesign/LumiMascot";
@@ -253,6 +254,7 @@ export default function EmotionStoryChoicePage() {
   if (gameState === "start") {
     return (
       <GameIntroScreen
+        gameTitle="Story Choice"
         title="Story Choice"
         description={`Hello ${child?.child_name ?? "friend"}! Let's read some short stories and find the feelings together.`}
         level={level}
@@ -341,6 +343,10 @@ export default function EmotionStoryChoicePage() {
               <StoryCard story={story} />
             </div>
 
+            <MascotFeedbackBar
+              feedbackType={feedback.visible ? (feedback.type === "correct" ? "correct" : "incorrect") : null}
+            />
+
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{
@@ -364,7 +370,7 @@ export default function EmotionStoryChoicePage() {
       )}
 
       {story && uiStage.showMascot && (
-        <div className="fixed bottom-20 right-3 z-30 pointer-events-none min-[728px]:bottom-auto min-[728px]:right-6 min-[728px]:top-28 xl:right-8 xl:top-24">
+        <div className="hidden min-[728px]:block fixed right-6 top-28 xl:right-8 xl:top-24 z-30 pointer-events-none">
           <div className="relative flex items-end justify-end gap-3 pointer-events-auto min-[728px]:items-start">
             <AnimatePresence mode="wait">
               <motion.div

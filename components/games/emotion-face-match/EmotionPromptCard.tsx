@@ -39,18 +39,18 @@ export function EmotionPromptCard({
             className="h-full w-full"
           >
             {isFace && moodImage ? (
-              <div className="relative mx-auto aspect-square w-full max-w-[310px] overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white shadow-sm">
+              <div className="relative mx-auto aspect-square w-full max-w-[210px] overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-sm">
                 <Image
                   src={moodImage}
                   alt="Child showing a feeling"
                   fill
                   priority
-                  sizes="(max-width: 640px) 78vw, 310px"
+                  sizes="(max-width: 640px) 78vw, 210px"
                   className="object-cover"
                 />
               </div>
             ) : !isFace ? (
-              <div className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 text-center shadow-sm">
+              <div className="flex aspect-[16/9] w-full flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 text-center shadow-sm">
                 <span aria-hidden="true" className="text-6xl">📖</span>
                 <h2 className="text-xl font-black leading-snug text-slate-900 sm:text-2xl">
                   {question.situation}

@@ -7,32 +7,33 @@ type FeedbackType = "correct" | "incorrect" | null;
 
 interface MascotFeedbackBarProps {
     feedbackType: FeedbackType;
+    childName?: string;
 }
 
 const CONFIG = {
     correct: {
         image: "/mascot/mascot-happy.png",
         message: "Great job! You got it right! 🌟",
-        bg: "bg-green-50/80",
-        border: "border-green-200",
-        text: "text-green-700",
-        glow: "bg-green-200/40",
+        bg: "bg-gradient-to-r from-emerald-50 via-green-50 to-teal-50",
+        border: "border-emerald-300/90",
+        text: "text-emerald-800 font-black",
+        glow: "bg-emerald-200/40",
     },
     incorrect: {
         image: "/mascot/mascot-supportive.png",
         message: "Good try! Let's try again together. 💛",
-        bg: "bg-amber-50/80",
-        border: "border-amber-200",
-        text: "text-amber-700",
+        bg: "bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50",
+        border: "border-amber-300/90",
+        text: "text-amber-800 font-black",
         glow: "bg-amber-100/40",
     },
     normal: {
         image: "/mascot/mascot-normal.png",
         message: "Choose the answer you think is correct.",
-        bg: "bg-blue-50/50",
-        border: "border-blue-100",
-        text: "text-blue-700",
-        glow: "bg-blue-100/20",
+        bg: "bg-gradient-to-r from-sky-50/95 via-blue-50/90 to-indigo-50/90",
+        border: "border-sky-300/80",
+        text: "text-slate-800 font-extrabold",
+        glow: "bg-sky-200/30",
     },
 };
 
@@ -49,8 +50,8 @@ export function MascotFeedbackBar({ feedbackType }: MascotFeedbackBarProps) {
                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
                 transition={{ duration: 0.35, ease: "easeOut" }}
                 className={`
-          w-full max-w-xl mx-auto flex items-center gap-5 px-5 py-4
-          rounded-[2.5rem] border-2 backdrop-blur-xl shadow-lg
+          w-full max-w-xl mx-auto flex items-center gap-4 px-4 py-2.5 sm:px-5 sm:py-3
+          rounded-[2rem] border-2 backdrop-blur-xl shadow-[0_12px_32px_rgba(56,189,248,0.14)]
           ${cfg.bg} ${cfg.border}
         `}
             >
@@ -86,3 +87,4 @@ export function MascotFeedbackBar({ feedbackType }: MascotFeedbackBarProps) {
         </AnimatePresence>
     );
 }
+

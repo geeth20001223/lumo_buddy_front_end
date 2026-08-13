@@ -210,10 +210,10 @@ export default function ShapeNumberMatchPage() {
   }
 
   return (
-    <main className="min-h-screen relative overflow-hidden bg-slate-50 flex flex-col pb-20">
+    <main className="h-screen relative overflow-hidden bg-slate-50 flex flex-col">
       <CalmBackground />
 
-      <div className="absolute inset-0 z-0 bg-gradient-to-br from-sky-50 via-cyan-50/20 to-violet-50/20 opacity-60" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-sky-50 via-cyan-50/20 to-violet-50/20 opacity-60 pointer-events-none" />
 
       {gameState !== "start" && (
         <ShapeMatchHeader
@@ -223,9 +223,10 @@ export default function ShapeNumberMatchPage() {
         />
       )}
 
-      <div className="relative z-10 flex-1 flex flex-col px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-3 sm:px-6 py-2">
         {gameState === "start" && (
           <GameIntroScreen
+            gameTitle="Shape Match"
             title="Number & Shape Match"
             description="Match shapes, numbers, and quantities! Explore and connect matching numbers."
             level={level}
@@ -243,18 +244,16 @@ export default function ShapeNumberMatchPage() {
         )}
 
         {gameState === "playing" && questions.length > 0 && (
-          <div className="flex-1 flex flex-col items-center justify-center gap-8 sm:gap-12">
-            <div className="hidden w-full sm:block">
-              <MascotFeedbackBar feedbackType={feedback.type} />
-            </div>
+          <div className="mx-auto flex w-full max-w-[1180px] flex-1 flex-col justify-between overflow-y-auto rounded-[2.2rem] border border-white/80 bg-white/75 p-4 shadow-[0_26px_74px_rgba(37,99,235,0.12)] backdrop-blur-xl sm:p-6 gap-4">
+            <div className="w-full space-y-3.5">
+              <ShapeDisplayCard
+                mode={questions[currentRound].mode}
+                emoji={questions[currentRound].emoji}
+                count={questions[currentRound].count}
+              />
 
-            <ShapeDisplayCard
-              mode={questions[currentRound].mode}
-              emoji={questions[currentRound].emoji}
-              count={questions[currentRound].count}
-            />
+              <MascotFeedbackBar feedbackType={feedback.type} childName={child?.child_name} />
 
-            <div className="w-full space-y-12">
               <ShapeAnswerGrid
                 mode={questions[currentRound].mode}
                 emoji={questions[currentRound].emoji}
@@ -262,19 +261,12 @@ export default function ShapeNumberMatchPage() {
                 onSelect={handleSelectAnswer}
                 disabled={isAnswered}
               />
+            </div>
 
+            <div className="w-full pt-2">
               <ShapeProgress
                 current={currentRound + 1}
                 total={levelConfig.rounds}
-              />
-            </div>
-
-            <div className="fixed bottom-20 right-3 z-30 pointer-events-none sm:hidden">
-              <LumiMascot
-                state={mobileMascotState}
-                size="sm"
-                message={mobileMascotMessage}
-                className="items-end"
               />
             </div>
           </div>

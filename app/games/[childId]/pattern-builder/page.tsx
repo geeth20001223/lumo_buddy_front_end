@@ -19,6 +19,7 @@ import { PatternSequenceCard } from "@/components/games/pattern-builder/PatternS
 import { PatternAnswerGrid } from "@/components/games/pattern-builder/PatternAnswerGrid";
 import { PatternProgress } from "@/components/games/pattern-builder/PatternProgress";
 import { LumiMascot } from "@/components/games/redesign/LumiMascot";
+import { MascotFeedbackBar } from "@/components/games/redesign/MascotFeedbackBar";
 
 import { getLevelConfig } from "@/lib/games/pattern-builder/levels";
 import { getQuestionsForLevel, PatternQuestion } from "@/lib/games/pattern-builder/patterns";
@@ -238,12 +239,12 @@ export default function PatternBuilderPage() {
 
   if (gameState === "start") {
     return (
-      <main className="relative min-h-screen overflow-y-auto bg-[#f6fbff] pb-10">
+      <main className="relative h-screen overflow-hidden bg-[#f6fbff]">
         <PatternAtmosphere />
-        <div className="flex min-h-screen flex-col">
-          <PatternGameHeader childId={params.childId} score={currentScore} level={level} />
-          <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-4 pb-6 sm:px-6">
+        <div className="flex h-full flex-col justify-center">
+          <div className="relative z-10 flex min-h-0 flex-1 items-center justify-center px-4 py-2 sm:px-6">
             <GameIntroScreen
+              gameTitle="Pattern Builder"
               title="Complete the Pattern!"
               description="Look at the sequence and find what comes next. Let's build it together!"
               level={level}
@@ -267,7 +268,9 @@ export default function PatternBuilderPage() {
   return (
     <main className="relative min-h-screen bg-[#f6fbff] pb-24 sm:pb-10">
       <PatternAtmosphere />
-      <PatternGameHeader childId={params.childId} score={currentScore} level={level} />
+      {gameState === "playing" && (
+        <PatternGameHeader childId={params.childId} score={currentScore} level={level} />
+      )}
 
       <div className="relative z-10 mx-auto w-full max-w-[1180px] px-4 sm:px-6 lg:px-8">
         {gameState === "playing" && currentQuestion && (
@@ -277,6 +280,19 @@ export default function PatternBuilderPage() {
               instruction={currentQuestion.instruction}
             />
 
+            <div className="w-full flex-shrink-0">
+              <MascotFeedbackBar
+                feedbackType={
+                  feedback.type === "correct"
+                    ? "correct"
+                    : feedback.type === "incorrect"
+                    ? "incorrect"
+                    : null
+                }
+                childName={child?.child_name}
+              />
+            </div>
+
             <PatternAnswerGrid
               options={currentQuestion.options}
               onSelect={handleAnswer}
@@ -284,17 +300,6 @@ export default function PatternBuilderPage() {
             />
 
             <PatternProgress current={currentRound + 1} total={totalRounds} />
-
-            <div className="fixed bottom-20 right-3 z-30 flex items-end gap-2 pointer-events-none sm:bottom-7 sm:right-7 sm:pointer-events-auto lg:bottom-10 lg:right-10">
-              <div className="mb-8 max-w-[200px] rounded-[1.5rem] border border-blue-100 bg-white/90 px-4 py-3 text-center shadow-[0_16px_36px_rgba(15,23,42,0.14)] backdrop-blur-md sm:mb-10 sm:max-w-[240px] sm:px-5 sm:py-4 lg:mb-12 lg:max-w-[260px]">
-                <p className="text-sm font-black leading-snug text-slate-800 sm:text-base">{mobileMascotMessage}</p>
-              </div>
-              <LumiMascot
-                state={mobileMascotState}
-                size="float"
-                className="items-end"
-              />
-            </div>
           </div>
         )}
 

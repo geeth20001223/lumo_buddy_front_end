@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export function PatternAtmosphere() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div className="pointer-events-none fixed inset-0 w-screen h-screen -z-10 overflow-hidden select-none" aria-hidden="true">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_22%,rgba(191,219,254,0.5),transparent_28%),radial-gradient(circle_at_78%_20%,rgba(196,181,253,0.38),transparent_30%),radial-gradient(circle_at_50%_88%,rgba(186,230,253,0.5),transparent_34%),linear-gradient(135deg,#f8fbff_0%,#f1f8ff_46%,#faf7ff_100%)]" />
 
       <motion.div

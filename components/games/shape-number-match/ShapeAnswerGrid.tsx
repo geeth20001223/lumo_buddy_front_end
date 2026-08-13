@@ -30,12 +30,12 @@ export function ShapeAnswerGrid({ mode, emoji, options, onSelect, disabled }: Sh
           whileTap={!disabled ? { scale: 0.98 } : {}}
           disabled={disabled}
           onClick={() => onSelect(option)}
-          className={`relative group p-6 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:border-sky-100 disabled:opacity-50 flex flex-col items-center justify-center gap-3 min-h-[140px] ${
-            mode === "NUMBER_TO_GROUP" ? "sm:min-h-[180px]" : ""
+          className={`relative group p-3 rounded-[1.5rem] bg-white border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:border-sky-100 disabled:opacity-50 flex flex-col items-center justify-center gap-2 min-h-[68px] sm:min-h-[80px] ${
+            mode === "NUMBER_TO_GROUP" ? "sm:min-h-[110px]" : ""
           }`}
         >
           {mode === "COUNT_TO_NUMBER" ? (
-            <span className="text-4xl font-black text-slate-800 group-hover:text-sky-600 transition-colors">
+            <span className="text-3xl font-black text-slate-800 group-hover:text-sky-600 transition-colors sm:text-4xl">
               {option.value}
             </span>
           ) : (

@@ -19,6 +19,7 @@ import { ReflectionSituationCard } from "@/components/games/emotion-reflection-b
 import { ReflectionEmotionGrid } from "@/components/games/emotion-reflection-board/ReflectionEmotionGrid";
 import { ReflectionProgress } from "@/components/games/emotion-reflection-board/ReflectionProgress";
 import { MascotFeedbackBar } from "@/components/games/redesign/MascotFeedbackBar";
+import { GameIntroScreen } from "@/components/games/redesign/GameIntroScreen";
 
 // Logic
 import { getLevelConfig } from "@/lib/games/emotion-reflection-board/levels";
@@ -77,9 +78,8 @@ export default function EmotionReflectionBoardPage() {
         const roundSituations = getSituationsForLevel(level, levelConfig.rounds);
         setSituations(roundSituations);
 
-        // Auto-start since this is a calm activity
-        startTimeRef.current = Date.now();
-        setGameState("playing");
+        // Set to start menu
+        setGameState("start");
       } catch (error) {
         console.error("[ReflectionBoard] Initialization failed:", error);
       } finally {
@@ -88,6 +88,11 @@ export default function EmotionReflectionBoardPage() {
     }
     init();
   }, [params.childId, level, levelConfig.rounds]);
+
+  const startGame = () => {
+    startTimeRef.current = Date.now();
+    setGameState("playing");
+  };
 
   // Interaction
   const handleSelectEmotion = (selectedId: string) => {
@@ -187,9 +192,30 @@ export default function EmotionReflectionBoardPage() {
 
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-rose-50 via-violet-50/20 to-blue-50/20 opacity-60" />
 
-      <ReflectionGameHeader childId={params.childId} level={level} />
+      {gameState !== "start" && (
+        <ReflectionGameHeader childId={params.childId} level={level} />
+      )}
 
-      <div className="relative z-10 flex-1 flex flex-col pb-20">
+      <div className="relative z-10 flex-1 flex flex-col min-h-0 px-3 sm:px-6 py-2">
+        {gameState === "start" && (
+          <GameIntroScreen
+            gameTitle="Emotion Reflection"
+            title="Reflection Board"
+            description="Explore how you feel in different situations. Every feeling is welcome!"
+            level={level}
+            levelLabel={`Level ${level} Activity`}
+            mascotImage="/mascot/mascot-happy.png"
+            buttonText="Start Reflection"
+            onStart={startGame}
+            onBack={() => router.push(`/games/${params.childId}`)}
+            accentColor="rose"
+            chips={[
+              { icon: "💖", text: "Self Awareness" },
+              { icon: "🌈", text: "Express Feelings" },
+            ]}
+          />
+        )}
+
         {gameState === "playing" && situations.length > 0 && (
           <div className="flex-1 flex flex-col items-center justify-center gap-12 sm:gap-16">
             {/* Reflection accepts all answers - mascot is always supportive after selection */}

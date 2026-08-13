@@ -57,15 +57,15 @@ export default function JourneyScrollSection() {
         </div>
 
         {/* Fixed Centered Header Title */}
-        <div className="absolute top-16 sm:top-20 left-0 w-full z-20 pointer-events-none flex flex-col items-center px-4">
-          <div className="inline-flex items-center justify-center px-4 py-1.5 mb-2.5 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 text-slate-600 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] shadow-sm">
+        <div className="absolute top-5 sm:top-8 left-0 w-full z-20 pointer-events-none flex flex-col items-center px-4">
+          <div className="inline-flex items-center justify-center px-4 py-1 mb-2 rounded-full bg-white/80 backdrop-blur-md border border-slate-200 text-slate-600 text-xs sm:text-sm font-bold uppercase tracking-[0.2em] shadow-sm">
             <span className="w-2 h-2 rounded-full bg-primary-blue mr-2.5 animate-pulse"></span>
             The Journey
           </div>
           <h2 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight drop-shadow-sm text-center">
             A gentle path to <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-blue via-secondary-violet to-teal-400">unlocking potential</span>
           </h2>
-          <div className="mt-2.5 flex items-center justify-center gap-2 text-slate-400 opacity-60">
+          <div className="mt-2 flex items-center justify-center gap-2 text-slate-400 opacity-60">
             <svg className="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
             </svg>
@@ -76,7 +76,7 @@ export default function JourneyScrollSection() {
         {/* The Track that moves horizontally */}
         <div
           ref={scrollTrackRef}
-          className="flex items-center h-full pt-[220px] sm:pt-[250px] lg:pt-[270px] pb-8 sm:pb-12 px-[10vw] will-change-transform"
+          className="flex items-center h-full pt-[270px] sm:pt-[310px] lg:pt-[340px] pb-8 sm:pb-12 px-[10vw] will-change-transform"
           style={{ width: "fit-content", transition: "transform 0.1s ease-out" }}
         >
           <div className="flex gap-10 sm:gap-16 items-center">

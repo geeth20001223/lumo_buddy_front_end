@@ -115,7 +115,7 @@ export function InteractiveLumiCharacter({ childName }: InteractiveLumiCharacter
   const firstName = childName.split(" ")[0] || "friend";
   const [stepIndex, setStepIndex] = useState(0);
   const [isBlinking, setIsBlinking] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
 
   const currentStep = SCENE_STEPS[stepIndex];
   const currentQuote = currentStep.getQuote(firstName);

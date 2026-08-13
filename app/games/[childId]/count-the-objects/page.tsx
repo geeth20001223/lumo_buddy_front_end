@@ -217,7 +217,7 @@ export default function CountTheObjectsPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen flex-col bg-[#f0fdff] pb-24 sm:pb-10">
+    <main className="relative flex h-screen overflow-hidden flex-col bg-[#f0fdff]">
       <CountingAtmosphere />
 
       {gameState !== "start" && (
@@ -228,9 +228,10 @@ export default function CountTheObjectsPage() {
         />
       )}
 
-      <div className="relative z-10 flex flex-1 flex-col px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 flex flex-1 min-h-0 flex-col px-3 sm:px-6 py-2">
         {gameState === "start" && (
           <GameIntroScreen
+            gameTitle="Count Objects"
             title="Count the Objects"
             description="Look closely at the fun objects on screen and choose the correct number! Let's practice counting together."
             level={level}
@@ -248,37 +249,26 @@ export default function CountTheObjectsPage() {
         )}
 
         {gameState === "playing" && questions.length > 0 && (
-          <div className="mx-auto flex w-full max-w-[1180px] flex-1 flex-col items-center justify-center gap-5 rounded-[2.75rem] border border-white/80 bg-white/75 p-4 shadow-[0_26px_74px_rgba(34,211,238,0.12)] backdrop-blur-xl sm:p-6 lg:gap-6 lg:p-8">
-            <div className="hidden sm:block">
-              <MascotFeedbackBar feedbackType={feedback.type} />
-            </div>
+          <div className="mx-auto flex w-full max-w-[1180px] flex-1 flex-col justify-between overflow-y-auto rounded-[2.2rem] border border-white/80 bg-white/75 p-4 shadow-[0_26px_74px_rgba(34,211,238,0.12)] backdrop-blur-xl sm:p-6 gap-4">
+            <div className="w-full space-y-3.5">
+              <CountingDisplayArea
+                emoji={questions[currentRound].emoji}
+                count={questions[currentRound].count}
+              />
 
-            <CountingDisplayArea
-              emoji={questions[currentRound].emoji}
-              count={questions[currentRound].count}
-            />
+              <MascotFeedbackBar feedbackType={feedback.type} childName={child?.child_name} />
 
-            <div className="w-full space-y-5">
               <NumberChoiceGrid
                 options={questions[currentRound].options}
                 onSelect={handleSelectAnswer}
                 disabled={isAnswered}
               />
+            </div>
 
+            <div className="w-full pt-2">
               <CountingProgress
                 current={currentRound + 1}
                 total={levelConfig.rounds}
-              />
-            </div>
-
-            <div className="fixed bottom-20 right-3 z-30 flex items-end gap-2 pointer-events-none sm:hidden">
-              <div className="mb-8 max-w-[180px] rounded-[1.5rem] border border-cyan-100 bg-white/90 px-4 py-3 text-center shadow-[0_16px_36px_rgba(15,23,42,0.14)] backdrop-blur-md">
-                <p className="text-sm font-black leading-snug text-slate-800">{mobileMascotMessage}</p>
-              </div>
-              <LumiMascot
-                state={mobileMascotState}
-                size="sm"
-                className="items-end"
               />
             </div>
           </div>
