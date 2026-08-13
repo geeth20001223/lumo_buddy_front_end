@@ -161,39 +161,51 @@ export function JourneyCard({ childId, game, isFirstUnlocked, isHighlighted }: J
   const themes = {
     emotion: {
       bg: "bg-gradient-to-br from-rose-50/90 via-pink-50/60 to-white",
-      button: "bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 shadow-rose-300/40",
+      bgHover: "group-hover:from-rose-100/95 group-hover:via-pink-100/80 group-hover:to-white",
+      button: "bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 hover:from-rose-600 hover:via-pink-600 hover:to-rose-700 shadow-rose-300/50",
       text: "text-rose-700",
       border: "border-rose-200",
-      accent: "bg-rose-200",
-      badge: "bg-rose-100/90 border-rose-200 text-rose-700",
-      mascot: "/mascot/mascot-normal.png"
+      accent: "bg-gradient-to-br from-rose-300 to-pink-300",
+      badge: "bg-rose-100/90 border-rose-200 text-rose-700 group-hover:bg-rose-500 group-hover:text-white group-hover:border-rose-400",
+      mascot: "/mascot/mascot-normal.png",
+      hoverRing: "group-hover:border-rose-400 group-hover:shadow-[0_0_40px_rgba(244,63,94,0.5)]",
+      glowColor: "from-rose-400/40 via-pink-400/30 to-purple-400/20",
     },
     cognitive: {
       bg: "bg-gradient-to-br from-blue-50/90 via-sky-50/60 to-white",
-      button: "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 shadow-blue-300/40",
+      bgHover: "group-hover:from-sky-100/95 group-hover:via-blue-100/80 group-hover:to-white",
+      button: "bg-gradient-to-r from-blue-500 via-sky-500 to-cyan-600 hover:from-blue-600 hover:via-sky-600 hover:to-cyan-700 shadow-blue-300/50",
       text: "text-blue-700",
       border: "border-blue-200",
-      accent: "bg-blue-200",
-      badge: "bg-blue-100/90 border-blue-200 text-blue-700",
-      mascot: "/mascot/mascot-happy.png"
+      accent: "bg-gradient-to-br from-blue-300 to-sky-300",
+      badge: "bg-blue-100/90 border-blue-200 text-blue-700 group-hover:bg-blue-500 group-hover:text-white group-hover:border-blue-400",
+      mascot: "/mascot/mascot-happy.png",
+      hoverRing: "group-hover:border-sky-400 group-hover:shadow-[0_0_40px_rgba(56,189,248,0.5)]",
+      glowColor: "from-sky-400/40 via-blue-400/30 to-cyan-400/20",
     },
     self_awareness: {
       bg: "bg-gradient-to-br from-amber-50/90 via-orange-50/60 to-white",
-      button: "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 shadow-amber-300/40",
+      bgHover: "group-hover:from-amber-100/95 group-hover:via-orange-100/80 group-hover:to-white",
+      button: "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:via-orange-600 hover:to-amber-700 shadow-amber-300/50",
       text: "text-amber-700",
       border: "border-amber-200",
-      accent: "bg-amber-200",
-      badge: "bg-amber-100/90 border-amber-200 text-amber-700",
-      mascot: "/mascot/mascot-normal.png"
+      accent: "bg-gradient-to-br from-amber-300 to-orange-300",
+      badge: "bg-amber-100/90 border-amber-200 text-amber-700 group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-400",
+      mascot: "/mascot/mascot-normal.png",
+      hoverRing: "group-hover:border-amber-400 group-hover:shadow-[0_0_40px_rgba(245,158,11,0.5)]",
+      glowColor: "from-amber-400/40 via-orange-400/30 to-yellow-400/20",
     },
     mathematical: {
       bg: "bg-gradient-to-br from-emerald-50/90 via-teal-50/60 to-white",
-      button: "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 shadow-emerald-300/40",
+      bgHover: "group-hover:from-emerald-100/95 group-hover:via-teal-100/80 group-hover:to-white",
+      button: "bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-600 hover:via-teal-600 hover:to-emerald-700 shadow-emerald-300/50",
       text: "text-emerald-700",
       border: "border-emerald-200",
-      accent: "bg-emerald-200",
-      badge: "bg-emerald-100/90 border-emerald-200 text-emerald-700",
-      mascot: "/mascot/mascot-normal.png"
+      accent: "bg-gradient-to-br from-emerald-300 to-teal-300",
+      badge: "bg-emerald-100/90 border-emerald-200 text-emerald-700 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-400",
+      mascot: "/mascot/mascot-normal.png",
+      hoverRing: "group-hover:border-emerald-400 group-hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]",
+      glowColor: "from-emerald-400/40 via-teal-400/30 to-cyan-400/20",
     },
   };
 
@@ -204,8 +216,9 @@ export function JourneyCard({ childId, game, isFirstUnlocked, isHighlighted }: J
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      whileHover={isUnlocked ? { scale: 1.03 } : { scale: 0.99 }}
-      className="relative w-full min-w-0 box-border flex flex-col h-full select-none"
+      whileHover={isUnlocked ? { scale: 1.03, y: -4 } : { scale: 0.99 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="group relative w-full min-w-0 box-border flex flex-col h-full select-none"
     >
       {/* Recommended Highlight Callout */}
       {isHighlighted && isUnlocked && (
@@ -232,29 +245,50 @@ export function JourneyCard({ childId, game, isFirstUnlocked, isHighlighted }: J
         </motion.div>
       )}
 
+      {/* Outer Card Shell with Background Color Shifts */}
       <div className={`
-        relative overflow-hidden rounded-[3rem] border-3 transition-all duration-500 flex flex-col justify-between h-full w-full
+        relative overflow-hidden rounded-[3rem] transition-all duration-500 flex flex-col justify-between h-full w-full
         ${isHighlighted && isUnlocked
-          ? `${theme.bg} border-4 border-amber-400 ring-4 ring-amber-300/80 shadow-[0_0_40px_rgba(251,191,36,0.5)] scale-[1.02]`
+          ? `${theme.bg} ${theme.bgHover} border-4 border-amber-400 ring-4 ring-amber-300/80 shadow-[0_0_40px_rgba(251,191,36,0.5)] scale-[1.02]`
           : isUnlocked
-            ? `${theme.bg} ${theme.border} border-2 shadow-lg hover:shadow-xl`
+            ? `${theme.bg} ${theme.bgHover} ${theme.border} border-2 shadow-lg hover:shadow-2xl`
             : 'bg-slate-100/80 border-slate-200/90 shadow-sm'}
       `}>
-        {/* Level Badge */}
+        {/* Animated Background Bokeh Orbs */}
+        {isUnlocked && (
+          <>
+            <motion.div
+              animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.4, 0.2] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-10 -left-10 w-44 h-44 rounded-full bg-gradient-to-br from-white/80 to-transparent blur-2xl pointer-events-none"
+            />
+            <motion.div
+              animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.35, 0.15] }}
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-gradient-to-br from-fuchsia-200/40 to-transparent blur-2xl pointer-events-none"
+            />
+          </>
+        )}
+
+        {/* Level Badge with Hover Color Shift */}
         <div className="absolute left-5 top-5 z-20 flex flex-col gap-1.5 items-start">
-          <div className={`rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] shadow-xs border ${isUnlocked ? theme.badge : "bg-slate-200/90 border-slate-300 text-slate-500"}`}>
+          <div className={`rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] shadow-xs border transition-all duration-300 ${isUnlocked ? theme.badge : "bg-slate-200/90 border-slate-300 text-slate-500"}`}>
             Level {game.level} {isUnlocked ? "" : "🔒"}
           </div>
           {game.is_played && (
-            <div className="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-emerald-500 text-white shadow-md flex items-center gap-1 border border-emerald-400">
+            <div className="rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-widest bg-emerald-500 text-white shadow-md flex items-center gap-1 border border-emerald-400 animate-pulse">
               <CheckCircle2 size={13} className="stroke-[3]" />
               <span>Completed</span>
             </div>
           )}
         </div>
 
-        {/* Top Mascot Peek */}
-        <div className="absolute top-4 right-4 w-16 h-16 opacity-40">
+        {/* Top Mascot Peek with Floating & Waving Animation */}
+        <motion.div
+          animate={isUnlocked ? { y: [0, -8, 0], rotate: [0, 4, -4, 0] } : {}}
+          transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-4 right-4 w-16 h-16 opacity-70 group-hover:opacity-100 z-20 pointer-events-none transition-opacity duration-300"
+        >
           <Image
             src={theme.mascot}
             alt="Mascot"
@@ -262,51 +296,95 @@ export function JourneyCard({ childId, game, isFirstUnlocked, isHighlighted }: J
             height={60}
             className={`object-contain ${!isUnlocked ? "grayscale" : ""}`}
           />
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col items-center p-8 space-y-6 flex-1 justify-between">
+        {/* Decorative Floating Sparkles with Color Shifts */}
+        {isUnlocked && (
+          <>
+            <motion.div
+              animate={{ rotate: 360, scale: [1, 1.3, 1] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+              className="absolute top-12 right-12 z-10 text-amber-400 opacity-70 group-hover:opacity-100 group-hover:scale-125 transition-all pointer-events-none"
+            >
+              <Sparkles size={16} />
+            </motion.div>
+            <motion.div
+              animate={{ y: [0, -10, 0], opacity: [0.4, 0.9, 0.4] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute bottom-20 left-6 z-10 text-fuchsia-400 opacity-60 group-hover:opacity-100 group-hover:scale-125 transition-all pointer-events-none"
+            >
+              <Sparkles size={14} />
+            </motion.div>
+          </>
+        )}
 
-          {/* Main Illustration Area */}
-          <div className="relative w-full aspect-square max-w-[200px] flex items-center justify-center pt-2">
-            <div className={`absolute inset-0 rounded-full ${isUnlocked ? theme.accent : "bg-slate-200"} opacity-30 blur-2xl`} />
-            <div className={`relative w-full h-full rounded-full bg-white shadow-md border-8 ${isUnlocked ? "border-white" : "border-slate-200/80"} overflow-hidden p-4`}>
-              <Image
-                src={assets.image}
-                alt={assets.label}
-                fill
-                className={`object-contain transition-all duration-700 ${!isUnlocked ? "grayscale opacity-30 scale-95" : ""}`}
-                priority
+        <div className="flex flex-col items-center p-8 space-y-6 flex-1 justify-between relative z-10">
+
+          {/* Main Illustration Area with Floating & Hover Animations */}
+          <motion.div
+            whileHover={isUnlocked ? { scale: 1.08, rotate: [0, -2, 2, 0] } : {}}
+            transition={{ duration: 0.4 }}
+            className="relative flex items-center justify-center pt-2"
+          >
+            {/* Multi-Color Glowing Background Aura Ring */}
+            <motion.div
+              animate={isUnlocked ? { scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] } : {}}
+              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+              className={`absolute inset-0 rounded-full bg-gradient-to-br ${theme.glowColor} blur-2xl`}
+            />
+
+            {/* Rotating Decorative Outer Border */}
+            {isUnlocked && (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                className="absolute -inset-2.5 rounded-full border-2 border-dashed border-white/80 group-hover:border-fuchsia-400/80 transition-colors pointer-events-none"
               />
+            )}
+
+            {/* Outer White Circle Container (Matching Level 3 Design across all cards with Hover Color Change) */}
+            <div className={`
+              relative w-[230px] h-[230px] sm:w-[250px] sm:h-[250px] rounded-full bg-white shadow-md border-[6px] transition-all duration-500 flex items-center justify-center p-3.5 sm:p-4
+              ${isUnlocked ? `border-white ${theme.hoverRing}` : "border-slate-200/80"}
+            `}>
+              {/* Inner Image Circle - Uniform Dimensions & Aspect Ratio for All Cards */}
+              <div className="relative w-full h-full rounded-full overflow-hidden bg-slate-50/60 flex items-center justify-center border border-slate-100/80 shadow-inner group-hover:scale-[1.02] transition-transform duration-500">
+                <Image
+                  src={assets.image}
+                  alt={`Level ${game.level}`}
+                  fill
+                  className={`object-cover transition-all duration-700 group-hover:scale-110 ${!isUnlocked ? "grayscale opacity-30 scale-95" : ""}`}
+                  priority
+                />
+              </div>
+
               {!isUnlocked && (
-                <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center rounded-full">
+                <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px] flex items-center justify-center rounded-full z-20">
                   <div className="w-12 h-12 rounded-full bg-slate-900/80 text-white flex items-center justify-center shadow-lg border border-slate-700">
                     <Lock size={20} />
                   </div>
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Text */}
-          <div className="text-center space-y-1">
-            <h3 className={`text-2xl font-black leading-tight ${isUnlocked ? "text-slate-900" : "text-slate-500"}`}>
-              {assets.label}
-            </h3>
-            <p className={`text-sm font-extrabold ${isUnlocked ? "text-slate-600" : "text-slate-400"}`}>
-              {isUnlocked ? assets.desc : "This level will unlock after more progress."}
-            </p>
-          </div>
-
-          {/* Action Area */}
+          {/* Action Area (Play / Replay / Locked Button with Shimmer & Scale) */}
           <div className="w-full pt-2">
             {isUnlocked ? (
               <Link
                 href={getGameHref(childId, game.game_slug, game.level)}
                 className={`
-                  w-full py-4.5 rounded-2xl ${game.is_played ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 shadow-emerald-500/25" : theme.button} text-white text-sm font-extrabold uppercase tracking-widest
-                  flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg hover:shadow-xl hover:scale-[1.02]
+                  relative overflow-hidden w-full py-4.5 rounded-2xl ${game.is_played ? "bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 shadow-emerald-500/25" : theme.button} text-white text-sm font-extrabold uppercase tracking-widest
+                  flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg group-hover:shadow-2xl group-hover:scale-[1.03]
                 `}
               >
+                {/* Button Shine Animation Effect */}
+                <motion.div
+                  animate={{ x: ["-100%", "250%"] }}
+                  transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1.5 }}
+                  className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/35 to-transparent -skew-x-12 pointer-events-none"
+                />
+
                 {game.is_played ? (
                   <>
                     <CheckCircle2 size={18} className="stroke-[3]" />
@@ -314,8 +392,8 @@ export function JourneyCard({ childId, game, isFirstUnlocked, isHighlighted }: J
                   </>
                 ) : (
                   <>
-                    <Play size={18} fill="currentColor" />
-                    Let&apos;s Play
+                    <Play size={18} fill="currentColor" className="transition-transform duration-300 group-hover:scale-125 group-hover:translate-x-1" />
+                    <span>Let&apos;s Play</span>
                   </>
                 )}
               </Link>
