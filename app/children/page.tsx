@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import {
   getChildrenForCurrentParent,
   getLatestAssessmentForChild,
@@ -10,6 +10,7 @@ import {
 } from "@/lib/children";
 import type { ChildProfile } from "@/types/child";
 import { supabase } from "@/lib/supabase";
+import { getAllChildrenOverview, type ChildOverviewItem } from "@/lib/overview";
 
 import { WelcomeParentHero } from "@/components/children/WelcomeParentHero";
 import { NextActionCard } from "@/components/children/NextActionCard";
@@ -19,10 +20,15 @@ import { ChildEmptyState } from "@/components/children/ChildEmptyState";
 import { RecentActivity } from "@/components/children/RecentActivity";
 import { SupportiveNote } from "@/components/children/SupportiveNote";
 import { ChildrenPageSkeleton } from "@/components/children/ChildrenPageSkeleton";
+import { AllChildrenOverview } from "@/components/children/AllChildrenOverview";
 import AnimatedBackground from "@/components/layout/AnimatedBackground";
 
-export default function ChildrenPage() {
+function ChildrenPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [isCheckMode, setIsCheckMode] = useState(false);
+  const [overviewItems, setOverviewItems] = useState<ChildOverviewItem[]>([]);
 
   const [parent, setParent] = useState<ParentProfile | null>(null);
   const [children, setChildren] = useState<ChildProfile[]>([]);
@@ -35,6 +41,23 @@ export default function ChildrenPage() {
     let isMounted = true;
 
     async function loadData() {
+      const isParamCheck = searchParams.get("mode") === "check";
+      const isStoredCheck = typeof window !== "undefined" && localStorage.getItem("lumo_check_admin_mode") === "true";
+
+      if (isParamCheck || isStoredCheck) {
+        if (isMounted) setIsCheckMode(true);
+        try {
+          const items = await getAllChildrenOverview();
+          if (isMounted) setOverviewItems(items);
+        } catch (err) {
+          console.error("Failed to load overview data:", err);
+        } finally {
+          if (isMounted) setIsLoading(false);
+        }
+        return;
+      }
+
+      // Standard Parent Load
       try {
         const { parent: p, children: c } = await getChildrenForCurrentParent();
 
@@ -76,7 +99,15 @@ export default function ChildrenPage() {
 
     loadData();
     return () => { isMounted = false; };
-  }, [router]);
+  }, [router, searchParams]);
+
+  const handleExitCheckMode = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("lumo_check_admin_mode");
+    }
+    setIsCheckMode(false);
+    router.push("/login");
+  };
 
   const surveysCompleted = Object.values(assessments).filter(Boolean).length;
 
@@ -86,20 +117,26 @@ export default function ChildrenPage() {
       {/* Animated color orbs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden -z-5">
         <div className="absolute top-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-fuchsia-200/30 blur-[100px]" style={{ animation: 'blob 18s ease-in-out infinite' }}></div>
-        <div className="absolute bottom-[-15%] right-[-10%] w-[45vw] h-[45vw] rounded-full bg-rose-200/25 blur-[100px]" style={{ animation: 'blob 22s ease-in-out infinite', animationDelay: '5s' }}></div>
+        <div className="absolute bottom-[-15%] right-[-10%] w-[45vw] h-[45vw] rounded-full bg-rose-200/25 blur-[100px]" style={{ animation: 'blob 22s ease-in-out infinite', animationDelay: '5s' }} ></div>
         <div className="absolute top-[40%] right-[5%] w-[25vw] h-[25vw] rounded-full bg-amber-200/25 blur-[80px]" style={{ animation: 'drift 20s ease-in-out infinite' }}></div>
       </div>
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes blob { 0% { transform: translate(0,0) scale(1); } 25% { transform: translate(40px,-50px) scale(1.08); } 50% { transform: translate(-30px,30px) scale(0.92); } 75% { transform: translate(20px,-20px) scale(1.04); } 100% { transform: translate(0,0) scale(1); } }
         @keyframes drift { 0%,100% { transform: translate(0,0); } 25% { transform: translate(15px,-25px); } 50% { transform: translate(-10px,15px); } 75% { transform: translate(20px,10px); } }
       `}} />
+
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-6">
 
         {/* Loading */}
         {isLoading && <ChildrenPageSkeleton />}
 
+        {/* Check Inspector Mode View */}
+        {!isLoading && isCheckMode && (
+          <AllChildrenOverview items={overviewItems} onExitCheckMode={handleExitCheckMode} />
+        )}
+
         {/* Error */}
-        {!isLoading && errorMessage && (
+        {!isLoading && !isCheckMode && errorMessage && (
           <div className="rounded-[2rem] border border-rose-200 bg-rose-50 p-8 text-center">
             <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-400 text-xl mx-auto mb-4">⚠️</div>
             <p className="font-display text-lg font-bold text-rose-700 mb-2">Something went wrong</p>
@@ -113,8 +150,8 @@ export default function ChildrenPage() {
           </div>
         )}
 
-        {/* Main content */}
-        {!isLoading && !errorMessage && (
+        {/* Standard Parent Main content */}
+        {!isLoading && !isCheckMode && !errorMessage && (
           <>
             {/* 1. Welcome Hero */}
             <WelcomeParentHero parentName={parent?.full_name ?? ""} />
@@ -170,5 +207,13 @@ export default function ChildrenPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ChildrenPage() {
+  return (
+    <Suspense fallback={<ChildrenPageSkeleton />}>
+      <ChildrenPageInner />
+    </Suspense>
   );
 }
