@@ -109,7 +109,7 @@ export function StoryAnswerGrid({
 
   return (
     <div
-      className={`mx-auto grid w-full max-w-4xl gap-2.5 sm:gap-3.5 xl:max-w-5xl xl:gap-4 ${
+      className={`mx-auto grid w-full max-w-4xl gap-2.5 sm:gap-3 xl:max-w-5xl xl:gap-3.5 ${
         isManyOptions ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5" : "grid-cols-2 sm:grid-cols-2"
       }`}
     >
@@ -136,17 +136,17 @@ export function StoryAnswerGrid({
                   : { opacity: 1, scale: 1, x: 0 }
             }
             transition={{ duration: isSelected && feedbackType ? 0.7 : 0.25, ease: "easeOut" }}
-            whileHover={!disabled ? { scale: 1.025, y: -3 } : undefined}
+            whileHover={!disabled ? { scale: 1.025, y: -2 } : undefined}
             whileTap={!disabled ? { scale: 0.98 } : undefined}
             disabled={disabled}
             onClick={() => onAnswer(emotionId)}
             aria-label={emotion.label}
             className={`
-              relative flex items-center gap-2.5 sm:gap-3.5 overflow-hidden rounded-[1.5rem] border-2 bg-gradient-to-br ${accent} xl:rounded-[1.75rem]
-              px-3 sm:px-4 py-2 sm:py-2.5 text-left shadow-[0_10px_28px_rgba(15,23,42,0.05)] transition-all duration-300 hover:shadow-[0_18px_42px_rgba(251,146,60,0.16)]
+              relative flex items-center gap-2.5 sm:gap-3 overflow-hidden rounded-[1.25rem] border-2 bg-gradient-to-br ${accent} xl:rounded-[1.5rem]
+              px-3 sm:px-4 py-2 sm:py-2.5 text-left shadow-[0_8px_22px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_14px_32px_rgba(251,146,60,0.14)]
               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200
-              disabled:cursor-default hover:ring-4 hover:ring-orange-100/70 xl:px-4.5 xl:py-3
-              ${isManyOptions ? "min-h-[72px] sm:min-h-[82px] xl:min-h-[92px]" : "min-h-[84px] sm:min-h-[96px] xl:min-h-[108px]"}
+              disabled:cursor-default hover:ring-4 hover:ring-orange-100/70 xl:px-4 xl:py-2.5
+              ${isManyOptions ? "min-h-[64px] sm:min-h-[72px] xl:min-h-[80px]" : "min-h-[72px] sm:min-h-[80px] xl:min-h-[90px]"}
               ${emotion.color}
               ${isCorrectSelection ? "border-emerald-300 bg-yellow-50 ring-4 ring-yellow-100/90 shadow-[0_24px_60px_rgba(250,204,21,0.32)]" : ""}
               ${showCorrectAnswer ? "border-emerald-300 bg-emerald-50 ring-2 ring-emerald-100" : ""}
@@ -162,23 +162,23 @@ export function StoryAnswerGrid({
             )}
             <div className="pointer-events-none absolute bottom-4 left-8 size-2 rounded-full bg-white/80 shadow-[28px_10px_0_rgba(255,255,255,0.55),72px_-12px_0_rgba(255,255,255,0.45)]" />
             
-            <div className={`relative z-10 shrink-0 overflow-hidden rounded-[1rem] bg-white shadow-sm xl:rounded-[1.25rem] ${isManyOptions ? "size-11 sm:size-13 xl:size-15" : "size-12 sm:size-14 md:size-16 xl:size-18"}`}>
+            <div className={`relative z-10 shrink-0 overflow-hidden rounded-[0.85rem] bg-white shadow-sm xl:rounded-[1rem] ${isManyOptions ? "size-10 sm:size-11 xl:size-13" : "size-11 sm:size-12 md:size-13 xl:size-15"}`}>
               {moodImage ? (
                 <Image
                   src={moodImage}
                   alt={`${emotion.label} feeling`}
                   fill
-                  sizes="70px"
+                  sizes="60px"
                   className="object-cover"
                 />
               ) : (
-                <span className="flex h-full items-center justify-center text-2xl sm:text-3xl">
+                <span className="flex h-full items-center justify-center text-xl sm:text-2xl">
                   {emotion.emoji}
                 </span>
               )}
             </div>
 
-            <span className={`relative z-10 font-black text-slate-900 tracking-tight whitespace-nowrap ${isManyOptions ? "text-sm sm:text-base xl:text-lg" : "text-base sm:text-lg md:text-xl xl:text-2xl"}`}>
+            <span className={`relative z-10 font-black text-slate-900 tracking-tight whitespace-nowrap ${isManyOptions ? "text-xs sm:text-sm xl:text-base" : "text-sm sm:text-base md:text-lg xl:text-xl"}`}>
               {emotion.label}
             </span>
           </motion.button>
