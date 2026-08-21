@@ -8,6 +8,7 @@ import { getGameScoreById, getPreviousGameScore } from "@/lib/game-scores";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { AssessmentBackground } from "@/components/assessment/AssessmentBackground";
 import { LumiMascot } from "@/components/games/redesign/LumiMascot";
+import { playGameSound } from "@/lib/game-sounds";
 import {
   CheckCircle2,
   Target,
@@ -37,6 +38,7 @@ export default function GameResultPage() {
         setSession(current);
         const previous = await getPreviousGameScore(current.child_id, current.game_id, current.id);
         setPrevSession(previous);
+        playGameSound("correct");
       }
       setIsLoading(false);
     }

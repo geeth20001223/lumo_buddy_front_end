@@ -21,7 +21,7 @@ export const ROUTINE_BANK: RoutineQuestion[] = [
     steps: [
       { id: "s1", text: "Wake up", icon: "🌞", order: 1 },
       { id: "s2", text: "Brush teeth", icon: "🪥", order: 2 },
-      { id: "s3", text: "Eat breakfast", icon: "🍽️", order: 3 },
+      { id: "s3", text: "Eat breakfast", icon: "🥞", order: 3 },
     ],
   },
   {
@@ -63,7 +63,7 @@ export const ROUTINE_BANK: RoutineQuestion[] = [
     steps: [
       { id: "s13", text: "Wake up", icon: "🌞", order: 1 },
       { id: "s14", text: "Brush teeth", icon: "🪥", order: 2 },
-      { id: "s15", text: "Eat breakfast", icon: "🍽️", order: 3 },
+      { id: "s15", text: "Eat breakfast", icon: "🥞", order: 3 },
       { id: "s16", text: "Go to school", icon: "🏫", order: 4 },
     ],
   },
@@ -110,7 +110,7 @@ export const ROUTINE_BANK: RoutineQuestion[] = [
       { id: "s29", text: "Wake up", icon: "🌞", order: 1 },
       { id: "s30", text: "Brush teeth", icon: "🪥", order: 2 },
       { id: "s31", text: "Get dressed", icon: "👕", order: 3 },
-      { id: "s32", text: "Eat breakfast", icon: "🍽️", order: 4 },
+      { id: "s32", text: "Eat breakfast", icon: "🥞", order: 4 },
       { id: "s33", text: "Take school bag", icon: "🎒", order: 5 },
     ],
   },
@@ -121,7 +121,7 @@ export const ROUTINE_BANK: RoutineQuestion[] = [
     steps: [
       { id: "s34", text: "Come home", icon: "🏠", order: 1 },
       { id: "s35", text: "Wash hands", icon: "🧼", order: 2 },
-      { id: "s36", text: "Eat snack", icon: "🍎", order: 3 },
+      { id: "s36", text: "Eat snack", icon: "🍪", order: 3 },
       { id: "s37", text: "Do homework", icon: "📝", order: 4 },
       { id: "s38", text: "Play calmly", icon: "🧩", order: 5 },
     ],
