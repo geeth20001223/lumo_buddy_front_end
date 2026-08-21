@@ -18,6 +18,26 @@ const MOOD_IMAGES = {
   scared: "/images/mood/scared.png",
 } as const;
 
+function getSituationIcon(situation?: string, visual?: string): string {
+  if (visual) return visual;
+  if (!situation) return "✨";
+
+  const lower = situation.toLowerCase();
+  if (lower.includes("play") || lower.includes("friend")) return "👫";
+  if (lower.includes("toy")) return "🧸";
+  if (lower.includes("book")) return "📚";
+  if (lower.includes("gift") || lower.includes("present")) return "🎁";
+  if (lower.includes("dark") || lower.includes("noise")) return "🌙";
+  if (lower.includes("draw")) return "🎨";
+  if (lower.includes("boo")) return "🎉";
+  if (lower.includes("balloon")) return "🎈";
+  if (lower.includes("ice cream")) return "🍦";
+  if (lower.includes("bike")) return "🚲";
+  if (lower.includes("cookie") || lower.includes("treat")) return "🍪";
+
+  return "✨";
+}
+
 export function EmotionPromptCard({
   question,
   compact = false,
@@ -51,7 +71,9 @@ export function EmotionPromptCard({
               </div>
             ) : !isFace ? (
               <div className="flex aspect-[16/9] w-full flex-col items-center justify-center gap-4 rounded-[1.75rem] border border-blue-100 bg-gradient-to-br from-blue-50 to-white p-5 text-center shadow-sm">
-                <span aria-hidden="true" className="text-6xl">📖</span>
+                <span aria-hidden="true" className="text-6xl">
+                  {getSituationIcon(question.situation, question.visual)}
+                </span>
                 <h2 className="text-xl font-black leading-snug text-slate-900 sm:text-2xl">
                   {question.situation}
                 </h2>
@@ -98,12 +120,12 @@ export function EmotionPromptCard({
               </motion.div>
             ) : (
               <motion.span
-                key={isFace ? question.visual : "text"}
+                key={question.visual || question.situation || "text"}
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                {isFace ? question.visual : "📖"}
+                {isFace ? question.visual : getSituationIcon(question.situation, question.visual)}
               </motion.span>
             )}
           </div>
