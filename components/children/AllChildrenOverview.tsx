@@ -3,6 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { ChildOverviewItem } from "@/lib/overview";
+import {
+  generateAttendanceLogs,
+  getStudentSummary,
+  MOCK_STUDENTS,
+} from "@/lib/student-attendance-data";
+import {
+  exportIndividualStudentReport,
+  exportAllStudentsAttendanceReport,
+} from "@/lib/word-export";
 
 interface Props {
   items: ChildOverviewItem[];
@@ -12,6 +21,54 @@ interface Props {
 export function AllChildrenOverview({ items, onExitCheckMode }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLevel, setSelectedLevel] = useState<number | "all">("all");
+  const [isExporting, setIsExporting] = useState<string | null>(null);
+
+  const todayStr = "2026-09-10"; // Next month 10th
+  const past30Str = "2026-08-10"; // August 10th
+
+  const handleDownloadChildAttendance = async (item: ChildOverviewItem) => {
+    setIsExporting(item.id);
+    try {
+      const summary = getStudentSummary(item.child_name, past30Str, todayStr);
+      const allLogs = generateAttendanceLogs(past30Str, todayStr);
+
+      if (summary) {
+        // Ensure student name & age match the item
+        summary.student.name = item.child_name;
+        summary.student.age = item.age;
+        if (item.gender) summary.student.gender = item.gender;
+
+        await exportIndividualStudentReport(
+          summary.student,
+          allLogs,
+          summary,
+          past30Str,
+          todayStr
+        );
+      }
+    } catch (err) {
+      console.error("Failed to download child attendance doc:", err);
+    } finally {
+      setIsExporting(null);
+    }
+  };
+
+  const handleDownloadMasterAttendance = async () => {
+    setIsExporting("master");
+    try {
+      const allLogs = generateAttendanceLogs(past30Str, todayStr);
+      await exportAllStudentsAttendanceReport(
+        MOCK_STUDENTS,
+        allLogs,
+        past30Str,
+        todayStr
+      );
+    } catch (err) {
+      console.error("Failed to download master attendance doc:", err);
+    } finally {
+      setIsExporting(null);
+    }
+  };
 
   const filteredItems = items.filter((item) => {
     const matchesSearch =
@@ -51,12 +108,27 @@ export function AllChildrenOverview({ items, onExitCheckMode }: Props) {
               Viewing all enrolled child profiles, developmental levels, and gameplay statistics in real-time.
             </p>
           </div>
-          <button
-            onClick={onExitCheckMode}
-            className="self-start md:self-auto px-5 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold text-sm backdrop-blur-md transition-all shadow-md active:scale-95"
-          >
-            🚪 Exit Inspector Mode
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={handleDownloadMasterAttendance}
+              disabled={isExporting === "master"}
+              className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider backdrop-blur-md transition-all shadow-md active:scale-95 disabled:opacity-50 flex items-center gap-1.5"
+            >
+              📄 Master Word Doc
+            </button>
+            <Link
+              href="/progress/attendance"
+              className="px-5 py-2.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs backdrop-blur-md transition-all shadow-md active:scale-95"
+            >
+              📅 Attendance Register
+            </Link>
+            <button
+              onClick={onExitCheckMode}
+              className="px-5 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold text-xs backdrop-blur-md transition-all shadow-md active:scale-95"
+            >
+              🚪 Exit
+            </button>
+          </div>
         </div>
       </div>
 
@@ -266,19 +338,26 @@ export function AllChildrenOverview({ items, onExitCheckMode }: Props) {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center gap-3 pt-6 mt-4 border-t border-slate-100">
+              <div className="flex flex-wrap items-center gap-2 pt-6 mt-4 border-t border-slate-100">
                 <Link
                   href={`/games/${item.id}`}
-                  className="flex-1 text-center px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all active:scale-95"
+                  className="flex-1 min-w-[100px] text-center px-3 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md transition-all active:scale-95"
                 >
                   🎮 Play Games
                 </Link>
                 <Link
                   href={`/assessment-result/${item.id}`}
-                  className="flex-1 text-center px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all active:scale-95"
+                  className="flex-1 min-w-[100px] text-center px-3 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-all active:scale-95"
                 >
                   📊 Assessment
                 </Link>
+                <button
+                  onClick={() => handleDownloadChildAttendance(item)}
+                  disabled={isExporting === item.id}
+                  className="w-full text-center px-4 py-2.5 rounded-2xl bg-purple-100 hover:bg-purple-200 text-purple-800 font-black text-xs border border-purple-300 transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50"
+                >
+                  📄 Download Attendance (.docx)
+                </button>
               </div>
             </div>
           );

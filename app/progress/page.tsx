@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 import { getProgressDashboardData } from "@/lib/progress";
@@ -88,6 +89,30 @@ export default function ProgressPage() {
             <div className="relative z-10">
                 {/* Hero + family summary */}
                 <ProgressHero parentName={parent?.full_name ?? ""} family={family} />
+
+                {/* 10-Student Daily Attendance & Word Export Banner */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="p-6 sm:p-8 rounded-[2.5rem] bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 border-2 border-purple-800/40">
+                        <div className="space-y-2">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/30 border border-purple-400/30 text-[10px] font-black uppercase tracking-widest text-purple-200">
+                                ✨ NEW FEATURE • ATTENDANCE & WORD EXPORT
+                            </div>
+                            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                                10-Student Daily Time Slot & Attendance Hub
+                            </h2>
+                            <p className="text-slate-300 text-xs sm:text-sm font-extrabold max-w-2xl leading-relaxed">
+                                Track daily attendance, view session progress, and export official Word Document (.docx) reports for each child or all 10 students.
+                            </p>
+                        </div>
+                        
+                        <Link
+                            href="/progress/attendance"
+                            className="px-6 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-amber-400/20 shrink-0 text-center flex items-center justify-center gap-2"
+                        >
+                            Open Attendance & Export Hub ➔
+                        </Link>
+                    </div>
+                </div>
 
                 {!hasChildren ? (
                     <ProgressEmptyState />

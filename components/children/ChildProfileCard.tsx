@@ -132,6 +132,13 @@ export function ChildProfileCard({ child, assessment }: ChildProfileCardProps) {
             </Link>
           )}
         </div>
+
+        <Link
+          href={`/progress/attendance?studentId=${child.id}`}
+          className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 shadow-2xs transition-all"
+        >
+          📄 Attendance Register (.docx)
+        </Link>
       </div>
     </article>
   );
