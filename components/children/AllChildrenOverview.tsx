@@ -260,11 +260,7 @@ export function AllChildrenOverview({ items, onExitCheckMode }: Props) {
                 </div>
 
                 {/* Quick Performance Numbers */}
-                <div className="grid grid-cols-3 gap-2 py-4 my-2 text-center bg-slate-50/80 rounded-2xl border border-slate-100">
-                  <div>
-                    <p className="text-[10px] font-extrabold text-slate-400 uppercase">Sessions</p>
-                    <p className="font-display text-lg font-extrabold text-slate-800">{item.totalGamesPlayed}</p>
-                  </div>
+                <div className="grid grid-cols-2 gap-2 py-4 my-2 text-center bg-slate-50/80 rounded-2xl border border-slate-100">
                   <div>
                     <p className="text-[10px] font-extrabold text-slate-400 uppercase">Avg Accuracy</p>
                     <p className="font-display text-lg font-extrabold text-emerald-600">{item.averageAccuracy}%</p>
