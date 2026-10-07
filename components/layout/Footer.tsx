@@ -111,12 +111,12 @@ export default function Footer() {
               <span className="font-black text-slate-200">Support note:</span> Lumo Buddy supports learning practice and progress tracking. It is not a medical diagnosis tool and does not replace professional guidance.
             </p>
 
-            <Link
+            {/* <Link
               href="/children"
               className="inline-flex min-h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-black text-slate-950 transition-colors hover:bg-blue-100"
             >
               Continue Learning
-            </Link>
+            </Link> */}
           </div>
         </div>
 

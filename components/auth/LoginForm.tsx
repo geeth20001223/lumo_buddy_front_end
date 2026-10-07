@@ -133,18 +133,18 @@ function LoginFormInner() {
     setIsSubmitting(true);
 
     // Inspector Mode trigger (Username/Email: "check", Password: "check")
-    if (
-      (trimmedEmail.toLowerCase() === "check" || trimmedEmail.toLowerCase() === "check@lumo.com") &&
-      password.trim().toLowerCase() === "check"
-    ) {
-      if (typeof window !== "undefined") {
-        localStorage.setItem("lumo_check_admin_mode", "true");
-      }
-      toast.success("Welcome System Inspector! Loading All Children Overview... 🌟");
-      router.push("/children?mode=check");
-      router.refresh();
-      return;
-    }
+    // if (
+    //   (trimmedEmail.toLowerCase() === "check" || trimmedEmail.toLowerCase() === "check@lumo.com") &&
+    //   password.trim().toLowerCase() === "check"
+    // ) {
+    //   if (typeof window !== "undefined") {
+    //     localStorage.setItem("lumo_check_admin_mode", "true");
+    //   }
+    //   toast.success("Welcome System Inspector! Loading All Children Overview... 🌟");
+    //   router.push("/children?mode=check");
+    //   router.refresh();
+    //   return;
+    // }
 
     try {
       await loginParent({ email: trimmedEmail, password });
@@ -235,7 +235,7 @@ function LoginFormInner() {
           label="Email address / Username"
           name="email"
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="parent@example.com or 'check'"
+          placeholder="parent@example.com"
           type="text"
           value={email}
         />
