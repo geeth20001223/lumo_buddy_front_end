@@ -104,7 +104,7 @@ export default function ProgressPage() {
                                 Track daily attendance, view session progress, and export official Word Document (.docx) reports for each child or all 10 students.
                             </p>
                         </div>
-                        
+
                         <Link
                             href="/progress/attendance"
                             className="px-6 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-amber-400/20 shrink-0 text-center flex items-center justify-center gap-2"

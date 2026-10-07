@@ -109,7 +109,7 @@ export function ChildProfileCard({ child, assessment }: ChildProfileCardProps) {
           )}
         </Link>
 
-        <div className={`grid gap-3 ${hasAssessment ? "grid-cols-2" : "grid-cols-1"}`}>
+        <div className="grid grid-cols-2 gap-3">
           <Link
             href={`/children/${child.id}`}
             className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-sm font-extrabold shadow-sm transition-all duration-300 active:scale-95 bg-white text-fuchsia-700 hover:bg-fuchsia-50 border-2 border-fuchsia-200 hover:border-fuchsia-300"
@@ -120,25 +120,16 @@ export function ChildProfileCard({ child, assessment }: ChildProfileCardProps) {
             View Profile
           </Link>
 
-          {hasAssessment && (
-            <Link
-              href={`/children/${child.id}/dashboard`}
-              className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-sm font-extrabold shadow-sm transition-all duration-300 active:scale-95 bg-white text-indigo-700 hover:bg-indigo-50 border-2 border-indigo-200 hover:border-indigo-300"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              Report
-            </Link>
-          )}
+          <Link
+            href={`/children/${child.id}/dashboard`}
+            className="inline-flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-sm font-extrabold shadow-sm transition-all duration-300 active:scale-95 bg-white text-indigo-700 hover:bg-indigo-50 border-2 border-indigo-200 hover:border-indigo-300"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Report
+          </Link>
         </div>
-
-        <Link
-          href={`/progress/attendance?studentId=${child.id}`}
-          className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-xs font-black uppercase tracking-wider bg-purple-50 text-purple-700 hover:bg-purple-100 border border-purple-200 shadow-2xs transition-all"
-        >
-          📄 Attendance Register (.docx)
-        </Link>
       </div>
     </article>
   );
