@@ -13,6 +13,8 @@ export function calculateSurveyScores(
   };
 
   for (const question of questions) {
+    //Nullish Coalescing Operator
+    // ?? is used to provide a default value if the value is null or undefined
     const answerScore = answers[question.id] ?? 0;
 
     if (question.area === "emotion") {
