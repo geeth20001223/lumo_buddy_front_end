@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import {
   getChildrenForCurrentParent,
@@ -10,7 +10,6 @@ import {
 } from "@/lib/children";
 import type { ChildProfile } from "@/types/child";
 import { supabase } from "@/lib/supabase";
-import { getAllChildrenOverview, type ChildOverviewItem } from "@/lib/overview";
 
 import { WelcomeParentHero } from "@/components/children/WelcomeParentHero";
 import { NextActionCard } from "@/components/children/NextActionCard";
@@ -20,15 +19,10 @@ import { ChildEmptyState } from "@/components/children/ChildEmptyState";
 import { RecentActivity } from "@/components/children/RecentActivity";
 import { SupportiveNote } from "@/components/children/SupportiveNote";
 import { ChildrenPageSkeleton } from "@/components/children/ChildrenPageSkeleton";
-import { AllChildrenOverview } from "@/components/children/AllChildrenOverview";
 import AnimatedBackground from "@/components/layout/AnimatedBackground";
 
 function ChildrenPageInner() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [isCheckMode, setIsCheckMode] = useState(false);
-  const [overviewItems, setOverviewItems] = useState<ChildOverviewItem[]>([]);
 
   const [parent, setParent] = useState<ParentProfile | null>(null);
   const [children, setChildren] = useState<ChildProfile[]>([]);
@@ -41,23 +35,6 @@ function ChildrenPageInner() {
     let isMounted = true;
 
     async function loadData() {
-      const isParamCheck = searchParams.get("mode") === "check";
-      const isStoredCheck = typeof window !== "undefined" && localStorage.getItem("lumo_check_admin_mode") === "true";
-
-      if (isParamCheck || isStoredCheck) {
-        if (isMounted) setIsCheckMode(true);
-        try {
-          const items = await getAllChildrenOverview();
-          if (isMounted) setOverviewItems(items);
-        } catch (err) {
-          console.error("Failed to load overview data:", err);
-        } finally {
-          if (isMounted) setIsLoading(false);
-        }
-        return;
-      }
-
-      // Standard Parent Load
       try {
         const { parent: p, children: c } = await getChildrenForCurrentParent();
 
@@ -99,15 +76,7 @@ function ChildrenPageInner() {
 
     loadData();
     return () => { isMounted = false; };
-  }, [router, searchParams]);
-
-  const handleExitCheckMode = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("lumo_check_admin_mode");
-    }
-    setIsCheckMode(false);
-    router.push("/login");
-  };
+  }, [router]);
 
   const surveysCompleted = Object.values(assessments).filter(Boolean).length;
 
@@ -130,13 +99,8 @@ function ChildrenPageInner() {
         {/* Loading */}
         {isLoading && <ChildrenPageSkeleton />}
 
-        {/* Check Inspector Mode View */}
-        {!isLoading && isCheckMode && (
-          <AllChildrenOverview items={overviewItems} onExitCheckMode={handleExitCheckMode} />
-        )}
-
         {/* Error */}
-        {!isLoading && !isCheckMode && errorMessage && (
+        {!isLoading && errorMessage && (
           <div className="rounded-[2rem] border border-rose-200 bg-rose-50 p-8 text-center">
             <div className="w-12 h-12 rounded-2xl bg-rose-100 flex items-center justify-center text-rose-400 text-xl mx-auto mb-4">⚠️</div>
             <p className="font-display text-lg font-bold text-rose-700 mb-2">Something went wrong</p>
@@ -151,7 +115,7 @@ function ChildrenPageInner() {
         )}
 
         {/* Standard Parent Main content */}
-        {!isLoading && !isCheckMode && !errorMessage && (
+        {!isLoading && !errorMessage && (
           <>
             {/* 1. Welcome Hero */}
             <WelcomeParentHero parentName={parent?.full_name ?? ""} />
@@ -217,3 +181,4 @@ export default function ChildrenPage() {
     </Suspense>
   );
 }
+

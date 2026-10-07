@@ -132,19 +132,6 @@ function LoginFormInner() {
 
     setIsSubmitting(true);
 
-    // Inspector Mode trigger (Username/Email: "check", Password: "check")
-    // if (
-    //   (trimmedEmail.toLowerCase() === "check" || trimmedEmail.toLowerCase() === "check@lumo.com") &&
-    //   password.trim().toLowerCase() === "check"
-    // ) {
-    //   if (typeof window !== "undefined") {
-    //     localStorage.setItem("lumo_check_admin_mode", "true");
-    //   }
-    //   toast.success("Welcome System Inspector! Loading All Children Overview... 🌟");
-    //   router.push("/children?mode=check");
-    //   router.refresh();
-    //   return;
-    // }
 
     try {
       await loginParent({ email: trimmedEmail, password });
