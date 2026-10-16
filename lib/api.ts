@@ -15,10 +15,11 @@ export class MLApiError extends Error {
   }
 }
 
-export function mapClinicalLevelToGameLevel(level: number): number {
-  if (level === 1) return 3;
-  if (level === 3) return 1;
-  return 2;
+export function mapClinicalLevelToGameLevel(level: number | string): number {
+  const raw = String(level).trim().toLowerCase();
+  if (raw === "1" || raw === "mild") return 3;
+  if (raw === "3" || raw === "severe") return 1;
+  return 2; // Moderate / Level 2
 }
 
 export async function predictSupportLevel(

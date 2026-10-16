@@ -37,11 +37,18 @@ export async function POST(req: Request) {
           const data = await response.json();
           // Map clinical severity levels to game activity levels:
           // Level 1 (Mild) -> Game Level 3 (Advanced)
+          // Level 2 (Moderate) -> Game Level 2 (Developing)
           // Level 3 (Severe) -> Game Level 1 (Foundational)
-          // Level 2 (Moderate) -> Game Level 2 (Developing - unchanged)
-          if (data && typeof data.predicted_level === "number") {
-            const raw = data.predicted_level;
-            const mapped = raw === 1 ? 3 : raw === 3 ? 1 : 2;
+          if (data && (data.predicted_level !== undefined || data.severity !== undefined)) {
+            const rawVal = String(data.predicted_level ?? data.severity ?? "").trim().toLowerCase();
+            let mapped = 2;
+            if (rawVal === "1" || rawVal === "mild") {
+              mapped = 3;
+            } else if (rawVal === "3" || rawVal === "severe") {
+              mapped = 1;
+            } else {
+              mapped = 2; // Moderate / Level 2
+            }
             data.predicted_level = mapped;
             data.screening_prediction = mapped;
             data.recommendation = `Suggested game level: Level ${mapped}`;
