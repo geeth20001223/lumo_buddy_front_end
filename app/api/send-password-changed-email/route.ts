@@ -1,21 +1,44 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
+/** Resend API key loaded from environment variables for sending transactional emails */
 const resendApiKey = process.env.RESEND_API_KEY;
+
+/** Base site URL used to construct login redirect links in the email template */
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
+/**
+ * Next.js App Router API Route Handler for POST `/api/send-password-changed-email`.
+ * 
+ * Purpose:
+ * Sends a security confirmation email to a parent user when their account password
+ * is updated. Uses the Resend API if an API key is configured, or logs to console in development.
+ * 
+ * Request Body:
+ * - `email`: string (required) - Parent's account email address
+ * 
+ * Response:
+ * - `{ success: true, email, loginUrl }` on success
+ * - `{ error: "Email is required" }` (HTTP 400) if email missing
+ */
 export async function POST(request: Request) {
   try {
+    // 1. Parse JSON body from the incoming request
     const { email } = await request.json();
 
+    // 2. Validate email presence
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
+    // 3. Construct login redirect URL pre-filled with user's email
     const loginUrl = `${siteUrl}/login?email=${encodeURIComponent(email)}`;
 
+    // 4. Send confirmation email if Resend API key is provided
     if (resendApiKey) {
       const resend = new Resend(resendApiKey);
+
+      // Send HTML password change confirmation email using Resend SDK
       await resend.emails.send({
         from: "Lumo Buddy <noreply@resend.dev>",
         to: email,
@@ -43,13 +66,17 @@ export async function POST(request: Request) {
         `,
       });
     } else {
+      // Development fallback: Log email triggering details to server console if no API key set
       console.log(`[Lumo Buddy Notification] Password changed email triggered for: ${email}. Login link: ${loginUrl}`);
     }
 
+    // 5. Return success JSON response
     return NextResponse.json({ success: true, email, loginUrl });
   } catch (error: unknown) {
+    // 6. Handle errors safely (log error but return success with warning so user UI is not blocked)
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[Lumo Buddy Notification Error] Error sending email:", message);
     return NextResponse.json({ success: true, warning: message });
   }
 }
+

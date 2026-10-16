@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
+/** Error message constants for standardized user feedback */
 const fillAllFieldsMessage = "Please fill all fields.";
 const loginErrorMessage =
   "We could not log you in. Please check your email and password.";
@@ -21,10 +22,15 @@ const parentProfilePermissionMessage =
 const authConnectionMessage =
   "We could not connect to Supabase. Please check your database URL, anon key, and internet connection.";
 
+/**
+ * Inner Login Form Component.
+ * Contains all state management, session checking, submission logic, and UI inputs.
+ */
 function LoginFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Form input and state hooks
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -33,7 +39,7 @@ function LoginFormInner() {
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Show success toast if redirected after password reset
+  // 1. Show success toast if user was redirected back after password reset
   useEffect(() => {
     if (searchParams.get("reset") === "success") {
       setSuccessMessage("Password updated! Please log in with your new password. 🎉");
@@ -41,20 +47,19 @@ function LoginFormInner() {
     }
   }, [searchParams]);
 
+  // 2. Auto-redirect logged-in users to `/children` (skipping password recovery sessions)
   useEffect(() => {
     async function checkExistingUser() {
-      // Check the full session — not just the user — so we can inspect the
-      // session type. A PASSWORD_RECOVERY session should NOT auto-redirect;
-      // the user must log in with their new credentials first.
+      // Fetch session from Supabase client
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        // Supabase marks recovery sessions with amr "recovery" entry.
-        // If that is present, skip auto-redirect so the user can log in fresh.
+        // Inspect Authentication Method Reference (amr) array for "recovery" flag
         const amr = (session as { amr?: { method: string }[] } & typeof session).amr;
         const isRecoverySession = Array.isArray(amr)
           ? amr.some((a) => a.method === "recovery")
           : false;
 
+        // Skip auto-redirect if user is in password recovery mode
         if (!isRecoverySession) {
           router.push("/children");
         }
@@ -63,6 +68,9 @@ function LoginFormInner() {
     checkExistingUser();
   }, [router]);
 
+  /**
+   * Resends account confirmation email link if user has unconfirmed email error.
+   */
   async function handleResendConfirmation() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
@@ -90,6 +98,9 @@ function LoginFormInner() {
     }
   }
 
+  /**
+   * Requests password reset link if user encounters unconfirmed email issues.
+   */
   async function handleRequestReset() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
@@ -117,6 +128,11 @@ function LoginFormInner() {
     }
   }
 
+  /**
+   * Handles parent user login form submission.
+   * 
+   * @param event - HTML form submission event
+   */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage("");
@@ -125,6 +141,7 @@ function LoginFormInner() {
 
     const trimmedEmail = email.trim();
 
+    // Validate inputs
     if (!trimmedEmail || !password) {
       setErrorMessage(fillAllFieldsMessage);
       return;
@@ -132,15 +149,18 @@ function LoginFormInner() {
 
     setIsSubmitting(true);
 
-
     try {
+      // 1. Call loginParent helper from @/lib/auth
       await loginParent({ email: trimmedEmail, password });
       toast.success("Login successful.");
+      
+      // 2. Redirect to children dashboard page
       router.push("/children");
       router.refresh();
     } catch (error) {
       let message = loginErrorMessage;
 
+      // 3. Map AppAuthError codes to friendly messages
       if (error instanceof AppAuthError) {
         if (error.code === "email_not_confirmed") {
           message = emailNotConfirmedMessage;
@@ -165,11 +185,12 @@ function LoginFormInner() {
 
   return (
     <>
+      {/* Toast notification portal */}
       <Toaster position="top-center" />
 
-
-
+      {/* Login Form */}
       <form className="space-y-5" onSubmit={handleSubmit}>
+        {/* Success Alert Banner */}
         {successMessage ? (
           <div
             className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800"
@@ -179,6 +200,7 @@ function LoginFormInner() {
           </div>
         ) : null}
 
+        {/* Error Alert Banner */}
         {errorMessage ? (
           <div
             className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700"
@@ -188,6 +210,7 @@ function LoginFormInner() {
           </div>
         ) : null}
 
+        {/* Special Email Unconfirmed Action Box */}
         {isEmailNotConfirmed && (
           <div className="rounded-2xl border-2 border-amber-200 bg-amber-50/90 p-4 text-xs font-bold text-amber-900 space-y-3 shadow-xs">
             <p className="flex items-center gap-1.5 text-sm font-extrabold text-amber-950">
@@ -217,6 +240,7 @@ function LoginFormInner() {
           </div>
         )}
 
+        {/* Email / Username Input Field */}
         <Input
           autoComplete="username"
           label="Email address / Username"
@@ -227,6 +251,7 @@ function LoginFormInner() {
           value={email}
         />
 
+        {/* Password Input Field with Forgot Password Link */}
         <div>
           <Input
             autoComplete="current-password"
@@ -247,11 +272,13 @@ function LoginFormInner() {
           </div>
         </div>
 
+        {/* Submit Login Button */}
         <Button isLoading={isSubmitting} type="submit">
           Login
         </Button>
       </form>
 
+      {/* Sign Up Link Footer */}
       <p className="mt-6 text-center text-sm text-slate-600">
         Don&apos;t have an account?{" "}
         <Link
@@ -265,6 +292,10 @@ function LoginFormInner() {
   );
 }
 
+/**
+ * Parent Login Form Export.
+ * Wraps `LoginFormInner` in Next.js `<Suspense>` boundary for `useSearchParams()` support.
+ */
 export function LoginForm() {
   return (
     <Suspense>
@@ -272,3 +303,4 @@ export function LoginForm() {
     </Suspense>
   );
 }
+

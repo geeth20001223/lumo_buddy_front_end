@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
+/** Error & validation constants for standardized user feedback */
 const fillAllFieldsMessage = "Please fill all fields.";
 const passwordMismatchMessage = "Passwords do not match.";
 const shortPasswordMessage = "Password must be at least 6 characters.";
@@ -21,18 +22,30 @@ const emailAlreadyRegisteredMessage =
 const parentProfilePermissionMessage =
   "Your account was created, but we could not save the parent profile. Please check the parents table access policy.";
 
+/**
+ * Parent Registration Form Component.
+ * 
+ * Handles parent sign-up with full name, email, password, and confirm password fields.
+ * Performs client-side validation, calls Supabase registration via `registerParent()`,
+ * auto-creates database profile, and provides quick actions if an email is already registered.
+ */
 export function RegisterForm() {
   const router = useRouter();
+
+  // Form input state hooks
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Status & error message hooks
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 1. Auto-redirect logged-in users to `/children` dashboard
   useEffect(() => {
     async function checkExistingUser() {
       const { data } = await supabase.auth.getUser();
@@ -43,6 +56,9 @@ export function RegisterForm() {
     checkExistingUser();
   }, [router]);
 
+  /**
+   * Helper function to send password reset email directly if the user's email is already registered.
+   */
   async function handleSendReset() {
     if (!email.trim()) {
       setErrorMessage("Please enter your email address first.");
@@ -76,6 +92,11 @@ export function RegisterForm() {
     }
   }
 
+  /**
+   * Handles parent account registration submission.
+   * 
+   * @param event - HTML form event
+   */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage("");
@@ -85,16 +106,19 @@ export function RegisterForm() {
     const trimmedName = fullName.trim();
     const trimmedEmail = email.trim();
 
+    // 1. Validate mandatory fields
     if (!trimmedName || !trimmedEmail || !password || !confirmPassword) {
       setErrorMessage(fillAllFieldsMessage);
       return;
     }
 
+    // 2. Validate password match
     if (password !== confirmPassword) {
       setErrorMessage(passwordMismatchMessage);
       return;
     }
 
+    // 3. Validate minimum password length
     if (password.length < 6) {
       setErrorMessage(shortPasswordMessage);
       return;
@@ -103,12 +127,14 @@ export function RegisterForm() {
     setIsSubmitting(true);
 
     try {
+      // 4. Call registerParent helper function from @/lib/auth
       const result = await registerParent({
         fullName: trimmedName,
         email: trimmedEmail,
         password,
       });
 
+      // 5. If email confirmation is required by Supabase settings
       if (result.requiresEmailConfirmation) {
         const message =
           "Account created. Please check your email and confirm your address before logging in.";
@@ -117,12 +143,14 @@ export function RegisterForm() {
         return;
       }
 
+      // 6. Account created and session established — redirect to dashboard
       toast.success("Account created successfully.");
       router.push("/children");
       router.refresh();
     } catch (error) {
       let message = createErrorMessage;
 
+      // 7. Map custom AppAuthError codes
       if (error instanceof AppAuthError) {
         if (error.code === "email_rate_limit") {
           message = emailRateLimitMessage;
@@ -147,8 +175,12 @@ export function RegisterForm() {
 
   return (
     <>
+      {/* Toast notification portal */}
       <Toaster position="top-center" />
+
+      {/* Registration Form */}
       <form className="space-y-5" onSubmit={handleSubmit}>
+        {/* Success Alert Banner */}
         {successMessage ? (
           <div
             className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800"
@@ -161,6 +193,7 @@ export function RegisterForm() {
           </div>
         ) : null}
 
+        {/* Account Already Registered Action Box */}
         {isAlreadyRegistered && (
           <div className="rounded-2xl border-2 border-amber-200 bg-amber-50/90 p-4 text-xs font-bold text-amber-900 space-y-3 shadow-sm">
             <p className="flex items-center gap-1.5 text-sm font-extrabold text-amber-950">
@@ -188,6 +221,7 @@ export function RegisterForm() {
           </div>
         )}
 
+        {/* Error Alert Banner */}
         {errorMessage && !isAlreadyRegistered ? (
           <div
             className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700"
@@ -197,6 +231,7 @@ export function RegisterForm() {
           </div>
         ) : null}
 
+        {/* Full Name Input Field */}
         <Input
           autoComplete="name"
           label="Full name"
@@ -206,6 +241,8 @@ export function RegisterForm() {
           type="text"
           value={fullName}
         />
+
+        {/* Email Address Input Field */}
         <Input
           autoComplete="email"
           label="Email address"
@@ -215,6 +252,8 @@ export function RegisterForm() {
           type="email"
           value={email}
         />
+
+        {/* Password Input Field */}
         <Input
           autoComplete="new-password"
           label="Password"
@@ -224,6 +263,8 @@ export function RegisterForm() {
           type="password"
           value={password}
         />
+
+        {/* Confirm Password Input Field */}
         <Input
           autoComplete="new-password"
           label="Confirm password"
@@ -234,11 +275,13 @@ export function RegisterForm() {
           value={confirmPassword}
         />
 
+        {/* Submit Account Creation Button */}
         <Button isLoading={isSubmitting} type="submit">
           Create Account
         </Button>
       </form>
 
+      {/* Footer Navigation Link */}
       <p className="mt-6 text-center text-sm text-slate-600">
         Already have an account?{" "}
         <Link
@@ -251,3 +294,4 @@ export function RegisterForm() {
     </>
   );
 }
+
