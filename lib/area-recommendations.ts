@@ -2,18 +2,17 @@ import { SurveyArea } from "@/types/survey";
 
 /**
  * Rules:
- * Each area has 8 questions.
- * Each question max score is 4.
- * Max score per area = 32.
+ * Each area max score = 13 (aligned with the 13 clinical questions).
  *
- * Area level mapping:
- * 0–10 = Level 1
- * 11–21 = Level 2
- * 22–32 = Level 3
+ * Area level mapping (0–13 scale):
+ * 0–6 = Level 1 (Foundational Support)
+ * 7–10 = Level 2 (Developing Skills)
+ * 11–13 = Level 3 (Advanced Activities)
  */
 export function calculateAreaLevel(score: number): number {
-  if (score <= 10) return 1;
-  if (score <= 21) return 2;
+  const normalized = score > 13 ? (score / 32) * 13 : score;
+  if (normalized <= 6) return 1;
+  if (normalized <= 10) return 2;
   return 3;
 }
 
@@ -72,15 +71,16 @@ export function calculateAreaRecommendations(scores: {
 export function getAreaLabel(area: SurveyArea | string): string {
   switch (area) {
     case "emotion":
-      return "Emotion";
+      return "Communication & Emotion";
     case "cognitive":
-      return "Cognitive Skills";
+      return "Social & Cognitive";
     case "self_awareness":
-      return "Self-awareness";
+      return "Behavior & Sensory";
     case "mathematical":
-      return "Mathematical Skills";
+    case "math":
+      return "Learning & Logic";
     default:
-      return typeof area === "string" ? area : "Unknown Area";
+      return typeof area === "string" ? area : "General Development";
   }
 }
 

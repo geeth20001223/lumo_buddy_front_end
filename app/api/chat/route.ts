@@ -40,8 +40,8 @@ ${context.gameList || "  No games loaded"}
 Key Knowledge Base for Lumo Buddy (100% Accurate App Facts):
 1. App Name: Lumo Buddy.
 2. Assistant Name: Lumo (or Lumo Bee 🐝).
-3. Screening & Survey: Parents complete a 32-question survey across 4 developmental areas: Emotion, Cognitive, Self-Awareness, and Math. Based on responses, an ML algorithm predicts the child's support level (Level 1, Level 2, or Level 3).
-4. Retaking Survey: Parents can retake the 32-question survey anytime or perform monthly re-assessments to update support levels.
+3. Screening & Survey: Parents complete a 13-question screening survey covering developmental history, communication traits, sensory responses, and behaviors. Based on responses, a Random Forest ML algorithm predicts the child's support level (Level 1, Level 2, or Level 3).
+4. Retaking Survey: Parents can retake the 13-question survey anytime or perform monthly re-assessments to update support levels.
 5. Game Unlock Logic:
    - Level 1 support unlocks Level 1 games.
    - Level 2 support unlocks Level 1 & Level 2 games.
@@ -83,7 +83,7 @@ function getSmartFallbackResponse(userMessage: string, history?: any[]): string 
     return "You're so very welcome! 🐝✨ I'm always here to support you and your child on your developmental journey. Feel free to ask anytime if you need help with games, surveys, or progress reports! 💛";
   }
   if (q === "ok" || q === "okay" || q.includes("got it") || q.includes("alright") || q.includes("great") || q.includes("nice") || q.includes("awesome") || q.includes("perfect") || q.includes("cool")) {
-    return "Awesome! 😊 Let me know whenever you have more questions about our 32-question survey, 8 adaptive games, child profiles, or progress reports!";
+    return "Awesome! 😊 Let me know whenever you have more questions about our 13-question screening survey, 8 adaptive games, child profiles, or progress reports!";
   }
   if (q.includes("bye") || q.includes("goodbye") || q.includes("see ya")) {
     return "Goodbye for now! 🐝 Have a wonderful, joyful day with your child! I'll be right here whenever you need me. ✨";
@@ -102,18 +102,18 @@ function getSmartFallbackResponse(userMessage: string, history?: any[]): string 
 
   // 3. App Overview & How it works
   if (q.includes("what is lumo buddy") || q.includes("about this app") || q.includes("tell me about this app") || q.includes("what is this app") || q.includes("about app")) {
-    return "Lumo Buddy is a calm, supportive developmental screening and adaptive learning platform for neurodivergent children. Parents complete a 32-question survey, an ML algorithm predicts a support level (Level 1, 2, or 3), and unlocks suitable learning games! 🐝✨";
+    return "Lumo Buddy is a calm, supportive developmental screening and adaptive learning platform for neurodivergent children. Parents complete a 13-question survey, an ML algorithm predicts a support level (Level 1, 2, or 3), and unlocks suitable learning games! 🐝✨";
   }
   if (q.includes("how does it work") || q.includes("how to start") || q.includes("getting started") || q.includes("how to use") || q.includes("steps")) {
-    return "It's super simple:\n1. Create a parent account & child profile (Boy 👦 or Girl 👧 avatar).\n2. Complete the 32-question parent screening survey.\n3. Our ML model predicts a support level (Level 1, 2, or 3).\n4. Suitable learning games are unlocked for your child to play & track progress! 🚀";
+    return "It's super simple:\n1. Create a parent account & child profile (Boy 👦 or Girl 👧 avatar).\n2. Complete the 13-question parent screening survey.\n3. Our ML model predicts a support level (Level 1, 2, or 3).\n4. Suitable learning games are unlocked for your child to play & track progress! 🚀";
   }
 
   // 4. Survey & Assessment Questions
   if (q.includes("survey") || q.includes("assessment") || q.includes("screening") || q.includes("questionnaire") || q.includes("predict")) {
-    return "The screening survey is a comprehensive 32-question questionnaire completed by parents across 4 developmental areas: Emotion, Cognitive, Self-Awareness, and Math. Based on your answers, our system predicts your child's support level (Level 1, 2, or 3) to unlock suitable learning games! 🐝✨";
+    return "The screening survey is a comprehensive 13-question questionnaire completed by parents covering developmental traits, communication, social interaction, and sensory behaviors. Based on your answers, our ML model predicts your child's support level (Level 1, 2, or 3) to unlock suitable learning games! 🐝✨";
   }
   if (q.includes("retake") || q.includes("redo") || q.includes("take again") || q.includes("monthly")) {
-    return "Yes! Parents can retake the 32-question screening survey anytime or do a monthly re-assessment to update their child's support level and track milestone progress over time! 📈✨";
+    return "Yes! Parents can retake the 13-question screening survey anytime or do a monthly re-assessment to update their child's support level and track milestone progress over time! 📈✨";
   }
 
   // 5. 4 Developmental Areas
@@ -177,7 +177,7 @@ function getSmartFallbackResponse(userMessage: string, history?: any[]): string 
   }
 
   // Default fallback welcome response
-  return `I'm Lumo, your friendly Lumo Buddy AI Assistant! 🐝 I can help you with our 32-question parent survey, 8 adaptive games, support level unlocks (Level 1, 2, 3), retaking surveys, child profiles, and progress reports. How can I help you right now? 😊`;
+  return `I'm Lumo, your friendly Lumo Buddy AI Assistant! 🐝 I can help you with our 13-question parent survey, 8 adaptive games, support level unlocks (Level 1, 2, 3), retaking surveys, child profiles, and progress reports. How can I help you right now? 😊`;
 }
 
 /**

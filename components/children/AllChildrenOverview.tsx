@@ -280,7 +280,7 @@ export function AllChildrenOverview({ items, onExitCheckMode }: Props) {
                   <div className="space-y-1.5">
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                        <span>💖 Emotion Match</span>
+                        <span>💖 Communication & Emotion</span>
                         <span>{item.areaAccuracy.emotion}%</span>
                       </div>
                       <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
@@ -293,7 +293,7 @@ export function AllChildrenOverview({ items, onExitCheckMode }: Props) {
 
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                        <span>🧩 Cognitive & Memory</span>
+                        <span>🧩 Social & Cognitive</span>
                         <span>{item.areaAccuracy.cognitive}%</span>
                       </div>
                       <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
@@ -306,7 +306,7 @@ export function AllChildrenOverview({ items, onExitCheckMode }: Props) {
 
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                        <span>🌟 Self-Awareness</span>
+                        <span>🌱 Behavior & Sensory</span>
                         <span>{item.areaAccuracy.self_awareness}%</span>
                       </div>
                       <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
@@ -319,7 +319,7 @@ export function AllChildrenOverview({ items, onExitCheckMode }: Props) {
 
                     <div>
                       <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                        <span>🔢 Mathematical Skills</span>
+                        <span>💡 Learning & Logic</span>
                         <span>{item.areaAccuracy.mathematical}%</span>
                       </div>
                       <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">

@@ -255,10 +255,11 @@ export function formatDate(dateString: string): string {
 
 export function formatAreaName(area: string): string {
   const map: Record<string, string> = {
-    emotion: "Emotion Skills",
-    cognitive: "Cognitive Skills",
-    self_awareness: "Self-awareness",
-    mathematical: "Mathematical Skills"
+    emotion: "Communication & Emotion",
+    cognitive: "Social & Cognitive",
+    self_awareness: "Behavior & Sensory",
+    mathematical: "Learning & Logic",
+    math: "Learning & Logic"
   };
   return map[area] || area;
 }

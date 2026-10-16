@@ -8,6 +8,7 @@ import { AssessmentBackground } from "@/components/assessment/AssessmentBackgrou
 import { getChildForCurrentParent } from "@/lib/children";
 import { getLatestAssessmentForCurrentParent } from "@/lib/survey";
 import {
+  calculateAreaLevel,
   getAreaLabel,
   isAreaRecommendationsEnabled,
 } from "@/lib/area-recommendations";
@@ -30,7 +31,9 @@ type AreaCardProps = {
 };
 
 function AreaScoreCard({ label, score, maxScore, emoji, bg, bar, text, border, badgeBg, delay }: AreaCardProps) {
-  const percent = Math.min(100, Math.round((score / maxScore) * 100));
+  // Gracefully normalize scores to 13-point scale if record was created under legacy 32-scale
+  const normalizedScore = score > maxScore ? Math.min(maxScore, Math.round((score / 32) * maxScore)) : score;
+  const percent = Math.min(100, Math.round((normalizedScore / maxScore) * 100));
 
   return (
     <motion.div
@@ -52,7 +55,7 @@ function AreaScoreCard({ label, score, maxScore, emoji, bg, bar, text, border, b
           </div>
         </div>
         <div className="text-right">
-          <span className={`font-display text-3xl font-black ${text}`}>{score}</span>
+          <span className={`font-display text-3xl font-black ${text}`}>{normalizedScore}</span>
           <span className="text-xs font-bold text-slate-400">/{maxScore}</span>
         </div>
       </div>
@@ -143,8 +146,13 @@ export default function AssessmentResultPage() {
 
   const lvl = assessment ? levelConfig(assessment.predicted_level) : null;
 
-  // Max scores — 8 questions per area × 4 max score = 32 per area
-  const MAX_AREA = 32;
+  // Max score per developmental area = 13 (aligned with the 13 clinical questions)
+  const MAX_AREA = 13;
+  const maxTotalScore = MAX_AREA * 4; // 52
+  const normalizedTotalScore =
+    assessment && assessment.total_score > maxTotalScore
+      ? Math.min(maxTotalScore, Math.round((assessment.total_score / 128) * maxTotalScore))
+      : (assessment?.total_score ?? 0);
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40 pb-28 md:pb-16">
@@ -243,9 +251,9 @@ export default function AssessmentResultPage() {
                     className="bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 rounded-[2rem] border-2 border-slate-200/80 p-7 text-center shadow-md flex flex-col justify-center space-y-1"
                   >
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Total Score</p>
-                    <p className="font-display text-5xl sm:text-6xl font-black text-slate-900">{assessment.total_score}</p>
+                    <p className="font-display text-5xl sm:text-6xl font-black text-slate-900">{normalizedTotalScore}</p>
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold text-slate-600 bg-white/80 border border-slate-200 shadow-2xs">
-                      out of {MAX_AREA * 4} Total Points
+                      out of {maxTotalScore} Total Points
                     </span>
                   </motion.div>
                 </div>
@@ -293,24 +301,24 @@ export default function AssessmentResultPage() {
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Emotion</p>
-                          <p className="text-sm font-black text-slate-800">Lvl {assessment.emotion_level}</p>
+                          <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider truncate" title="Communication & Emotion">Comm & Emotion</p>
+                          <p className="text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.emotion_score)}</p>
                         </div>
                         <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cognitive</p>
-                          <p className="text-sm font-black text-slate-800">Lvl {assessment.cognitive_level}</p>
+                          <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider truncate" title="Social & Cognitive">Social & Cog</p>
+                          <p className="text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.cognitive_score)}</p>
                         </div>
                         <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Self-awareness</p>
-                          <p className="text-sm font-black text-slate-800">Lvl {assessment.self_awareness_level}</p>
+                          <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider truncate" title="Behavior & Sensory">Behavior & Sensory</p>
+                          <p className="text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.self_awareness_score)}</p>
                         </div>
                         <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Math</p>
-                          <p className="text-sm font-black text-slate-800">Lvl {assessment.math_level}</p>
+                          <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider truncate" title="Learning & Logic">Learning & Logic</p>
+                          <p className="text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.math_score)}</p>
                         </div>
                       </div>
                       <p className="text-slate-600 text-sm font-semibold leading-relaxed bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 italic">
-                        &quot;Based on the survey, {getAreaLabel(assessment.main_support_area)} may benefit from more guided practice, while {getAreaLabel(assessment.strongest_area)} appears to be a stronger area. We suggest starting with foundational activities in the support area and continuing suitable activities in the stronger area.&quot;
+                        &quot;Based on the survey, {getAreaLabel(assessment.main_support_area)} may benefit from more guided practice, while {getAreaLabel(assessment.strongest_area)}{" "}appears to be a stronger area. We suggest starting with foundational activities in the support area and continuing suitable activities in the stronger area.&quot;
                       </p>
                     </div>
                   </div>
@@ -325,7 +333,7 @@ export default function AssessmentResultPage() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <AreaScoreCard
-                  label="Emotion"
+                  label="Communication & Emotion"
                   score={assessment.emotion_score}
                   maxScore={MAX_AREA}
                   emoji="💖"
@@ -337,7 +345,7 @@ export default function AssessmentResultPage() {
                   delay={0.1}
                 />
                 <AreaScoreCard
-                  label="Cognitive"
+                  label="Social & Cognitive"
                   score={assessment.cognitive_score}
                   maxScore={MAX_AREA}
                   emoji="🧩"
@@ -349,7 +357,7 @@ export default function AssessmentResultPage() {
                   delay={0.2}
                 />
                 <AreaScoreCard
-                  label="Self-Awareness"
+                  label="Behavior & Sensory"
                   score={assessment.self_awareness_score}
                   maxScore={MAX_AREA}
                   emoji="🌱"
@@ -361,10 +369,10 @@ export default function AssessmentResultPage() {
                   delay={0.3}
                 />
                 <AreaScoreCard
-                  label="Mathematical Skills"
+                  label="Learning & Logic"
                   score={assessment.math_score}
                   maxScore={MAX_AREA}
-                  emoji="🔢"
+                  emoji="💡"
                   bg="bg-gradient-to-br from-violet-50/90 to-white"
                   border="border-violet-200"
                   bar="bg-gradient-to-r from-violet-500 to-purple-500"

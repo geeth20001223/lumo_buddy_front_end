@@ -16,7 +16,9 @@ type AreaItemProps = {
 };
 
 function AreaItem({ label, score, level, bg, border, text, bar }: AreaItemProps) {
-  const percent = Math.min(100, Math.round((score / 32) * 100));
+  const maxScore = 13;
+  const normalizedScore = score > maxScore ? Math.min(maxScore, Math.round((score / 32) * maxScore)) : score;
+  const percent = Math.min(100, Math.round((normalizedScore / maxScore) * 100));
 
   const getStatus = (lvl: number) => {
     if (lvl >= 3) return "Doing Well";
@@ -34,7 +36,7 @@ function AreaItem({ label, score, level, bg, border, text, bar }: AreaItemProps)
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Score</span>
-          <span className="text-lg font-black text-slate-800 leading-none">{score} / 32</span>
+          <span className="text-lg font-black text-slate-800 leading-none">{normalizedScore} / 13</span>
         </div>
         <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/60 border border-white ${text}`}>
           {getStatus(level)}
@@ -61,7 +63,7 @@ export function AreaLevelGrid({ assessment }: AreaLevelGridProps) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-2">
         <AreaItem
-          label="Emotion Skills"
+          label="Communication & Emotion"
           score={assessment.emotion_score}
           level={assessment.emotion_level || 1}
           bg="bg-indigo-50"
@@ -70,7 +72,7 @@ export function AreaLevelGrid({ assessment }: AreaLevelGridProps) {
           bar="bg-indigo-400"
         />
         <AreaItem
-          label="Cognitive Skills"
+          label="Social & Cognitive"
           score={assessment.cognitive_score}
           level={assessment.cognitive_level || 1}
           bg="bg-blue-50"
@@ -79,7 +81,7 @@ export function AreaLevelGrid({ assessment }: AreaLevelGridProps) {
           bar="bg-blue-400"
         />
         <AreaItem
-          label="Self-awareness"
+          label="Behavior & Sensory"
           score={assessment.self_awareness_score}
           level={assessment.self_awareness_level || 1}
           bg="bg-emerald-50"
@@ -88,7 +90,7 @@ export function AreaLevelGrid({ assessment }: AreaLevelGridProps) {
           bar="bg-emerald-400"
         />
         <AreaItem
-          label="Mathematical Skills"
+          label="Learning & Logic"
           score={assessment.math_score}
           level={assessment.math_level || 1}
           bg="bg-violet-50"

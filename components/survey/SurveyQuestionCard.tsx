@@ -1,28 +1,27 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { SurveyAnswerOption } from "./SurveyAnswerOption";
-import type {
-  SurveyAnswerOption as SurveyAnswerOptionType,
-  SurveyQuestion,
-} from "@/types/survey";
+import type { SurveyQuestion } from "@/types/survey";
 import { HelpCircle } from "lucide-react";
 
 type SurveyQuestionCardProps = {
-  answerOptions: SurveyAnswerOptionType[];
   question: SurveyQuestion;
-  selectedScore?: number;
-  onSelectAnswer: (score: number) => void;
+  selectedAnswer?: string | number;
+  onSelectAnswer: (answer: string) => void;
 };
 
 export function SurveyQuestionCard({
-  answerOptions,
   question,
-  selectedScore,
+  selectedAnswer,
   onSelectAnswer,
 }: SurveyQuestionCardProps) {
+  const options = question.options && question.options.length > 0
+    ? question.options
+    : ["Yes", "No"];
+
   return (
     <AnimatePresence mode="wait">
       <motion.section
-        key={question.id}
+        key={question.id || question.question}
         initial={{ opacity: 0, x: 20, scale: 0.98 }}
         animate={{ opacity: 1, x: 0, scale: 1 }}
         exit={{ opacity: 0, x: -20, scale: 0.98 }}
@@ -34,20 +33,21 @@ export function SurveyQuestionCard({
 
         <div className="space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-fuchsia-50 border border-fuchsia-200 text-fuchsia-700 text-xs font-black uppercase tracking-wider">
-            <HelpCircle size={14} className="text-fuchsia-600" /> Observation Question
+            <HelpCircle size={14} className="text-fuchsia-600" />
+            {question.area_label || "Screening Question"}
           </div>
           <p className="text-xl sm:text-2xl font-black text-slate-900 leading-snug tracking-tight">
             {question.question}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-3.5 pt-2">
-          {answerOptions.map((option) => (
+        <div className="grid grid-cols-1 gap-3 pt-2">
+          {options.map((option) => (
             <SurveyAnswerOption
-              isSelected={selectedScore === option.score}
-              key={option.label}
-              onSelect={() => onSelectAnswer(option.score)}
-              option={option}
+              isSelected={String(selectedAnswer) === option}
+              key={option}
+              label={option}
+              onSelect={() => onSelectAnswer(option)}
             />
           ))}
         </div>

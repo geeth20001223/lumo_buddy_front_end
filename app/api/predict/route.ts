@@ -3,27 +3,69 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const apiUrl = process.env.NEXT_PUBLIC_ML_API_URL || "http://127.0.0.1:8000";
 
-    const response = await fetch(`${apiUrl.replace(/\/+$/, "")}/predict`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    const isDev = process.env.NODE_ENV !== "production";
+    const envUrl = process.env.NEXT_PUBLIC_ML_API_URL || process.env.ML_API_URL;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return NextResponse.json(
-        { error: `ML API Error (${response.status}): ${errText}` },
-        { status: response.status }
-      );
+    // In local dev, prioritize local FastAPI server at port 8000
+    const candidateList = isDev
+      ? ["http://127.0.0.1:8000", envUrl, "http://localhost:8000"]
+      : [envUrl, "http://127.0.0.1:8000", "http://localhost:8000"];
+
+    const uniqueUrls = Array.from(
+      new Set(
+        candidateList
+          .filter((u): u is string => typeof u === "string" && u.trim().length > 0)
+          .map((u) => u.replace(/\/+$/, ""))
+      )
+    );
+
+    let lastErrorMsg = "";
+    let lastStatus = 500;
+
+    for (const baseUrl of uniqueUrls) {
+      try {
+        const response = await fetch(`${baseUrl}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          // Short timeout so we don't hang if an endpoint is cold or down
+          signal: AbortSignal.timeout(5000),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Map clinical severity levels to game activity levels:
+          // Level 1 (Mild) -> Game Level 3 (Advanced)
+          // Level 3 (Severe) -> Game Level 1 (Foundational)
+          // Level 2 (Moderate) -> Game Level 2 (Developing - unchanged)
+          if (data && typeof data.predicted_level === "number") {
+            const raw = data.predicted_level;
+            const mapped = raw === 1 ? 3 : raw === 3 ? 1 : 2;
+            data.predicted_level = mapped;
+            data.screening_prediction = mapped;
+            data.recommendation = `Suggested game level: Level ${mapped}`;
+          }
+          return NextResponse.json(data);
+        }
+
+        lastStatus = response.status;
+        const errText = await response.text();
+        lastErrorMsg = `${baseUrl}/predict responded with ${response.status}: ${errText}`;
+        console.warn(`[predict route] ${lastErrorMsg}`);
+      } catch (err) {
+        lastErrorMsg = `Could not connect to ${baseUrl}/predict: ${(err as Error).message}`;
+        console.warn(`[predict route] ${lastErrorMsg}`);
+      }
     }
 
-    const data = await response.json();
-    return NextResponse.json(data);
+    return NextResponse.json(
+      { error: `All ML API endpoints failed. Last detail: ${lastErrorMsg}` },
+      { status: lastStatus }
+    );
   } catch (err) {
     return NextResponse.json(
-      { error: `Failed to connect to FastAPI ML API: ${(err as Error).message}` },
+      { error: `Internal predict proxy error: ${(err as Error).message}` },
       { status: 500 }
     );
   }

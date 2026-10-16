@@ -14,39 +14,10 @@ import { SurveyBackground } from "@/components/survey/SurveyBackground";
 import { getChildForCurrentParent } from "@/lib/children";
 import { getSurveyQuestions, submitSurvey } from "@/lib/survey";
 import type { ChildProfile } from "@/types/child";
-import type {
-  SurveyAnswerOption,
-  SurveyAnswers,
-  SurveyArea,
-  SurveyQuestion,
-} from "@/types/survey";
-
-const answerOptions: SurveyAnswerOption[] = [
-  { label: "Never", score: 0 },
-  { label: "Rarely", score: 1 },
-  { label: "Sometimes", score: 2 },
-  { label: "Often", score: 3 },
-  { label: "Always", score: 4 },
-];
-
-const areaOrder: SurveyArea[] = [
-  "emotion",
-  "cognitive",
-  "self_awareness",
-  "mathematical",
-];
+import type { SurveyAnswers, SurveyQuestion } from "@/types/survey";
 
 function sortQuestions(questions: SurveyQuestion[]) {
-  return [...questions].sort((first, second) => {
-    const areaDifference =
-      areaOrder.indexOf(first.area) - areaOrder.indexOf(second.area);
-
-    if (areaDifference !== 0) {
-      return areaDifference;
-    }
-
-    return first.sort_order - second.sort_order;
-  });
+  return [...questions].sort((first, second) => first.sort_order - second.sort_order);
 }
 
 export default function SurveyPage() {
@@ -111,14 +82,14 @@ export default function SurveyPage() {
   );
   const isLastQuestion = currentIndex === questions.length - 1;
 
-  function handleSelectAnswer(score: number) {
+  function handleSelectAnswer(answer: string) {
     if (!currentQuestion) {
       return;
     }
 
     setAnswers((currentAnswers) => ({
       ...currentAnswers,
-      [currentQuestion.id]: score,
+      [currentQuestion.id]: answer,
     }));
   }
 
@@ -159,7 +130,7 @@ export default function SurveyPage() {
     } catch (err) {
       const message =
         err instanceof Error && err.message === "prediction_failed"
-          ? "We could not calculate the support level right now. Please try again."
+          ? "We could not calculate the support level from the ML API right now. Please verify http://127.0.0.1:8000 is running."
           : err instanceof Error && err.message === "assessment_save_failed"
             ? "We could not save your survey result. Please try again."
             : "Something went wrong. Please try again.";
@@ -173,7 +144,7 @@ export default function SurveyPage() {
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40 px-4 py-8 sm:py-10 pb-20">
-      {/* Calm Parent Survey Background (No Stars / No Rainbows) */}
+      {/* Calm Parent Survey Background */}
       <SurveyBackground />
 
       {/* Background color blobs */}
@@ -223,14 +194,15 @@ export default function SurveyPage() {
             <SurveyProgressBar current={answeredCount} total={questions.length} />
             <SurveySectionTitle
               area={currentQuestion.area}
+              areaLabel={currentQuestion.area_label}
+              areaIcon={currentQuestion.area_icon}
               current={currentIndex + 1}
               total={questions.length}
             />
             <SurveyQuestionCard
-              answerOptions={answerOptions}
               onSelectAnswer={handleSelectAnswer}
               question={currentQuestion}
-              selectedScore={answers[currentQuestion.id]}
+              selectedAnswer={answers[currentQuestion.id]}
             />
 
             {/* Staged saving indicator */}
@@ -239,8 +211,8 @@ export default function SurveyPage() {
                 <div className="w-6 h-6 rounded-full border-3 border-fuchsia-500 border-t-transparent animate-spin flex-shrink-0" />
                 <p className="text-sm font-extrabold text-fuchsia-900">
                   {savingStage === "calculating"
-                    ? "Calculating support level..."
-                    : "Saving survey result..."}
+                    ? "Evaluating responses with Random Forest ML model..."
+                    : "Saving assessment results..."}
                 </p>
               </div>
             )}

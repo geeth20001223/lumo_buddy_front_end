@@ -29,8 +29,12 @@ export function AssessmentSummaryCard({ assessment, childId }: AssessmentSummary
     );
   }
 
-  // Max score is 128 (8 questions * 4 areas * 4 max)
-  const MAX_TOTAL = 128;
+  // Max score is 52 (4 areas * 13 max points)
+  const MAX_TOTAL = 52;
+  const normalizedTotal =
+    assessment.total_score > MAX_TOTAL
+      ? Math.min(MAX_TOTAL, Math.round((assessment.total_score / 128) * MAX_TOTAL))
+      : assessment.total_score;
 
   return (
     <div className="rounded-[2rem] bg-white border border-slate-100 p-8 shadow-sm">
@@ -60,7 +64,7 @@ export function AssessmentSummaryCard({ assessment, childId }: AssessmentSummary
           </p>
           <div className="flex items-baseline gap-2">
             <span className="font-display text-4xl font-bold text-violet-700">
-              {assessment.total_score}
+              {normalizedTotal}
             </span>
             <span className="text-sm font-bold text-violet-600/60 uppercase">
               out of {MAX_TOTAL}

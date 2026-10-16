@@ -1,16 +1,15 @@
 import { motion } from "framer-motion";
 import clsx from "clsx";
-import type { SurveyAnswerOption as SurveyAnswerOptionType } from "@/types/survey";
 import { Check } from "lucide-react";
 
 type SurveyAnswerOptionProps = {
-  option: SurveyAnswerOptionType;
+  label: string;
   isSelected: boolean;
   onSelect: () => void;
 };
 
 export function SurveyAnswerOption({
-  option,
+  label,
   isSelected,
   onSelect,
 }: SurveyAnswerOptionProps) {
@@ -20,16 +19,18 @@ export function SurveyAnswerOption({
       whileTap={{ scale: 0.985 }}
       aria-pressed={isSelected}
       className={clsx(
-        "flex min-h-16 w-full items-center justify-between rounded-2xl border-2 px-6 py-4 text-left text-base font-black transition-all duration-300 cursor-pointer relative overflow-hidden group select-none",
+        "flex min-h-16 w-full items-center justify-between rounded-2xl border-2 px-5 sm:px-6 py-4 text-left transition-all duration-300 cursor-pointer relative overflow-hidden group select-none",
         isSelected
-          ? "border-fuchsia-500 bg-gradient-to-r from-fuchsia-50/95 via-purple-50/90 to-pink-50/95 text-fuchsia-950 shadow-md shadow-fuchsia-500/15 ring-4 ring-fuchsia-200/60"
-          : "border-slate-200/90 bg-white/90 text-slate-800 hover:border-fuchsia-300 hover:bg-fuchsia-50/50 shadow-xs",
+          ? "border-fuchsia-500 bg-gradient-to-r from-fuchsia-50/95 via-purple-50/90 to-pink-50/95 text-fuchsia-950 shadow-md shadow-fuchsia-500/15 ring-4 ring-fuchsia-200/60 font-black"
+          : "border-slate-200/90 bg-white/95 text-slate-800 hover:border-fuchsia-300 hover:bg-fuchsia-50/50 shadow-xs font-bold",
       )}
       onClick={onSelect}
       type="button"
     >
-      <div className="flex items-center gap-3">
-        <span className="text-base sm:text-lg font-extrabold">{option.label}</span>
+      <div className="flex items-center gap-3 pr-3 flex-1">
+        <span className="text-sm sm:text-base font-extrabold leading-snug break-words">
+          {label}
+        </span>
       </div>
 
       <motion.span
