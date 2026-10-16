@@ -35,26 +35,41 @@ export async function POST(req: Request) {
 
         if (response.ok) {
           const data = await response.json();
-          // Map predictions to game activity levels:
-          // Level 3 (Mild Autism / High Independence) -> Game Level 3 (Advanced Activities)
-          // Level 2 (Moderate Autism) -> Game Level 2 (Developing Skills)
-          // Level 1 (Severe Autism / High Support) -> Game Level 1 (Foundational Support)
-          if (data && (data.predicted_level !== undefined || data.severity !== undefined)) {
-            const rawVal = String(data.predicted_level ?? "").trim();
-            const sevVal = String(data.severity ?? data.severity_label ?? "").trim().toLowerCase();
-            let mapped = 2;
+          // The ML model returns predicted_level:
+          // 3 -> Game Level 3 (Advanced Activities, Mild support need)
+          // 2 -> Game Level 2 (Developing Skills, Moderate support need)
+          // 1 -> Game Level 1 (Foundational Support, Severe support need)
+          let finalLevel = 2;
 
-            if (rawVal === "3" || sevVal.includes("mild") || rawVal === "mild") {
-              mapped = 3;
-            } else if (rawVal === "1" || sevVal.includes("severe") || rawVal === "severe") {
-              mapped = 1;
-            } else {
-              mapped = 2; // Moderate / Level 2
-            }
-            data.predicted_level = mapped;
-            data.screening_prediction = mapped;
-            data.recommendation = `Suggested game level: Level ${mapped}`;
+          const predNum = Number(data?.predicted_level ?? data?.screening_prediction);
+          if (predNum === 3 || predNum === 2 || predNum === 1) {
+            finalLevel = predNum;
+          } else {
+            const total = Number(body?.total_score || 0);
+            if (total >= 40) finalLevel = 3;
+            else if (total <= 25) finalLevel = 1;
+            else finalLevel = 2;
           }
+
+          // Strict validation with parent's survey answers and scores
+          const targetSeverity = String(
+            body?.["target_severity_metric"] ??
+            body?.["How can you rate your child's deficits in social communication and social interaction (This serves as the ML target severity metric)"] ??
+            ""
+          ).trim().toLowerCase();
+          const totalScore = typeof body?.total_score === "number" ? body.total_score : 0;
+
+          if (targetSeverity === "severe" || (totalScore > 0 && totalScore <= 25)) {
+            finalLevel = 1;
+          } else if (targetSeverity === "mild" && (totalScore === 0 || totalScore >= 38)) {
+            finalLevel = 3;
+          } else if (targetSeverity === "moderate") {
+            finalLevel = 2;
+          }
+
+          data.predicted_level = finalLevel;
+          data.screening_prediction = finalLevel;
+          data.recommendation = `Suggested game level: Level ${finalLevel}`;
           return NextResponse.json(data);
         }
 
@@ -70,21 +85,17 @@ export async function POST(req: Request) {
 
     // Graceful fallback based on developmental scores and answers if ML server is cold/offline
     let fallbackLevel = 2;
-    const bodyStr = JSON.stringify(body).toLowerCase();
-    const totalScore = typeof body.total_score === "number" ? body.total_score : 0;
+    const targetSeverity = String(
+      body?.["target_severity_metric"] ??
+      body?.["How can you rate your child's deficits in social communication and social interaction (This serves as the ML target severity metric)"] ??
+      ""
+    ).trim().toLowerCase();
+    const totalScore = typeof body?.total_score === "number" ? body.total_score : 0;
 
-    if (
-      bodyStr.includes('"mild"') ||
-      bodyStr.includes('"level 1 (mild autism)"') ||
-      totalScore >= 42
-    ) {
-      fallbackLevel = 3;
-    } else if (
-      bodyStr.includes('"severe"') ||
-      bodyStr.includes('"level 3 (severe autism)"') ||
-      (totalScore > 0 && totalScore <= 24)
-    ) {
+    if (targetSeverity === "severe" || (totalScore > 0 && totalScore <= 25)) {
       fallbackLevel = 1;
+    } else if (targetSeverity === "mild" || totalScore >= 40) {
+      fallbackLevel = 3;
     } else {
       fallbackLevel = 2;
     }

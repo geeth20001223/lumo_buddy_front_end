@@ -15,11 +15,10 @@ export class MLApiError extends Error {
   }
 }
 
-export function mapClinicalLevelToGameLevel(level: number | string, severity?: string): number {
-  const raw = String(level).trim().toLowerCase();
-  const sev = String(severity || "").trim().toLowerCase();
-  if (raw === "3" || sev.includes("mild") || raw.includes("mild")) return 3;
-  if (raw === "1" || sev.includes("severe") || raw.includes("severe")) return 1;
+export function mapClinicalLevelToGameLevel(level: number | string, _severity?: string): number {
+  const num = Number(level);
+  if (num === 3) return 3;
+  if (num === 1) return 1;
   return 2; // Moderate / Level 2
 }
 
@@ -78,14 +77,20 @@ export async function predictSupportLevel(
   }
 
   // 3. Robust client fallback based on developmental scoring
-  const bodyStr = JSON.stringify(payload).toLowerCase();
-  const totalScore = typeof payload.total_score === "number" ? payload.total_score : 0;
+  const targetSeverity = String(
+    payload?.["target_severity_metric"] ??
+    payload?.["How can you rate your child's deficits in social communication and social interaction (This serves as the ML target severity metric)"] ??
+    ""
+  ).trim().toLowerCase();
+  const totalScore = typeof payload?.total_score === "number" ? payload.total_score : 0;
   let fallbackLevel = 2;
 
-  if (bodyStr.includes('"mild"') || bodyStr.includes('"level 1 (mild autism)"') || totalScore >= 42) {
-    fallbackLevel = 3;
-  } else if (bodyStr.includes('"severe"') || bodyStr.includes('"level 3 (severe autism)"') || (totalScore > 0 && totalScore <= 24)) {
+  if (targetSeverity === "severe" || (totalScore > 0 && totalScore <= 25)) {
     fallbackLevel = 1;
+  } else if (targetSeverity === "mild" || totalScore >= 40) {
+    fallbackLevel = 3;
+  } else {
+    fallbackLevel = 2;
   }
 
   return {
