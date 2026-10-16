@@ -52,7 +52,15 @@ export function calculateSurveyScores(
   for (const q of questions) {
     const rawAnswer =
       answers[q.id] ?? answers[q.question] ?? answers[String(q.db_id)];
-    const score = getOptionScore(rawAnswer);
+    let score = getOptionScore(rawAnswer);
+
+    // Echolalia / Stereotyped motor movements: "No" is high developmental mastery (8 pts)
+    if (q.id === "motor_movements_echolalia" || q.feature_name?.includes("Stereotyped or repetitive motor movements")) {
+      const k = String(rawAnswer).trim().toLowerCase();
+      if (k === "no") score = 8;
+      else if (k === "sometimes" || k === "some times") score = 5;
+      else if (k === "yes") score = 2;
+    }
 
     // Group questions into the 4 developmental reporting areas
     if (q.area === "communication" || q.id === "verbal_status" || q.id === "nonverbal_behaviors") {
@@ -94,8 +102,9 @@ export function buildMLPredictionPayload(
   answers: SurveyAnswers,
 ): Record<string, string> {
   const payload: Record<string, string> = {
-    // Default disability type to "Autism" for ML feature expectation
+    // Default disability type and location for ML feature expectation
     "Which type of disability do he/she have": "Autism",
+    "Where was the diagnosis done?": "Abroad",
   };
 
   for (const q of questions) {
@@ -108,6 +117,24 @@ export function buildMLPredictionPayload(
         payload[q.feature_name] = strVal;
       }
     }
+  }
+
+  // Map target severity metric to DSM-5 Diagnosis feature expected by the Random Forest classifier
+  const severityAnswer = String(
+    answers["target_severity_metric"] ??
+    answers["How can you rate your child's deficits in social communication and social interaction (This serves as the ML target severity metric)"] ??
+    ""
+  ).trim().toLowerCase();
+
+  if (severityAnswer === "mild") {
+    payload["If Diagnosis is yes , what was his/her diagnosis? (DSM 5 Diagnosis)"] = "Level 1 (Mild Autism)";
+    payload["dsm5_diagnosis"] = "Level 1 (Mild Autism)";
+  } else if (severityAnswer === "moderate") {
+    payload["If Diagnosis is yes , what was his/her diagnosis? (DSM 5 Diagnosis)"] = "Level 2 (Moderate Autism)";
+    payload["dsm5_diagnosis"] = "Level 2 (Moderate Autism)";
+  } else if (severityAnswer === "severe") {
+    payload["If Diagnosis is yes , what was his/her diagnosis? (DSM 5 Diagnosis)"] = "Level 3 (Severe Autism)";
+    payload["dsm5_diagnosis"] = "Level 3 (Severe Autism)";
   }
 
   return payload;
