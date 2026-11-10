@@ -1,3 +1,5 @@
+import { predictLevelFromScores } from "./survey-scoring";
+
 export type PredictionResponse = {
   screening_prediction: number;
   predicted_level: number;
@@ -22,81 +24,38 @@ export function mapClinicalLevelToGameLevel(level: number | string, _severity?: 
   return 2; // Moderate / Level 2
 }
 
+/**
+ * Predicts the optimal game starting level (1, 2, or 3) using deterministic
+ * psychometric scoring directly from the 24 questions (4 categories x 6 questions).
+ * Completely unplugged from any external ML model.
+ */
 export async function predictSupportLevel(
   payload: Record<string, unknown>,
 ): Promise<PredictionResponse> {
-  // 1. Primary: Use Next.js /api/predict server route (handles server-side proxying and CORS)
-  try {
-    const response = await fetch("/api/predict", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+  const emotion_score = Number(payload?.emotion_score || 0);
+  const cognitive_score = Number(payload?.cognitive_score || 0);
+  const self_awareness_score = Number(payload?.self_awareness_score || 0);
+  const math_score = Number(payload?.math_score || 0);
+  const total_score =
+    typeof payload?.total_score === "number"
+      ? payload.total_score
+      : emotion_score + cognitive_score + self_awareness_score + math_score;
 
-    if (response.ok) {
-      return (await response.json()) as PredictionResponse;
-    }
-
-    const errData = await response.text();
-    console.warn(
-      `[LumoBuddy] /api/predict returned status ${response.status}:`,
-      errData,
-    );
-  } catch (proxyErr) {
-    console.warn(
-      "[LumoBuddy] Proxy route fetch failed, trying direct ML API:",
-      proxyErr,
-    );
-  }
-
-  // 2. Direct fetch fallback to ML API URL (defaulting to local port 8000)
-  const directUrl =
-    process.env.NEXT_PUBLIC_ML_API_URL || "http://127.0.0.1:8000";
-  try {
-    const response = await fetch(`${directUrl.replace(/\/+$/, "")}/predict`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(3000),
-    });
-
-    if (response.ok) {
-      const directData = (await response.json()) as PredictionResponse;
-      if (directData && typeof directData.predicted_level === "number") {
-        directData.predicted_level = mapClinicalLevelToGameLevel(
-          directData.predicted_level,
-          directData.severity || directData.severity_label,
-        );
-        directData.screening_prediction = directData.predicted_level;
-        directData.recommendation = `Suggested game level: Level ${directData.predicted_level}`;
-      }
-      return directData;
-    }
-  } catch (err) {
-    console.warn("[LumoBuddy] Direct ML API fetch unavailable:", err);
-  }
-
-  // 3. Robust client fallback based on developmental scoring
-  const targetSeverity = String(
-    payload?.["target_severity_metric"] ??
-    payload?.["How can you rate your child's deficits in social communication and social interaction (This serves as the ML target severity metric)"] ??
-    ""
-  ).trim().toLowerCase();
-  const totalScore = typeof payload?.total_score === "number" ? payload.total_score : 0;
-  let fallbackLevel = 2;
-
-  if (targetSeverity === "severe" || (totalScore > 0 && totalScore <= 25)) {
-    fallbackLevel = 1;
-  } else if (targetSeverity === "mild" || totalScore >= 40) {
-    fallbackLevel = 3;
-  } else {
-    fallbackLevel = 2;
-  }
+  // Direct in-code scoring calculation (instant, 100% reliable, zero network dependency)
+  const scoringResult = predictLevelFromScores({
+    emotion_score,
+    cognitive_score,
+    self_awareness_score,
+    math_score,
+    total_score,
+  });
 
   return {
-    screening_prediction: fallbackLevel,
-    predicted_level: fallbackLevel,
-    confidence: 0.95,
-    recommendation: `Suggested game level: Level ${fallbackLevel}`,
+    screening_prediction: scoringResult.predicted_level,
+    predicted_level: scoringResult.predicted_level,
+    confidence: scoringResult.confidence,
+    severity: scoringResult.severity,
+    severity_label: scoringResult.severity_label,
+    recommendation: scoringResult.recommendation,
   };
 }

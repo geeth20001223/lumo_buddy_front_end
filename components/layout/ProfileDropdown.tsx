@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { updateParentPassword } from "@/lib/auth";
+import { updateParentPassword, logoutParent } from "@/lib/auth";
 import toast, { Toaster } from "react-hot-toast";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -31,11 +31,8 @@ export default function ProfileDropdown({ email }: { email: string }) {
   }, []);
 
   const handleLogout = async () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.clear();
-    }
-    await supabase.auth.signOut();
-    router.push("/");
+    await logoutParent();
+    router.push("/login");
     router.refresh();
   };
 

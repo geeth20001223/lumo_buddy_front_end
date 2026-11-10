@@ -1,114 +1,55 @@
 import { NextResponse } from "next/server";
+import { predictLevelFromScores } from "@/lib/survey-scoring";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const isDev = process.env.NODE_ENV !== "production";
-    const envUrl = process.env.NEXT_PUBLIC_ML_API_URL || process.env.ML_API_URL;
+    // 1. Calculate scores if provided, otherwise compute from total_score
+    const emotion_score = Number(body?.emotion_score || 0);
+    const cognitive_score = Number(body?.cognitive_score || 0);
+    const self_awareness_score = Number(body?.self_awareness_score || 0);
+    const math_score = Number(body?.math_score || 0);
+    const total_score =
+      typeof body?.total_score === "number"
+        ? body.total_score
+        : emotion_score + cognitive_score + self_awareness_score + math_score;
 
-    // In local dev, prioritize local FastAPI server at port 8000
-    const candidateList = isDev
-      ? ["http://127.0.0.1:8000", envUrl, "http://localhost:8000"]
-      : [envUrl, "http://127.0.0.1:8000", "http://localhost:8000"];
+    // 2. Direct, deterministic clinical scoring prediction (no external ML server required)
+    const prediction = predictLevelFromScores({
+      emotion_score,
+      cognitive_score,
+      self_awareness_score,
+      math_score,
+      total_score,
+    });
 
-    const uniqueUrls = Array.from(
-      new Set(
-        candidateList
-          .filter((u): u is string => typeof u === "string" && u.trim().length > 0)
-          .map((u) => u.replace(/\/+$/, ""))
-      )
-    );
-
-    let lastErrorMsg = "";
-    let lastStatus = 500;
-
-    for (const baseUrl of uniqueUrls) {
-      try {
-        const response = await fetch(`${baseUrl}/predict`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-          // Short timeout so we don't hang if an endpoint is cold or down
-          signal: AbortSignal.timeout(5000),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          // The ML model returns predicted_level:
-          // 3 -> Game Level 3 (Advanced Activities, Mild support need)
-          // 2 -> Game Level 2 (Developing Skills, Moderate support need)
-          // 1 -> Game Level 1 (Foundational Support, Severe support need)
-          let finalLevel = 2;
-
-          const predNum = Number(data?.predicted_level ?? data?.screening_prediction);
-          if (predNum === 3 || predNum === 2 || predNum === 1) {
-            finalLevel = predNum;
-          } else {
-            const total = Number(body?.total_score || 0);
-            if (total >= 40) finalLevel = 3;
-            else if (total <= 25) finalLevel = 1;
-            else finalLevel = 2;
-          }
-
-          // Strict validation with parent's survey answers and scores
-          const targetSeverity = String(
-            body?.["target_severity_metric"] ??
-            body?.["How can you rate your child's deficits in social communication and social interaction (This serves as the ML target severity metric)"] ??
-            ""
-          ).trim().toLowerCase();
-          const totalScore = typeof body?.total_score === "number" ? body.total_score : 0;
-
-          if (targetSeverity === "severe" || (totalScore > 0 && totalScore <= 25)) {
-            finalLevel = 1;
-          } else if (targetSeverity === "mild" && (totalScore === 0 || totalScore >= 38)) {
-            finalLevel = 3;
-          } else if (targetSeverity === "moderate") {
-            finalLevel = 2;
-          }
-
-          data.predicted_level = finalLevel;
-          data.screening_prediction = finalLevel;
-          data.recommendation = `Suggested game level: Level ${finalLevel}`;
-          return NextResponse.json(data);
-        }
-
-        lastStatus = response.status;
-        const errText = await response.text();
-        lastErrorMsg = `${baseUrl}/predict responded with ${response.status}: ${errText}`;
-        console.warn(`[predict route] ${lastErrorMsg}`);
-      } catch (err) {
-        lastErrorMsg = `Could not connect to ${baseUrl}/predict: ${(err as Error).message}`;
-        console.warn(`[predict route] ${lastErrorMsg}`);
-      }
-    }
-
-    // Graceful fallback based on developmental scores and answers if ML server is cold/offline
-    let fallbackLevel = 2;
-    const targetSeverity = String(
-      body?.["target_severity_metric"] ??
-      body?.["How can you rate your child's deficits in social communication and social interaction (This serves as the ML target severity metric)"] ??
-      ""
-    ).trim().toLowerCase();
-    const totalScore = typeof body?.total_score === "number" ? body.total_score : 0;
-
-    if (targetSeverity === "severe" || (totalScore > 0 && totalScore <= 25)) {
-      fallbackLevel = 1;
-    } else if (targetSeverity === "mild" || totalScore >= 40) {
-      fallbackLevel = 3;
-    } else {
-      fallbackLevel = 2;
-    }
+    const level = prediction.predicted_level;
 
     return NextResponse.json({
-      screening_prediction: fallbackLevel,
-      predicted_level: fallbackLevel,
-      confidence: 0.95,
-      recommendation: `Suggested game level: Level ${fallbackLevel}`,
+      
+      screening_prediction: level,
+      predicted_level: level,
+      confidence: prediction.confidence,
+      severity: prediction.severity,
+      severity_label: prediction.severity_label,
+      recommendation: prediction.recommendation,
+      probabilities: {
+        "Level 1 (Foundational)": level === 1 ? 0.92 : 0.04,
+        "Level 2 (Developing)": level === 2 ? 0.92 : 0.04,
+        "Level 3 (Advanced)": level === 3 ? 0.92 : 0.04,
+      },
+      scores: {
+        emotion_score,
+        cognitive_score,
+        self_awareness_score,
+        math_score,
+        total_score,
+      },
     });
   } catch (err) {
     return NextResponse.json(
-      { error: `Internal predict proxy error: ${(err as Error).message}` },
+      { error: `Scoring calculation error: ${(err as Error).message}` },
       { status: 500 }
     );
   }

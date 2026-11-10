@@ -1,18 +1,29 @@
 import { SurveyArea } from "@/types/survey";
 
 /**
- * Rules:
- * Each area max score = 13 (aligned with the 13 clinical questions).
+ * Rules (6-point scale per section):
+ * Each section max score = 6 (6 questions, evaluated out of 6).
  *
- * Area level mapping (0–13 scale):
- * 0–6 = Level 1 (Foundational Support)
- * 7–10 = Level 2 (Developing Skills)
- * 11–13 = Level 3 (Advanced Activities)
+ * Section level mapping (0–6 scale):
+ * 0–2 = Level 1 (Foundational Support)
+ * 3–4 = Level 2 (Developing Skills)
+ * 5–6 = Level 3 (Advanced Activities)
  */
 export function calculateAreaLevel(score: number): number {
-  const normalized = score > 13 ? (score / 32) * 13 : score;
-  if (normalized <= 6) return 1;
-  if (normalized <= 10) return 2;
+  if (score <= 0) return 1;
+
+  // Normalize if legacy score on 18-point or 24-point scale was recorded
+  const normalized =
+    score <= 6
+      ? score
+      : score <= 18
+      ? Math.min(6, Math.round((score / 18) * 6))
+      : score <= 24
+      ? Math.min(6, Math.round((score / 24) * 6))
+      : Math.min(6, Math.round((score / 32) * 6));
+
+  if (normalized <= 2) return 1;
+  if (normalized <= 4) return 2;
   return 3;
 }
 
@@ -38,7 +49,7 @@ export function calculateAreaRecommendations(scores: {
     { area: "mathematical", score: scores.math_score },
   ];
 
-  // Find main support area (lowest score). Priority handled by find logic on sorted/stable array.
+  // Find main support area (lowest score).
   let main_support_area: SurveyArea = "emotion";
   let minScore = Infinity;
   for (const item of areas) {
@@ -85,5 +96,5 @@ export function getAreaLabel(area: SurveyArea | string): string {
 }
 
 export function isAreaRecommendationsEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_ENABLE_AREA_RECOMMENDATIONS === "true";
+  return process.env.NEXT_PUBLIC_ENABLE_AREA_RECOMMENDATIONS !== "false";
 }

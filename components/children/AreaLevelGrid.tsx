@@ -16,8 +16,15 @@ type AreaItemProps = {
 };
 
 function AreaItem({ label, score, level, bg, border, text, bar }: AreaItemProps) {
-  const maxScore = 13;
-  const normalizedScore = score > maxScore ? Math.min(maxScore, Math.round((score / 32) * maxScore)) : score;
+  const maxScore = 6;
+  const normalizedScore =
+    score <= 6
+      ? score
+      : score <= 18
+      ? Math.min(maxScore, Math.round((score / 18) * maxScore))
+      : score <= 24
+      ? Math.min(maxScore, Math.round((score / 24) * maxScore))
+      : Math.min(maxScore, Math.round((score / 32) * maxScore));
   const percent = Math.min(100, Math.round((normalizedScore / maxScore) * 100));
 
   const getStatus = (lvl: number) => {
@@ -35,11 +42,16 @@ function AreaItem({ label, score, level, bg, border, text, bar }: AreaItemProps)
 
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Score</span>
-          <span className="text-lg font-black text-slate-800 leading-none">{normalizedScore} / 13</span>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Section Score</span>
+          <span className="text-lg font-black text-slate-800 leading-none">{normalizedScore} / 6</span>
         </div>
-        <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/60 border border-white ${text}`}>
-          {getStatus(level)}
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/70 border border-slate-200 text-slate-500">
+            6 Qs
+          </span>
+          <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/60 border border-white ${text}`}>
+            {getStatus(level)}
+          </div>
         </div>
       </div>
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, useEffect, Suspense } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { AppAuthError, loginParent } from "@/lib/auth";
+import { AppAuthError, loginParent, getActiveParentSession } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -12,15 +12,9 @@ import { Input } from "@/components/ui/Input";
 /** Error message constants for standardized user feedback */
 const fillAllFieldsMessage = "Please fill all fields.";
 const loginErrorMessage =
-  "We could not log you in. Please check your email and password.";
-const emailNotConfirmedMessage =
-  "Please confirm your email address before logging in.";
-const emailProviderDisabledMessage =
-  "Email and password login is not enabled for this project.";
-const parentProfilePermissionMessage =
-  "You are logged in, but your parent profile could not be prepared. Please check the parents table access policy.";
+  "Invalid email or password. Please check your credentials or register a new account.";
 const authConnectionMessage =
-  "We could not connect to Supabase. Please check your database URL, anon key, and internet connection.";
+  "We could not connect to the database. Please check your internet connection.";
 
 /**
  * Inner Login Form Component.
@@ -35,8 +29,6 @@ function LoginFormInner() {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [isEmailNotConfirmed, setIsEmailNotConfirmed] = useState(false);
-  const [isSendingReset, setIsSendingReset] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 1. Show success toast if user was redirected back after password reset
@@ -47,19 +39,24 @@ function LoginFormInner() {
     }
   }, [searchParams]);
 
-  // 2. Auto-redirect logged-in users to `/children` (skipping password recovery sessions)
+  // 2. Auto-redirect logged-in users to `/children`
   useEffect(() => {
     async function checkExistingUser() {
-      // Fetch session from Supabase client
+      // Check local active parent session first
+      const active = getActiveParentSession();
+      if (active?.id) {
+        router.push("/children");
+        return;
+      }
+
+      // Check Supabase session
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        // Inspect Authentication Method Reference (amr) array for "recovery" flag
         const amr = (session as { amr?: { method: string }[] } & typeof session).amr;
         const isRecoverySession = Array.isArray(amr)
           ? amr.some((a) => a.method === "recovery")
           : false;
 
-        // Skip auto-redirect if user is in password recovery mode
         if (!isRecoverySession) {
           router.push("/children");
         }
@@ -67,66 +64,6 @@ function LoginFormInner() {
     }
     checkExistingUser();
   }, [router]);
-
-  /**
-   * Resends account confirmation email link if user has unconfirmed email error.
-   */
-  async function handleResendConfirmation() {
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setErrorMessage("Please enter your email address above.");
-      return;
-    }
-    setIsSendingReset(true);
-    setErrorMessage("");
-    try {
-      const { resendConfirmationEmail } = await import("@/lib/auth");
-      const res = await resendConfirmationEmail(trimmedEmail);
-      if (res.success) {
-        const msg = `Confirmation link sent! Please check your Gmail Inbox (${trimmedEmail}) and Spam folder 📧`;
-        setSuccessMessage(msg);
-        toast.success(msg);
-      } else {
-        const msg = res.message || "Could not resend confirmation email. Try requesting a password reset below.";
-        setErrorMessage(msg);
-        toast.error(msg);
-      }
-    } catch {
-      setErrorMessage("Could not resend confirmation. Please try requesting a password reset.");
-    } finally {
-      setIsSendingReset(false);
-    }
-  }
-
-  /**
-   * Requests password reset link if user encounters unconfirmed email issues.
-   */
-  async function handleRequestReset() {
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setErrorMessage("Please enter your email address above.");
-      return;
-    }
-    setIsSendingReset(true);
-    setErrorMessage("");
-    try {
-      const { requestPasswordReset } = await import("@/lib/auth");
-      const res = await requestPasswordReset(trimmedEmail);
-      if (res.success) {
-        const msg = `Password reset link sent! Check your Gmail Inbox (${trimmedEmail}) & Spam folder 📧`;
-        setSuccessMessage(msg);
-        toast.success(msg);
-      } else {
-        const msg = res.message || "Password reset email sent! Check your Gmail Inbox & Spam folder 📧";
-        setSuccessMessage(msg);
-        toast.success(msg);
-      }
-    } catch {
-      setErrorMessage("Could not send password reset email. Please try again in a moment.");
-    } finally {
-      setIsSendingReset(false);
-    }
-  }
 
   /**
    * Handles parent user login form submission.
@@ -137,7 +74,6 @@ function LoginFormInner() {
     event.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
-    setIsEmailNotConfirmed(false);
 
     const trimmedEmail = email.trim();
 
@@ -150,9 +86,9 @@ function LoginFormInner() {
     setIsSubmitting(true);
 
     try {
-      // 1. Call loginParent helper from @/lib/auth
+      // 1. Direct login helper from @/lib/auth (no Supabase Auth lockouts)
       await loginParent({ email: trimmedEmail, password });
-      toast.success("Login successful.");
+      toast.success("Login successful! Welcome back! 🎉");
       
       // 2. Redirect to children dashboard page
       router.push("/children");
@@ -160,20 +96,9 @@ function LoginFormInner() {
     } catch (error) {
       let message = loginErrorMessage;
 
-      // 3. Map AppAuthError codes to friendly messages
       if (error instanceof AppAuthError) {
-        if (error.code === "email_not_confirmed") {
-          message = emailNotConfirmedMessage;
-          setIsEmailNotConfirmed(true);
-        }
-        if (error.code === "email_provider_disabled") message = emailProviderDisabledMessage;
         if (error.code === "auth_connection_failed") message = authConnectionMessage;
-        if (
-          error.code === "parent_profile_forbidden" ||
-          error.code === "parent_profile_failed"
-        ) {
-          message = parentProfilePermissionMessage;
-        }
+        if (error.code === "invalid_credentials") message = "Invalid email or password. Please verify your details.";
       }
 
       setErrorMessage(message);
@@ -209,36 +134,6 @@ function LoginFormInner() {
             {errorMessage}
           </div>
         ) : null}
-
-        {/* Special Email Unconfirmed Action Box */}
-        {isEmailNotConfirmed && (
-          <div className="rounded-2xl border-2 border-amber-200 bg-amber-50/90 p-4 text-xs font-bold text-amber-900 space-y-3 shadow-xs">
-            <p className="flex items-center gap-1.5 text-sm font-extrabold text-amber-950">
-              ✉️ Email Confirmation Required
-            </p>
-            <p className="text-slate-700">
-              Supabase requires confirming your email address before logging in. If you did not receive the confirmation email in your Inbox or Spam folder, choose an option below:
-            </p>
-            <div className="flex flex-col sm:flex-row gap-2 pt-1">
-              <button
-                type="button"
-                onClick={handleResendConfirmation}
-                disabled={isSendingReset}
-                className="px-3.5 py-2 rounded-xl bg-sky-600 text-white font-extrabold shadow-xs hover:bg-sky-700 disabled:opacity-50 transition-all text-xs text-center"
-              >
-                {isSendingReset ? "Sending..." : "📩 Resend Confirmation Link"}
-              </button>
-              <button
-                type="button"
-                onClick={handleRequestReset}
-                disabled={isSendingReset}
-                className="px-3.5 py-2 rounded-xl bg-indigo-600 text-white font-extrabold shadow-xs hover:bg-indigo-700 disabled:opacity-50 transition-all text-xs text-center"
-              >
-                🔑 Send Password Reset Link
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Email / Username Input Field */}
         <Input

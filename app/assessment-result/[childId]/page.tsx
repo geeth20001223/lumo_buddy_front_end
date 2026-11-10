@@ -21,6 +21,8 @@ type AreaCardProps = {
   label: string;
   score: number;
   maxScore: number;
+  questionCount?: number;
+  areaLevel?: number;
   emoji: string;
   bg: string;
   bar: string;
@@ -30,10 +32,38 @@ type AreaCardProps = {
   delay: number;
 };
 
-function AreaScoreCard({ label, score, maxScore, emoji, bg, bar, text, border, badgeBg, delay }: AreaCardProps) {
-  // Gracefully normalize scores to 13-point scale if record was created under legacy 32-scale
-  const normalizedScore = score > maxScore ? Math.min(maxScore, Math.round((score / 32) * maxScore)) : score;
+function AreaScoreCard({
+  label,
+  score,
+  maxScore = 6,
+  questionCount = 6,
+  areaLevel = 1,
+  emoji,
+  bg,
+  bar,
+  text,
+  border,
+  badgeBg,
+  delay,
+}: AreaCardProps) {
+  // Gracefully normalize legacy scores to the 6-point section scale
+  const normalizedScore =
+    score <= 6
+      ? score
+      : score <= 18
+      ? Math.min(maxScore, Math.round((score / 18) * maxScore))
+      : score <= 24
+      ? Math.min(maxScore, Math.round((score / 24) * maxScore))
+      : Math.min(maxScore, Math.round((score / 32) * maxScore));
+
   const percent = Math.min(100, Math.round((normalizedScore / maxScore) * 100));
+
+  const levelTag =
+    areaLevel >= 3
+      ? { label: "Level 3 · Advanced", badge: "bg-emerald-100 text-emerald-800 border-emerald-300" }
+      : areaLevel === 2
+      ? { label: "Level 2 · Developing", badge: "bg-purple-100 text-purple-800 border-purple-300" }
+      : { label: "Level 1 · Foundational", badge: "bg-blue-100 text-blue-800 border-blue-300" };
 
   return (
     <motion.div
@@ -44,19 +74,29 @@ function AreaScoreCard({ label, score, maxScore, emoji, bg, bar, text, border, b
       whileHover={{ scale: 1.02 }}
       className={`rounded-[2.5rem] ${bg} ${border} border-2 p-6 flex flex-col justify-between space-y-4 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden`}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3">
           <div className={`w-12 h-12 rounded-2xl ${badgeBg} flex items-center justify-center text-2xl shadow-sm shrink-0`}>
             {emoji}
           </div>
           <div>
             <span className={`text-xs sm:text-sm font-black uppercase tracking-widest ${text}`}>{label}</span>
-            <p className="text-[11px] font-extrabold text-slate-500">Developmental Area</p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/80 border border-slate-200 text-slate-600 shadow-2xs">
+                {questionCount} Questions
+              </span>
+              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${levelTag.badge}`}>
+                {levelTag.label}
+              </span>
+            </div>
           </div>
         </div>
-        <div className="text-right">
-          <span className={`font-display text-3xl font-black ${text}`}>{normalizedScore}</span>
-          <span className="text-xs font-bold text-slate-400">/{maxScore}</span>
+        <div className="text-right shrink-0">
+          <div className="flex items-baseline justify-end gap-1">
+            <span className={`font-display text-3xl font-black ${text}`}>{normalizedScore}</span>
+            <span className="text-xs font-bold text-slate-400">/{maxScore}</span>
+          </div>
+          <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block">Out of 6</span>
         </div>
       </div>
       
@@ -71,7 +111,10 @@ function AreaScoreCard({ label, score, maxScore, emoji, bg, bar, text, border, b
           />
         </div>
         <div className="flex items-center justify-between text-[11px] font-black text-slate-600">
-          <span>Accuracy Score</span>
+          <span className="flex items-center gap-1">
+            <span>Developmental Mastery</span>
+            <span className="text-slate-400 font-normal">({questionCount} Questions)</span>
+          </span>
           <span className="px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200 shadow-2xs font-extrabold">{percent}%</span>
         </div>
       </div>
@@ -146,13 +189,16 @@ export default function AssessmentResultPage() {
 
   const lvl = assessment ? levelConfig(assessment.predicted_level) : null;
 
-  // Max score per developmental area = 13 (aligned with the 13 clinical questions)
-  const MAX_AREA = 13;
-  const maxTotalScore = MAX_AREA * 4; // 52
-  const normalizedTotalScore =
-    assessment && assessment.total_score > maxTotalScore
-      ? Math.min(maxTotalScore, Math.round((assessment.total_score / 128) * maxTotalScore))
-      : (assessment?.total_score ?? 0);
+  // Max score per developmental area = 6 (6 questions, evaluated out of 6)
+  const MAX_AREA = 6;
+  const maxTotalScore = MAX_AREA * 4; // 24
+  const normalizedTotalScore = !assessment
+    ? 0
+    : assessment.total_score <= 24
+    ? assessment.total_score
+    : assessment.total_score <= 72
+    ? Math.min(maxTotalScore, Math.round((assessment.total_score / 72) * maxTotalScore))
+    : Math.min(maxTotalScore, Math.round((assessment.total_score / 96) * maxTotalScore));
 
   return (
     <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40 pb-28 md:pb-16">
@@ -250,12 +296,26 @@ export default function AssessmentResultPage() {
                     whileHover={{ scale: 1.02 }}
                     className="bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 rounded-[2rem] border-2 border-slate-200/80 p-7 text-center shadow-md flex flex-col justify-center space-y-1"
                   >
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Total Score</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Total Developmental Score</p>
                     <p className="font-display text-5xl sm:text-6xl font-black text-slate-900">{normalizedTotalScore}</p>
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold text-slate-600 bg-white/80 border border-slate-200 shadow-2xs">
-                      out of {maxTotalScore} Total Points
+                      out of {maxTotalScore} Total Points (24 Questions)
                     </span>
                   </motion.div>
+                </div>
+
+                {/* 24 Questions Structure Explanation */}
+                <div className="pt-2 max-w-xl mx-auto">
+                  <div className="flex flex-wrap items-center justify-center gap-2 p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/80 text-xs font-bold text-slate-600">
+                    <span className="text-purple-700 font-black">📋 24 Questions Assessed:</span>
+                    <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold">💖 Emotion (out of 6)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-extrabold">🧩 Cognitive (out of 6)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-extrabold">🌱 Sensory (out of 6)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 font-extrabold">💡 Logic (out of 6)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-semibold text-center mt-1.5">
+                    Each of the 4 sections is evaluated out of 6 points, giving a total score out of 24 points across all 24 questions.
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -336,6 +396,8 @@ export default function AssessmentResultPage() {
                   label="Communication & Emotion"
                   score={assessment.emotion_score}
                   maxScore={MAX_AREA}
+                  questionCount={6}
+                  areaLevel={calculateAreaLevel(assessment.emotion_score)}
                   emoji="💖"
                   bg="bg-gradient-to-br from-rose-50/90 to-white"
                   border="border-rose-200"
@@ -348,6 +410,8 @@ export default function AssessmentResultPage() {
                   label="Social & Cognitive"
                   score={assessment.cognitive_score}
                   maxScore={MAX_AREA}
+                  questionCount={6}
+                  areaLevel={calculateAreaLevel(assessment.cognitive_score)}
                   emoji="🧩"
                   bg="bg-gradient-to-br from-blue-50/90 to-white"
                   border="border-blue-200"
@@ -360,6 +424,8 @@ export default function AssessmentResultPage() {
                   label="Behavior & Sensory"
                   score={assessment.self_awareness_score}
                   maxScore={MAX_AREA}
+                  questionCount={6}
+                  areaLevel={calculateAreaLevel(assessment.self_awareness_score)}
                   emoji="🌱"
                   bg="bg-gradient-to-br from-emerald-50/90 to-white"
                   border="border-emerald-200"
@@ -372,6 +438,8 @@ export default function AssessmentResultPage() {
                   label="Learning & Logic"
                   score={assessment.math_score}
                   maxScore={MAX_AREA}
+                  questionCount={6}
+                  areaLevel={calculateAreaLevel(assessment.math_score)}
                   emoji="💡"
                   bg="bg-gradient-to-br from-violet-50/90 to-white"
                   border="border-violet-200"

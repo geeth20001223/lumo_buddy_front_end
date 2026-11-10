@@ -129,11 +129,9 @@ export default function SurveyPage() {
       router.refresh();
     } catch (err) {
       const message =
-        err instanceof Error && err.message === "prediction_failed"
-          ? "We could not calculate the support level from the ML API right now. Please verify http://127.0.0.1:8000 is running."
-          : err instanceof Error && err.message === "assessment_save_failed"
-            ? "We could not save your survey result. Please try again."
-            : "Something went wrong. Please try again.";
+        err instanceof Error && err.message === "assessment_save_failed"
+          ? "We could not save your survey result. Please try again."
+          : "Something went wrong. Please try again.";
       toast.error(message);
       setErrorMessage(message);
     } finally {
@@ -154,7 +152,8 @@ export default function SurveyPage() {
         <div className="absolute top-[40%] right-[5%] w-[30vw] h-[30vw] rounded-full bg-amber-200/25 blur-[80px]" style={{ animation: 'drift 20s ease-in-out infinite' }}></div>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes blob { 0% { transform: translate(0,0) scale(1); } 25% { transform: translate(40px,-50px) scale(1.08); } 50% { transform: translate(-30px,30px) scale(0.92); } 75% { transform: translate(20px,-20px) scale(1.04); } 100% { transform: translate(0,0) scale(1); } }
         @keyframes drift { 0%,100% { transform: translate(0,0); } 25% { transform: translate(15px,-25px); } 50% { transform: translate(-10px,15px); } 75% { transform: translate(20px,10px); } }
       `}} />
@@ -185,13 +184,14 @@ export default function SurveyPage() {
         {!isLoading && child && !errorMessage && !hasStarted ? (
           <SurveyIntroCard
             childName={child.child_name}
+            questionCount={questions.length}
             onStart={() => setHasStarted(true)}
           />
         ) : null}
 
         {!isLoading && child && currentQuestion && hasStarted ? (
           <div className="space-y-6">
-            <SurveyProgressBar current={answeredCount} total={questions.length} />
+            <SurveyProgressBar current={answeredCount} total={questions.length} currentIndex={currentIndex} />
             <SurveySectionTitle
               area={currentQuestion.area}
               areaLabel={currentQuestion.area_label}
@@ -211,7 +211,7 @@ export default function SurveyPage() {
                 <div className="w-6 h-6 rounded-full border-3 border-fuchsia-500 border-t-transparent animate-spin flex-shrink-0" />
                 <p className="text-sm font-extrabold text-fuchsia-900">
                   {savingStage === "calculating"
-                    ? "Evaluating responses with Random Forest ML model..."
+                    ? "Evaluating responses..."
                     : "Saving assessment results..."}
                 </p>
               </div>

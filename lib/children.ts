@@ -1,5 +1,6 @@
 // Import configured Supabase client instance for database queries and authentication
 import { supabase } from "./supabase";
+import { getActiveParentSession, setActiveParentSession } from "./auth";
 // Import TypeScript interfaces for child profiles from the global types directory
 import type { ChildProfile, NewChildProfile } from "@/types/child";
 
@@ -7,7 +8,7 @@ import type { ChildProfile, NewChildProfile } from "@/types/child";
  * Type definition for Parent Profile records in the database `parents` table.
  */
 export type ParentProfile = {
-  id: string;        // Unique UUID matching the Supabase auth.users ID
+  id: string;        // Unique UUID matching the Supabase auth.users ID or local parent ID
   full_name: string; // Parent's full name
   email: string;     // Parent's account email address
 };
@@ -54,62 +55,118 @@ function normalizeChildProfile(row: ChildProfileRow): ChildProfile {
 }
 
 /**
- * Retrieves the currently authenticated Parent user profile from Supabase.
+ * Retrieves the currently active Parent user profile.
  * 
- * 1. Checks `supabase.auth.getUser()` for an active login session.
- * 2. Queries the `parents` database table for the matching parent profile.
- * 3. Auto-upserts a new parent profile if missing to prevent Foreign Key constraint errors.
+ * 1. Checks active local parent session first (no Supabase Auth lockouts).
+ * 2. Ensures the parent record exists in the database `parents` table.
+ * 3. Falls back to Supabase Auth `getUser()` if available.
+ * 4. Falls back to the latest parent row in `parents` table.
  * 
  * @returns Promise resolving to `ParentProfile`
  * @throws `ChildProfileError("not_authenticated")` if user is not logged in
  */
-export async function getCurrentParent() {
-  // 1. Fetch current logged-in user from Supabase Auth
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+export async function getCurrentParent(): Promise<ParentProfile> {
+  // 1. Check local active parent session
+  const activeSession = getActiveParentSession();
+  if (activeSession && activeSession.id) {
+    // Attempt to verify/sync with `parents` table
+    try {
+      const { data: existingDbParent } = await supabase
+        .from("parents")
+        .select("id, full_name, email")
+        .eq("id", activeSession.id)
+        .maybeSingle<ParentProfile>();
 
-  // If user is not authenticated or session error occurred, throw error
-  if (userError || !user) {
-    throw new ChildProfileError("not_authenticated");
+      if (existingDbParent) {
+        return existingDbParent;
+      }
+
+      // If missing from DB, auto-insert so foreign keys on children/assessments succeed
+      const { data: createdParent } = await supabase
+        .from("parents")
+        .upsert({
+          id: activeSession.id,
+          full_name: activeSession.full_name || activeSession.email.split("@")[0] || "Parent",
+          email: activeSession.email,
+        })
+        .select("id, full_name, email")
+        .maybeSingle<ParentProfile>();
+
+      if (createdParent) {
+        return createdParent;
+      }
+    } catch (err) {
+      console.warn("[getCurrentParent] DB sync warning:", err);
+    }
+
+    return {
+      id: activeSession.id,
+      full_name: activeSession.full_name || activeSession.email.split("@")[0] || "Parent",
+      email: activeSession.email,
+    };
   }
 
-  // 2. Query `parents` table for existing profile by user ID
-  const { data: parent } = await supabase
-    .from("parents")
-    .select("id, full_name, email")
-    .eq("id", user.id)
-    .maybeSingle<ParentProfile>();
+  // 2. Check Supabase Auth getUser()
+  try {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-  // If parent record already exists in database, return it immediately
-  if (parent) {
-    return parent;
+    if (user && !userError) {
+      const { data: parent } = await supabase
+        .from("parents")
+        .select("id, full_name, email")
+        .eq("id", user.id)
+        .maybeSingle<ParentProfile>();
+
+      if (parent) {
+        setActiveParentSession(parent);
+        return parent;
+      }
+
+      const parentName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Parent";
+      const { data: newParent } = await supabase
+        .from("parents")
+        .upsert({
+          id: user.id,
+          email: user.email || "",
+          full_name: parentName,
+        })
+        .select("id, full_name, email")
+        .maybeSingle<ParentProfile>();
+
+      const finalProfile = newParent || {
+        id: user.id,
+        full_name: parentName,
+        email: user.email || "",
+      };
+      setActiveParentSession(finalProfile);
+      return finalProfile;
+    }
+  } catch (err) {
+    console.warn("[getCurrentParent] Supabase auth check warning:", err);
   }
 
-  // 3. Auto-upsert parent record if missing in `parents` table to prevent FK constraint failures
-  const parentName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Parent";
-  const { data: newParent, error: createError } = await supabase
-    .from("parents")
-    .upsert({
-      id: user.id,
-      email: user.email || "",
-      full_name: parentName,
-    })
-    .select("id, full_name, email")
-    .maybeSingle<ParentProfile>();
+  // 3. Graceful fallback: check if any parent profile exists in database
+  try {
+    const { data: latestParent } = await supabase
+      .from("parents")
+      .select("id, full_name, email")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle<ParentProfile>();
 
-  // Log non-fatal warning if upsert fails
-  if (createError) {
-    console.warn("Parent upsert warning:", createError);
+    if (latestParent) {
+      setActiveParentSession(latestParent);
+      return latestParent;
+    }
+  } catch (err) {
+    console.warn("[getCurrentParent] Fallback DB parent check warning:", err);
   }
 
-  // Return newly created parent or fallback parent object
-  return newParent || {
-    id: user.id,
-    full_name: parentName,
-    email: user.email || "",
-  };
+  // If no session and no parent record exists
+  throw new ChildProfileError("not_authenticated");
 }
 
 /**

@@ -1,7 +1,6 @@
-import { predictSupportLevel } from "./api";
 import { getChildForCurrentParent } from "./children";
 import { supabase } from "./supabase";
-import { calculateSurveyScores, buildMLPredictionPayload } from "./survey-scoring";
+import { calculateSurveyScores, predictLevelFromScores } from "./survey-scoring";
 import { calculateAreaRecommendations } from "./area-recommendations";
 import { SURVEY_QUESTIONS_DATA, AREA_CONFIG } from "./survey-questions-data";
 
@@ -19,8 +18,8 @@ export class SurveyFlowError extends Error {
 }
 
 /**
- * Returns the active 13 survey questions.
- * Loads from Supabase `survey_questions` if updated with options.
+ * Returns the active 24 survey questions (6 per game category).
+ * Loads from Supabase `survey_questions` if updated with all 24 questions & options.
  * Falls back safely to authoritative local questions data if DB has not run migration yet.
  */
 export async function getSurveyQuestions(): Promise<SurveyQuestion[]> {
@@ -31,16 +30,21 @@ export async function getSurveyQuestions(): Promise<SurveyQuestion[]> {
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
 
-    // Check if Supabase already contains the new questions with options
-    if (!error && data && data.length > 0) {
+    // Check if Supabase contains the questions with options and at least 20 items
+    if (!error && data && data.length >= 20) {
       const hasValidOptions = data.some(
         (row: Record<string, unknown>) => Array.isArray(row.options) && row.options.length > 0,
       );
 
       if (hasValidOptions) {
         return data.map((row: Record<string, unknown>, idx: number) => {
+          // Match by sort_order first (most reliable), then by db_id, then by question text
           const fallbackMatch = SURVEY_QUESTIONS_DATA.find(
-            (q) => q.question.toLowerCase() === String(row.question).toLowerCase() || q.db_id === Number(row.id),
+            (q) => q.sort_order === Number(row.sort_order)
+          ) || SURVEY_QUESTIONS_DATA.find(
+            (q) => q.db_id === Number(row.id)
+          ) || SURVEY_QUESTIONS_DATA.find(
+            (q) => q.question.toLowerCase() === String(row.question).toLowerCase()
           );
 
           let parsedOptions: string[] = [];
@@ -56,20 +60,23 @@ export async function getSurveyQuestions(): Promise<SurveyQuestion[]> {
             parsedOptions = fallbackMatch?.options || [];
           }
 
-          const areaKey = (row.area as string) || fallbackMatch?.area || "clinical";
+          const areaKey = (row.area as string) || fallbackMatch?.area || "emotion";
           const areaCfg = AREA_CONFIG[areaKey];
 
+          // Always use the local slug as `id` so answers keyed by slug are found during scoring
+          const questionId = fallbackMatch?.id || `q_${Number(row.id) || idx + 1}`;
+
           return {
-            id: fallbackMatch?.id || String(row.id),
+            id: questionId,
             db_id: Number(row.id) || idx + 1,
             area: areaKey,
-            area_label: fallbackMatch?.area_label || areaCfg?.label || "Clinical Profile",
-            area_icon: fallbackMatch?.area_icon || areaCfg?.icon || "🩺",
+            area_label: fallbackMatch?.area_label || areaCfg?.label || "Development Area",
+            area_icon: fallbackMatch?.area_icon || areaCfg?.icon || "✨",
             question: (row.question as string) || fallbackMatch?.question || "",
             feature_name: (row.feature_name as string) || fallbackMatch?.feature_name || (row.question as string),
             sort_order: Number(row.sort_order) || idx + 1,
             is_active: Boolean(row.is_active ?? true),
-            options: parsedOptions,
+            options: parsedOptions.length > 0 ? parsedOptions : (fallbackMatch?.options || []),
           };
         });
       }
@@ -78,7 +85,7 @@ export async function getSurveyQuestions(): Promise<SurveyQuestion[]> {
     console.warn("[Lumo Buddy] DB questions fetch fallback to local questions:", err);
   }
 
-  // Authoritative fallback: Local 13 questions
+  // Authoritative fallback: Local 24 questions (6 questions x 4 game categories)
   return SURVEY_QUESTIONS_DATA.map((q) => ({
     id: q.id,
     db_id: q.db_id,
@@ -104,9 +111,8 @@ export async function submitSurvey({
 }) {
   await getChildForCurrentParent(childId);
 
-  // ── Step 1: Calculate developmental area scores & build ML payload ─────────
+  // ── Step 1: Calculate developmental area scores (0-18 each) & total (0-72) ─
   const scores = calculateSurveyScores(questions, answers);
-  const mlPayload = buildMLPredictionPayload(questions, answers);
 
   const areaRecommendations = calculateAreaRecommendations({
     emotion_score: scores.emotion_score,
@@ -115,17 +121,8 @@ export async function submitSurvey({
     math_score: scores.math_score,
   });
 
-  // ── Step 2: Call FastAPI ML API ──────────────────────────────────────────
-  let prediction: Awaited<ReturnType<typeof predictSupportLevel>>;
-  try {
-    prediction = await predictSupportLevel({
-      ...scores,
-      ...mlPayload,
-    });
-  } catch (err) {
-    console.error("[Lumo Buddy] ML prediction error:", err);
-    throw new SurveyFlowError("prediction_failed");
-  }
+  // ── Step 2: Unplugged model - Predict level directly from 24 question scores ─
+  const prediction = predictLevelFromScores(scores);
 
   // ── Step 3: Save assessment to Supabase ──────────────────────────────────
   const { data: assessment, error: assessmentError } = await supabase
@@ -164,7 +161,7 @@ export async function submitSurvey({
     throw new SurveyFlowError("assessment_save_failed");
   }
 
-  // ── Step 4: Silently save confidence / severity metadata if column exists ─
+  // ── Step 4: Silently save confidence metadata if column exists ───────────
   if (prediction.confidence != null) {
     supabase
       .from("assessments")
@@ -186,7 +183,8 @@ export async function submitSurvey({
       assessment_id: assessment.id,
       child_id: childId,
       question_id: question.db_id || index + 1,
-      answer_score: optionIndex >= 0 ? optionIndex : 0,
+      answer_score: optionIndex >= 0 ? optionIndex + 1 : 1,
+      answer_text: typeof rawVal === "string" ? rawVal : String(rawVal ?? ""),
     };
   });
 

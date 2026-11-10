@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { logoutParent } from "@/lib/auth";
 import { LogOut, Users, BarChart2, HelpCircle, Layers, Sparkles, X, Menu } from "lucide-react";
 
 interface MobileMenuProps {
@@ -35,11 +36,8 @@ export default function MobileMenu({ isAuthenticated = false, userEmail = "" }: 
 
   const handleLogout = async () => {
     setIsOpen(false);
-    if (typeof window !== "undefined") {
-      sessionStorage.clear();
-    }
-    await supabase.auth.signOut();
-    router.push("/");
+    await logoutParent();
+    router.push("/login");
     router.refresh();
   };
 

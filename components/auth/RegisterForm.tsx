@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import { AppAuthError, registerParent, requestPasswordReset } from "@/lib/auth";
+import { AppAuthError, registerParent, requestPasswordReset, getActiveParentSession } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -15,19 +15,15 @@ const passwordMismatchMessage = "Passwords do not match.";
 const shortPasswordMessage = "Password must be at least 6 characters.";
 const createErrorMessage =
   "We could not create your account. Please try again.";
-const emailRateLimitMessage =
-  "Too many signup emails were requested. Please wait a few minutes and try again.";
 const emailAlreadyRegisteredMessage =
   "This email already has an account. Please log in or request a password reset below.";
-const parentProfilePermissionMessage =
-  "Your account was created, but we could not save the parent profile. Please check the parents table access policy.";
 
 /**
  * Parent Registration Form Component.
  * 
  * Handles parent sign-up with full name, email, password, and confirm password fields.
- * Performs client-side validation, calls Supabase registration via `registerParent()`,
- * auto-creates database profile, and provides quick actions if an email is already registered.
+ * Performs client-side validation, registers parent directly without email blocks,
+ * and redirects immediately to the children dashboard.
  */
 export function RegisterForm() {
   const router = useRouter();
@@ -48,6 +44,12 @@ export function RegisterForm() {
   // 1. Auto-redirect logged-in users to `/children` dashboard
   useEffect(() => {
     async function checkExistingUser() {
+      const active = getActiveParentSession();
+      if (active?.id) {
+        router.push("/children");
+        return;
+      }
+
       const { data } = await supabase.auth.getUser();
       if (data?.user) {
         router.push("/children");
@@ -73,15 +75,9 @@ export function RegisterForm() {
         setSuccessMessage(msg);
         toast.success(msg);
       } else {
-        if (res.message?.includes("rate limit") || res.message?.includes("60 seconds") || res.message?.includes("security purposes")) {
-          const msg = "Password reset link was sent! Please check your Gmail Inbox & Spam folder 📧";
-          setSuccessMessage(msg);
-          toast.success(msg);
-        } else {
-          const msg = res.message || "We could not send password reset email. Please try again.";
-          setErrorMessage(msg);
-          toast.error(msg);
-        }
+        const msg = res.message || "We could not send password reset email. Please try again.";
+        setErrorMessage(msg);
+        toast.error(msg);
       }
     } catch {
       const msg = "We could not send password reset email. Please try again in a moment.";
@@ -127,42 +123,25 @@ export function RegisterForm() {
     setIsSubmitting(true);
 
     try {
-      // 4. Call registerParent helper function from @/lib/auth
-      const result = await registerParent({
+      // 4. Call registerParent helper function (direct signup, no email confirmation blockage)
+      await registerParent({
         fullName: trimmedName,
         email: trimmedEmail,
         password,
       });
 
-      // 5. If email confirmation is required by Supabase settings
-      if (result.requiresEmailConfirmation) {
-        const message =
-          "Account created. Please check your email and confirm your address before logging in.";
-        setSuccessMessage(message);
-        toast.success(message);
-        return;
-      }
-
-      // 6. Account created and session established — redirect to dashboard
-      toast.success("Account created successfully.");
+      // 5. Account created and session established — redirect immediately to dashboard
+      toast.success("Account created successfully! Welcome! 🎉");
       router.push("/children");
       router.refresh();
     } catch (error) {
       let message = createErrorMessage;
 
-      // 7. Map custom AppAuthError codes
+      // 6. Map custom AppAuthError codes
       if (error instanceof AppAuthError) {
-        if (error.code === "email_rate_limit") {
-          message = emailRateLimitMessage;
-        }
-
         if (error.code === "email_already_registered") {
           message = emailAlreadyRegisteredMessage;
           setIsAlreadyRegistered(true);
-        }
-
-        if (error.code === "parent_profile_forbidden") {
-          message = parentProfilePermissionMessage;
         }
       }
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { getActiveParentSession } from "@/lib/auth";
 import GuestNavbar from "./GuestNavbar";
 import AuthNavbar from "./AuthNavbar";
 import MobileBottomNav from "./MobileBottomNav";
@@ -16,40 +17,84 @@ export default function Navigation() {
   useEffect(() => {
     let cancelled = false;
 
-    async function getSession() {
+    async function syncSession() {
+      // 1. Check local active parent session first
+      const activeParent = getActiveParentSession();
+      if (activeParent && activeParent.id) {
+        if (!cancelled) {
+          setSession({
+            user: {
+              id: activeParent.id,
+              email: activeParent.email,
+              user_metadata: { full_name: activeParent.full_name },
+            },
+          });
+          setReady(true);
+        }
+        return;
+      }
+
+      // 2. Fallback to Supabase Auth getSession()
       try {
         const {
           data: { session: currentSession },
           error,
         } = await supabase.auth.getSession();
+
         if (error) {
           if (error.message?.includes("Refresh Token Not Found")) {
-            await supabase.auth.signOut();
+            await supabase.auth.signOut().catch(() => {});
           }
-          throw error;
         }
-        if (!cancelled) setSession(currentSession);
+        if (!cancelled) {
+          setSession(currentSession);
+        }
       } catch (err) {
-        console.warn("[Navigation] Session check failed:", err);
+        console.warn("[Navigation] Session check note:", err);
         if (!cancelled) setSession(null);
       } finally {
         if (!cancelled) setReady(true);
       }
     }
 
-    getSession();
+    syncSession();
+
+    // Listen to custom local auth change event and storage events
+    const handleAuthEvent = () => {
+      syncSession();
+    };
+
+    window.addEventListener("lumo_auth_change", handleAuthEvent);
+    window.addEventListener("storage", handleAuthEvent);
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (!cancelled) {
-        setSession(newSession);
+        if (newSession) {
+          setSession(newSession);
+        } else {
+          const activeParent = getActiveParentSession();
+          if (activeParent) {
+            setSession({
+              user: {
+                id: activeParent.id,
+                email: activeParent.email,
+                user_metadata: { full_name: activeParent.full_name },
+              },
+            });
+          } else {
+            setSession(null);
+          }
+        }
         setReady(true);
       }
     });
 
     return () => {
       cancelled = true;
+      window.removeEventListener("lumo_auth_change", handleAuthEvent);
+      window.removeEventListener("storage", handleAuthEvent);
       subscription.unsubscribe();
     };
   }, []);

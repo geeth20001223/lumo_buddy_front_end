@@ -29,12 +29,14 @@ export function AssessmentSummaryCard({ assessment, childId }: AssessmentSummary
     );
   }
 
-  // Max score is 52 (4 areas * 13 max points)
-  const MAX_TOTAL = 52;
+  // Max score is 24 (4 sections * 6 points each)
+  const MAX_TOTAL = 24;
   const normalizedTotal =
-    assessment.total_score > MAX_TOTAL
-      ? Math.min(MAX_TOTAL, Math.round((assessment.total_score / 128) * MAX_TOTAL))
-      : assessment.total_score;
+    assessment.total_score <= 24
+      ? assessment.total_score
+      : assessment.total_score <= 72
+      ? Math.min(MAX_TOTAL, Math.round((assessment.total_score / 72) * MAX_TOTAL))
+      : Math.min(MAX_TOTAL, Math.round((assessment.total_score / 96) * MAX_TOTAL));
 
   return (
     <div className="rounded-[2rem] bg-white border border-slate-100 p-8 shadow-sm">
