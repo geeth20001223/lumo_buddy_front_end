@@ -141,7 +141,7 @@ export default function SurveyPage() {
   }
 
   return (
-    <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40 px-4 py-8 sm:py-10 pb-20">
+    <main className="min-h-screen relative overflow-x-hidden overflow-y-auto bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40 px-3.5 sm:px-6 pt-4 sm:pt-8 pb-32 sm:pb-24">
       {/* Calm Parent Survey Background */}
       <SurveyBackground />
 
@@ -161,7 +161,7 @@ export default function SurveyPage() {
       <Toaster position="top-center" />
       <section className="relative z-10 mx-auto w-full max-w-3xl">
         <Link
-          className="mb-6 inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/80 backdrop-blur-md border border-fuchsia-200/60 text-xs font-black uppercase tracking-widest text-fuchsia-700 hover:text-fuchsia-900 hover:bg-white hover:border-fuchsia-300 shadow-sm transition-all duration-300"
+          className="mb-4 sm:mb-6 inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full bg-white/80 backdrop-blur-md border border-fuchsia-200/60 text-xs font-black uppercase tracking-widest text-fuchsia-700 hover:text-fuchsia-900 hover:bg-white hover:border-fuchsia-300 shadow-sm transition-all duration-300"
           href={`/children/${params.childId}`}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -190,7 +190,7 @@ export default function SurveyPage() {
         ) : null}
 
         {!isLoading && child && currentQuestion && hasStarted ? (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <SurveyProgressBar current={answeredCount} total={questions.length} currentIndex={currentIndex} />
             <SurveySectionTitle
               area={currentQuestion.area}

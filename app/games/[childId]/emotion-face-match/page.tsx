@@ -238,14 +238,14 @@ export default function EmotionFaceMatchGamePage() {
     );
   }
 
-  if (level > 1) {
+  if (level >= 1) {
     return (
-      <main className="relative flex h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-100 px-2 py-3 sm:px-5">
+      <main className="relative flex min-h-[100dvh] sm:h-screen items-center justify-center overflow-x-hidden overflow-y-auto bg-gradient-to-br from-sky-100 via-blue-50 to-cyan-100 px-2 py-3 sm:px-5">
         <CalmBackground />
 
         {question && (
-          <section className="relative z-10 mx-auto flex w-full max-w-[1100px] max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[2rem] border border-white bg-white/95 shadow-[0_22px_70px_rgba(37,99,235,0.16)] backdrop-blur-sm">
-            <header className="border-b border-slate-100 px-4 py-4 sm:px-7">
+          <section className="relative z-10 mx-auto flex w-full max-w-[1100px] min-h-[calc(100dvh-1.5rem)] sm:min-h-0 sm:max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[2rem] border border-white bg-white/95 shadow-[0_22px_70px_rgba(37,99,235,0.16)] backdrop-blur-sm">
+            <header className="border-b border-slate-100 px-4 py-3 sm:py-4 sm:px-7 shrink-0">
               <EmotionProgressBar
                 currentRound={currentRound}
                 totalRounds={levelConfig.rounds}
@@ -263,7 +263,7 @@ export default function EmotionFaceMatchGamePage() {
 
                 <div className="flex flex-col items-center justify-center gap-2 text-center">
                   <div
-                    className={`flex items-center justify-center gap-3 rounded-2xl border px-3.5 py-2 ${feedback.type === "success"
+                    className={`flex items-center justify-center gap-2.5 sm:gap-3 rounded-2xl border px-3.5 py-2 ${feedback.type === "success"
                       ? "border-emerald-200 bg-emerald-50"
                       : feedback.type === "info"
                         ? "border-amber-200 bg-amber-50"
@@ -274,7 +274,7 @@ export default function EmotionFaceMatchGamePage() {
                     <LumiMascot
                       state={feedback.type === "success" ? "correct" : feedback.type === "info" ? "incorrect" : "normal"}
                       size="sm"
-                      className="hidden min-[679px]:block scale-75"
+                      className="block scale-75 sm:scale-90 shrink-0"
                     />
                     <p className="max-w-xs text-xs font-extrabold leading-snug text-slate-700 sm:text-sm">
                       <span className="min-[679px]:hidden">{mobileMascotMessage}</span>
@@ -297,12 +297,12 @@ export default function EmotionFaceMatchGamePage() {
                   onAnswer={handleAnswer}
                   disabled={!!feedback.type}
                   level={level}
-                  showImages={question.promptType !== "face"}
+                  showImages={true}
                 />
               </div>
             </div>
 
-            <footer className="flex items-center justify-between gap-4 border-t border-slate-100 bg-white px-4 py-2.5 sm:px-6">
+            <footer className="flex items-center justify-between gap-4 border-t border-slate-100 bg-white px-4 py-2.5 sm:px-6 shrink-0">
               <button
                 onClick={() => router.push(`/games/${params.childId}`)}
                 className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-200 sm:text-sm"
@@ -321,35 +321,6 @@ export default function EmotionFaceMatchGamePage() {
               <div className="hidden w-[100px] sm:block" />
             </footer>
           </section>
-        )}
-
-        {question && gameState === "playing" && (
-          <div className="hidden">
-            <div className="relative pointer-events-auto">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={mobileMascotMessage}
-                  initial={{ opacity: 0, scale: 0.92, y: 8 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.92, y: 8 }}
-                  transition={{ duration: 0.25 }}
-                  className="absolute bottom-24 right-0 w-[180px] rounded-[1.5rem] bg-[#EFF6FF] px-4 py-3 text-center text-sm font-black leading-snug text-slate-800 shadow-[0_16px_36px_rgba(15,23,42,0.16)] ring-1 ring-blue-100"
-                >
-                  {mobileMascotMessage}
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-200 via-white to-cyan-100 blur-md opacity-90 scale-110" />
-              <div className="relative flex size-24 items-center justify-center rounded-full bg-white/98 shadow-[0_18px_42px_rgba(15,23,42,0.22)] ring-4 ring-white backdrop-blur-sm">
-                <div className="absolute inset-0 rounded-full ring-2 ring-sky-200/80" />
-                <LumiMascot
-                  state={feedback.type === "success" ? "correct" : feedback.type === "info" ? "incorrect" : "normal"}
-                  size="sm"
-                  className="[&>div:first-child]:!h-[4.5rem] [&>div:first-child]:!w-[4.5rem]"
-                />
-              </div>
-            </div>
-          </div>
         )}
       </main>
     );
@@ -406,7 +377,7 @@ export default function EmotionFaceMatchGamePage() {
                   onAnswer={handleAnswer}
                   disabled={!!feedback.type}
                   level={level}
-                  showImages={question.promptType !== "face"}
+                  showImages={true}
                 />
               </div>
             </div>
@@ -424,34 +395,7 @@ export default function EmotionFaceMatchGamePage() {
         </svg>
       </button>
 
-      {question && gameState === "playing" && (
-        <div className="fixed bottom-20 right-3 z-30 pointer-events-none min-[679px]:hidden">
-          <div className="relative pointer-events-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={mobileMascotMessage}
-                initial={{ opacity: 0, scale: 0.92, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.92, y: 8 }}
-                transition={{ duration: 0.25 }}
-                className="absolute bottom-24 right-0 w-[180px] rounded-[1.5rem] bg-[#EFF6FF] px-4 py-3 text-center text-sm font-black leading-snug text-slate-800 shadow-[0_16px_36px_rgba(15,23,42,0.16)] ring-1 ring-blue-100"
-              >
-                {mobileMascotMessage}
-              </motion.div>
-            </AnimatePresence>
-
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-200 via-white to-cyan-100 blur-md opacity-90 scale-110" />
-            <div className="relative flex size-24 items-center justify-center rounded-full bg-white/98 shadow-[0_18px_42px_rgba(15,23,42,0.22)] ring-4 ring-white backdrop-blur-sm">
-              <div className="absolute inset-0 rounded-full ring-2 ring-sky-200/80" />
-              <LumiMascot
-                state={feedback.type === "success" ? "correct" : feedback.type === "info" ? "incorrect" : "normal"}
-                size="sm"
-                className="[&>div:first-child]:!h-[4.5rem] [&>div:first-child]:!w-[4.5rem]"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Mobile mascot is now integrated in the upper prompt bar; legacy bottom floating mascot removed to never obscure answers */}
 
       {levelConfig.timerEnabled && (
         <div className="absolute bottom-4 right-20 px-4 py-2 bg-blue-500/10 backdrop-blur-md rounded-full border border-blue-200">

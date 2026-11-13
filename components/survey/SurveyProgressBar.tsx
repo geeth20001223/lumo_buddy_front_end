@@ -31,7 +31,7 @@ export function SurveyProgressBar({ current, total, currentIndex }: SurveyProgre
   const questionInCat = (currentIndex % QUESTIONS_PER_CATEGORY) + 1;
 
   return (
-    <div className="space-y-3 bg-white/90 backdrop-blur-md p-4 sm:p-5 rounded-3xl border-2 border-fuchsia-100/90 shadow-md">
+    <div className="space-y-2.5 sm:space-y-3 bg-white/90 backdrop-blur-md p-3 sm:p-5 rounded-2xl sm:rounded-3xl border-2 border-fuchsia-100/90 shadow-md">
 
       {/* ── Top row: label + percent ── */}
       <div className="flex items-center justify-between">

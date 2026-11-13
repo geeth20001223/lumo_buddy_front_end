@@ -44,177 +44,177 @@ VALUES
 -- ── CATEGORY 1: Communication & Emotion (Q1–Q6) ──────────────────────────────
 (
   1, 'emotion',
-  'Does your child notice how you or other family members are feeling by looking at your face (such as when you look happy, sad, or surprised)?',
+  'Can your child tell if you are happy, sad, or angry by looking at your face?',
   1, true,
-  '["Does not seem to notice yet", "Notices with a gentle hint", "Usually notices on their own", "Notices and responds right away"]'::jsonb,
-  'Does your child notice how family members are feeling by looking at their face'::text
+  '["Not yet (Doesn''t seem to notice)", "Sometimes (If I point it out)", "Usually (Notices on their own)", "Always (Notices and reacts right away)"]'::jsonb,
+  'Recognizes facial expressions'::text
 ),
 (
   2, 'emotion',
-  'Does your child understand why someone might feel sad or upset (for example, if a favourite toy breaks or an ice cream drops)?',
+  'Does your child understand why someone is sad (like if a toy breaks or ice cream drops)?',
   2, true,
-  '["Finds it difficult to understand", "Understands when gently explained", "Usually understands the reason", "Quickly understands and talks about why"]'::jsonb,
-  'Does your child understand why someone might feel sad or upset'::text
+  '["Hard to understand", "Understands if explained gently", "Usually understands why", "Easily understands and talks about it"]'::jsonb,
+  'Understands causes of feelings'::text
 ),
 (
   3, 'emotion',
-  'How easily does your child recognise emotions beyond happy or sad, such as excitement, nervousness, or surprise?',
+  'Can your child recognize feelings like surprise, fear, or excitement?',
   3, true,
-  '["Mostly notices basic feelings", "Recognises them with a little help", "Notices quite well in daily life", "Very perceptive to subtle feelings"]'::jsonb,
-  'How easily does your child recognise emotions beyond happy or sad'::text
+  '["Not yet (Only basic feelings)", "With a little help", "Usually recognizes them", "Always recognizes them easily"]'::jsonb,
+  'Recognizes more complex emotions'::text
 ),
 (
   4, 'emotion',
-  'Does your child look toward your face to share joy or excitement when they see something interesting or hear a fun sound?',
+  'Does your child look at you to share excitement when they see something fun?',
   4, true,
-  '["Prefers to stay focused on the object", "Looks over when gently called", "Frequently looks over to share the moment", "Naturally and enthusiastically shares joy"]'::jsonb,
-  'Does your child look toward your face to share joy or excitement'::text
+  '["Rarely (Stays focused on the item)", "Only if called by name", "Often looks to share the fun", "Always shares excitement with a smile"]'::jsonb,
+  'Looks at parent to share joy'::text
 ),
 (
   5, 'emotion',
-  'How does your child typically react when a sibling, friend, or parent is crying or feeling hurt?',
+  'How does your child react if a family member or friend is crying or hurt?',
   5, true,
-  '["Keeps playing without noticing", "Watches quietly or seems uncertain", "Offers care, such as a hug or a toy", "Warmly comforts and shows empathy right away"]'::jsonb,
-  'How does your child react when a sibling or parent is crying or feeling hurt'::text
+  '["Does not notice or keeps playing", "Watches quietly or looks confused", "Shows concern (gives a hug or toy)", "Quickly comforts them with care"]'::jsonb,
+  'Reacts when someone is crying or hurt'::text
 ),
 (
   6, 'emotion',
-  'How does your child express their own feelings when they are upset, overwhelmed, or very happy?',
+  'How does your child let you know when they are upset or very happy?',
   6, true,
-  '["Expresses distress without words or signs", "Uses gestures, pointing, or leading hands", "Uses simple words or phrases to share feelings", "Comfortably expresses feelings and explains why"]'::jsonb,
-  'How does your child express their own feelings when upset or very happy'::text
+  '["Cries or screams without words", "Points, pulls hands, or uses gestures", "Uses simple words to say what''s wrong", "Clearly talks about how they feel"]'::jsonb,
+  'Expresses own feelings'::text
 ),
 
 -- ── CATEGORY 2: Social & Cognitive (Q7–Q12) ──────────────────────────────────
 (
   7, 'cognitive',
-  'Does your child remember where their everyday belongings (like favourite toys, snacks, or shoes) are kept?',
+  'Does your child remember where their favorite toys, snacks, or shoes are kept?',
   7, true,
-  '["Needs help finding them each time", "Finds them with a small reminder", "Remembers familiar spots well", "Always remembers where items belong"]'::jsonb,
-  'Does your child remember where their everyday belongings are kept'::text
+  '["Always needs help to find them", "Finds them with a small reminder", "Usually remembers familiar spots", "Always remembers where items belong"]'::jsonb,
+  'Remembers where items are kept'::text
 ),
 (
   8, 'cognitive',
-  'Does your child notice repeating patterns around the house (such as stripes on clothes, music rhythms, or floor tiles)?',
+  'Does your child notice simple patterns (like striped shirts, rhythms, or colored blocks)?',
   8, true,
-  '["Does not seem to notice patterns", "Notices when pointed out", "Frequently spots and enjoys patterns", "Loves discovering and continuing patterns"]'::jsonb,
-  'Does your child notice repeating patterns around the house'::text
+  '["Does not notice patterns yet", "Notices when shown by an adult", "Often spots and likes patterns", "Easily makes and continues patterns"]'::jsonb,
+  'Notices repeating patterns'::text
 ),
 (
   9, 'cognitive',
-  'When an unexpected change occurs in the daily routine (like taking a different route or trying a new food), how does your child adapt?',
+  'How does your child handle small changes in routine (like a new road or new food)?',
   9, true,
-  '["Finds unexpected changes very difficult", "Adjusts with extra reassurance and patience", "Adapts reasonably well after a few minutes", "Adapts smoothly and comfortably"]'::jsonb,
-  'When an unexpected change occurs in daily routine how does your child adapt'::text
+  '["Gets very upset or resists", "Needs extra time and comfort to adjust", "Adjusts well after a few minutes", "Adapts easily and calmly"]'::jsonb,
+  'Adapts to unexpected changes'::text
 ),
 (
   10, 'cognitive',
-  'How comfortably can your child stay engaged in a quiet tabletop activity (such as colouring, building blocks, or reading) for 5 to 10 minutes?',
+  'Can your child focus on a quiet activity (like coloring, puzzles, or blocks) for 5 to 10 minutes?',
   10, true,
-  '["Moves on within 1 to 2 minutes", "Stays engaged when an adult sits alongside", "Enjoys focusing for 5 to 10 minutes", "Remains deeply focused until finished"]'::jsonb,
-  'How comfortably can your child stay engaged in a quiet activity for 5 to 10 minutes'::text
+  '["Loses interest in 1–2 minutes", "Stays focused if an adult sits with them", "Focuses well for 5 to 10 minutes", "Easily stays focused until finished"]'::jsonb,
+  'Focuses on quiet activity for 5-10 minutes'::text
 ),
 (
   11, 'cognitive',
-  'Does your child follow simple step-by-step routines at home (for example: washing hands, sitting at the table, and having a snack)?',
+  'Can your child follow a simple 2-step instruction (like ''wash hands, then come eat'')?',
   11, true,
-  '["Needs one step at a time with guidance", "Follows along with gentle reminders", "Comfortably follows familiar 2 to 3 step routines", "Independently carries out steps with pride"]'::jsonb,
-  'Does your child follow simple step-by-step routines at home'::text
+  '["Needs help for each single step", "Follows with gentle reminders", "Usually follows 2 steps easily", "Follows multiple steps on their own"]'::jsonb,
+  'Follows simple step-by-step instructions'::text
 ),
 (
   12, 'cognitive',
-  'When your child encounters a small challenge (such as a tight container lid or a fallen block tower), how do they approach it?',
+  'When a block tower falls or a toy gets stuck, what does your child do?',
   12, true,
-  '["Feels discouraged and walks away", "Tries when shown an alternative way", "Tries a couple of different ideas", "Patiently and creatively works out a solution"]'::jsonb,
-  'When your child encounters a small challenge how do they approach it'::text
+  '["Gives up or gets frustrated right away", "Tries again if shown what to do", "Tries 2 or 3 ways to fix it", "Calmly finds a solution on their own"]'::jsonb,
+  'Solves small everyday problems'::text
 ),
 
--- ── CATEGORY 3: Behaviour & Sensory (Q13–Q18) ────────────────────────────────
+-- ── CATEGORY 3: Behavior & Sensory (Q13–Q18) ────────────────────────────────
 (
   13, 'self_awareness',
-  'When you offer your child a choice between two or three options (such as snacks, outfits, or outdoor activities), how do they respond?',
+  'When you give your child a choice between two snacks or clothes, how do they choose?',
   13, true,
-  '["Finds choosing overwhelming or hesitates", "Points or reaches when options are shown", "Easily picks their favourite", "Confidently chooses and explains their preference"]'::jsonb,
-  'When you offer your child a choice between two or three options how do they respond'::text
+  '["Gets confused or overwhelmed", "Points or reaches after some time", "Easily picks their favorite", "Confidently chooses and says why"]'::jsonb,
+  'Makes simple everyday choices'::text
 ),
 (
   14, 'self_awareness',
-  'How familiar is your child with the natural sequence of daily family routines (such as morning wake-up, meal times, and getting ready for bed)?',
+  'Does your child know the order of their day (like wake up, brush teeth, eat, and sleep)?',
   14, true,
-  '["Relies entirely on step-by-step direction", "Follows with gentle daily reminders", "Knows the general order of the day well", "Confidently anticipates and completes routine steps"]'::jsonb,
-  'How familiar is your child with the sequence of daily family routines'::text
+  '["Needs direction for every step", "Follows with daily reminders", "Knows the general daily routine", "Knows the routine and gets ready on their own"]'::jsonb,
+  'Follows daily routine sequence'::text
 ),
 (
   15, 'self_awareness',
-  'When your child is in a setting with bright lights, loud noises, or busy crowds, how do they cope?',
+  'How does your child handle loud noises (like blenders) or crowded busy places?',
   15, true,
-  '["Becomes very distressed or covers ears or eyes", "Needs an adult to step away to a quiet place", "Expresses it is too loud or asks for a break", "Comfortably moves to a calmer spot on their own"]'::jsonb,
-  'When your child is in a setting with bright lights loud noises or crowds how do they cope'::text
+  '["Gets very scared, cries, or covers ears", "Needs an adult to take them to a quiet spot", "Says it is too loud and asks for a break", "Stays calm or moves to a quiet spot on their own"]'::jsonb,
+  'Copes with loud noises or busy spaces'::text
 ),
 (
   16, 'self_awareness',
-  'How mindfully does your child move their body around furniture, doorways, and other people in familiar spaces?',
+  'Does your child walk safely around furniture, doors, and people without bumping into them?',
   16, true,
-  '["Frequently bumps into things or misjudges space", "Needs occasional reminders to watch their space", "Navigates familiar spaces safely", "Moves with great coordination and spatial awareness"]'::jsonb,
-  'How mindfully does your child move their body around furniture and people'::text
+  '["Often bumps into things or trips", "Needs reminders to watch where they walk", "Usually walks safely without bumping", "Moves with great balance and control"]'::jsonb,
+  'Body awareness and spatial navigation'::text
 ),
 (
   17, 'self_awareness',
-  'When it is time to wrap up a fun play activity for dinner, clean-up, or bedtime, how does your child handle the transition?',
+  'When it is time to stop playing for dinner or bedtime, how does your child react?',
   17, true,
-  '["Finds stopping play very challenging", "Transitions well with a 5-minute countdown", "Wraps up cooperatively with one gentle reminder", "Transitions happily and smoothly"]'::jsonb,
-  'When it is time to wrap up play activity how does your child handle the transition'::text
+  '["Cries, throws a tantrum, or refuses", "Cooperates if given a 5-minute warning", "Stops playing with one gentle reminder", "Cleans up and moves on happily"]'::jsonb,
+  'Handles stopping play and transitions'::text
 ),
 (
   18, 'self_awareness',
-  'When your child needs assistance with a hard-to-reach toy or opening a package, how do they ask for help?',
+  'When your child cannot reach a toy or open a box, how do they ask for help?',
   18, true,
-  '["Shows distress without seeking help", "Leads an adult by the hand toward the item", "Uses simple words or gestures to ask for help", "Politely asks and describes what they need"]'::jsonb,
-  'When your child needs help with a toy or package how do they ask for help'::text
+  '["Cries or gets mad without asking", "Pulls your hand toward the item", "Uses simple words or gestures to ask", "Clearly asks: ''Can you help me please?''"]'::jsonb,
+  'Asks for help when needed'::text
 ),
 
 -- ── CATEGORY 4: Learning & Logic (Q19–Q24) ───────────────────────────────────
 (
   19, 'mathematical',
-  'When counting a small group of everyday items (such as 3 pieces of fruit or 4 crayons), how does your child count them?',
+  'Can your child count a small row of 3 to 5 objects (like apples or blocks) by touching each one?',
   19, true,
-  '["Counts without matching each item one by one", "Counts up to 3 items with gentle guidance", "Accurately counts 1 to 5 items one by one", "Easily counts 10 or more items with precision"]'::jsonb,
-  'When counting a small group of everyday items how does your child count them'::text
+  '["Cannot count items one by one yet", "Counts up to 3 with help", "Accurately counts 3 to 5 items", "Easily counts 10 or more items correctly"]'::jsonb,
+  'Counts 3 to 5 items one by one'::text
 ),
 (
   20, 'mathematical',
-  'Does your child notice and name shapes in the world around them (such as a round clock, a square book, or a triangular road sign)?',
+  'Can your child identify basic shapes (like a round ball, square box, or star)?',
   20, true,
-  '["Does not focus on shapes yet", "Points to shapes when prompted", "Names basic shapes like circles and squares", "Enjoys discovering and naming shapes everywhere"]'::jsonb,
-  'Does your child notice and name shapes in the world around them'::text
+  '["Does not recognize shapes yet", "Points to shapes when named", "Names basic shapes like circle and square", "Easily names many shapes around the house"]'::jsonb,
+  'Recognizes everyday basic shapes'::text
 ),
 (
   21, 'mathematical',
-  'If you ask your child for a specific quantity (for example, ''Could you please hand me 2 spoons?''), how do they respond?',
+  'If you ask your child: ''Please give me 2 cookies'', do they bring the exact number?',
   21, true,
-  '["Hands over a random handful", "Brings the right amount with a little guidance", "Reliably brings the exact count up to 5", "Accurately brings specific quantities up to 10"]'::jsonb,
-  'If you ask your child for a specific quantity how do they respond'::text
+  '["Brings a random handful", "Brings the right amount with a little help", "Usually brings the exact number up to 3", "Always brings the exact count up to 5 or more"]'::jsonb,
+  'Brings exact requested quantity'::text
 ),
 (
   22, 'mathematical',
-  'Does your child understand everyday size or amount comparisons (such as who has more juice, or which shoe is bigger)?',
+  'Does your child know which object is bigger, or which cup has more water?',
   22, true,
-  '["Finds size and quantity comparisons confusing", "Notices obvious differences when compared side by side", "Usually recognises which is bigger or has more", "Consistently understands and compares quantities"]'::jsonb,
-  'Does your child understand everyday size or amount comparisons'::text
+  '["Finds size and amount comparisons confusing", "Notices only when they are side by side", "Usually tells which is bigger or has more", "Always compares size and amount easily"]'::jsonb,
+  'Compares sizes and amounts'::text
 ),
 (
   23, 'mathematical',
-  'When you describe an item with two clues (such as ''the big blue cup'' or ''the striped socks''), how does your child find it?',
+  'Can your child find an item with two clues (like ''the red ball'' or ''the big cup'')?',
   23, true,
-  '["Focuses on only one clue", "Finds the item when you repeat slowly", "Finds the correct item on the first try", "Easily finds items matching multiple descriptions"]'::jsonb,
-  'When you describe an item with two clues how does your child find it'::text
+  '["Only listens to one clue", "Finds it if repeated slowly", "Usually finds the right item on the first try", "Easily finds and sorts items by color and size"]'::jsonb,
+  'Finds items by two traits'::text
 ),
 (
   24, 'mathematical',
-  'If your child has 2 treats and you give them 1 more, do they recognise that they now have 3?',
+  'If your child has 2 blocks and you give 1 more, do they understand they now have 3?',
   24, true,
-  '["Does not yet understand adding one more", "Recounts all items together to find the total", "Recognises simple additions right away (e.g. 2 + 1 = 3)", "Comfortably works out small additions in their head"]'::jsonb,
-  'If your child has 2 treats and you give 1 more do they recognise they now have 3'::text
+  '["Does not understand adding one more yet", "Recounts all the blocks from 1 to find out", "Quickly says ''3'' for small additions (2 + 1)", "Easily solves small math questions in their head"]'::jsonb,
+  'Understands adding one more'::text
 );
 
 -- ── Verification: should return 24 rows, each with 4 options ─────────────────

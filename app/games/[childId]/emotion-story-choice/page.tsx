@@ -255,12 +255,12 @@ export default function EmotionStoryChoicePage() {
   }
 
   return (
-    <main className="relative flex h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-[#FEF9F3] via-orange-50/20 to-sky-50 px-2 py-3 sm:px-4 xl:py-5">
+    <main className="relative flex min-h-[100dvh] sm:h-screen items-center justify-center overflow-x-hidden overflow-y-auto bg-gradient-to-br from-[#FEF9F3] via-orange-50/20 to-sky-50 px-2 py-2 sm:px-4 xl:py-5">
       {story ? <StoryAtmosphere story={story} /> : <CalmBackground />}
 
       {story && (
-        <section className="relative z-10 mx-auto flex w-full max-w-[1150px] max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-[2rem] border border-white bg-white/92 shadow-[0_22px_70px_rgba(251,146,60,0.14)] ring-1 ring-white/70 backdrop-blur-sm xl:max-w-[1280px] xl:rounded-[2.25rem]">
-          <header className="border-b border-orange-100 px-4 py-3 sm:px-6">
+        <section className="relative z-10 mx-auto flex w-full max-w-[1150px] min-h-[calc(100dvh-1rem)] sm:min-h-0 sm:max-h-[calc(100vh-1.25rem)] flex-col overflow-hidden rounded-[1.75rem] sm:rounded-[2rem] border border-white bg-white/92 shadow-[0_22px_70px_rgba(251,146,60,0.14)] ring-1 ring-white/70 backdrop-blur-sm xl:max-w-[1280px] xl:rounded-[2.25rem]">
+          <header className="border-b border-orange-100 px-3.5 py-2.5 sm:px-6 sm:py-3 shrink-0">
             <div className="flex items-center justify-between gap-4">
               <div className="flex-1">
                 <StoryProgressBar
@@ -271,7 +271,7 @@ export default function EmotionStoryChoicePage() {
 
               <button
                 onClick={() => router.push(`/games/${params.childId}`)}
-                className="group flex flex-shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-3.5 py-2.5 text-xs font-black uppercase tracking-widest text-slate-500 shadow-sm ring-1 ring-orange-100 transition-all hover:bg-rose-50 hover:text-rose-600 hover:ring-rose-200"
+                className="group flex flex-shrink-0 items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl bg-white px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs font-black uppercase tracking-widest text-slate-500 shadow-sm ring-1 ring-orange-100 transition-all hover:bg-rose-50 hover:text-rose-600 hover:ring-rose-200"
               >
                 <svg
                   className="size-3.5 transition-transform group-hover:-translate-x-1"
@@ -291,17 +291,20 @@ export default function EmotionStoryChoicePage() {
             </div>
           </header>
 
-          <div className="flex min-h-0 flex-1 flex-col justify-center gap-3 overflow-y-auto p-3 sm:gap-3.5 sm:p-4.5 xl:gap-4 xl:p-5">
-            <div className="relative overflow-hidden rounded-[1.5rem] border border-orange-100 bg-gradient-to-br from-orange-50/70 via-white to-white p-3 shadow-sm sm:p-4 xl:rounded-[1.75rem] xl:p-4.5">
+          <div className="flex min-h-0 flex-1 flex-col justify-between sm:justify-center gap-2.5 sm:gap-3.5 overflow-y-auto p-2.5 sm:p-4.5 xl:gap-4 xl:p-5">
+            {/* 🌟 Mascot Guide positioned UPPER so answers below are never hidden */}
+            <MascotFeedbackBar
+              feedbackType={feedback.visible ? (feedback.type === "correct" ? "correct" : "incorrect") : null}
+            />
+
+            {/* Story Card */}
+            <div className="relative overflow-hidden rounded-[1.25rem] sm:rounded-[1.5rem] border border-orange-100 bg-gradient-to-br from-orange-50/70 via-white to-white p-2.5 sm:p-4 shadow-sm xl:rounded-[1.75rem] xl:p-4.5">
               <div className="pointer-events-none absolute left-10 top-8 size-24 rounded-full bg-orange-100/35 blur-3xl" />
               <div className="pointer-events-none absolute bottom-4 right-10 size-28 rounded-full bg-sky-100/35 blur-3xl" />
               <StoryCard story={story} />
             </div>
 
-            <MascotFeedbackBar
-              feedbackType={feedback.visible ? (feedback.type === "correct" ? "correct" : "incorrect") : null}
-            />
-
+            {/* Answers Grid */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{
@@ -309,7 +312,7 @@ export default function EmotionStoryChoicePage() {
                 y: uiStage.showAnswers ? 0 : 12,
               }}
               transition={{ duration: 0.35 }}
-              className="min-h-0"
+              className="min-h-0 w-full"
             >
               <StoryAnswerGrid
                 options={story.options}

@@ -45,13 +45,13 @@ export function MascotFeedbackBar({ feedbackType }: MascotFeedbackBarProps) {
         <AnimatePresence mode="wait">
             <motion.div
                 key={key}
-                initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                initial={{ opacity: 0, y: -6, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
                 className={`
-          w-full max-w-xl mx-auto flex items-center gap-4 px-4 py-2.5 sm:px-5 sm:py-3
-          rounded-[2rem] border-2 backdrop-blur-xl shadow-[0_12px_32px_rgba(56,189,248,0.14)]
+          w-full max-w-xl mx-auto flex items-center gap-3 sm:gap-4 px-3.5 py-2 sm:px-5 sm:py-2.5
+          rounded-2xl sm:rounded-[2rem] border-2 backdrop-blur-xl shadow-xs
           ${cfg.bg} ${cfg.border}
         `}
             >
@@ -59,12 +59,12 @@ export function MascotFeedbackBar({ feedbackType }: MascotFeedbackBarProps) {
                 <div className="relative flex-shrink-0">
                     <motion.div
                         key={key + "-img"}
-                        animate={key === "correct" ? { rotate: [0, 10, -10, 0] } : { y: [0, -4, 0] }}
+                        animate={key === "correct" ? { rotate: [0, 10, -10, 0] } : { y: [0, -3, 0] }}
                         transition={key === "correct"
                             ? { duration: 0.5, repeat: 1 }
                             : { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
                         }
-                        className="w-16 h-16 relative"
+                        className="w-10 h-10 sm:w-13 sm:h-13 relative"
                     >
                         <Image
                             src={cfg.image}
@@ -75,12 +75,12 @@ export function MascotFeedbackBar({ feedbackType }: MascotFeedbackBarProps) {
                             priority
                         />
                         {/* glow ring */}
-                        <div className={`absolute inset-0 -z-10 rounded-full blur-xl ${cfg.glow}`} />
+                        <div className={`absolute inset-0 -z-10 rounded-full blur-md ${cfg.glow}`} />
                     </motion.div>
                 </div>
 
                 {/* Message */}
-                <p className={`font-bold text-sm sm:text-base leading-snug ${cfg.text}`}>
+                <p className={`font-bold text-xs sm:text-base leading-snug ${cfg.text}`}>
                     {cfg.message}
                 </p>
             </motion.div>

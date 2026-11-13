@@ -17,14 +17,15 @@ type AreaItemProps = {
 
 function AreaItem({ label, score, level, bg, border, text, bar }: AreaItemProps) {
   const maxScore = 6;
+  const rawScore = typeof score === "number" && !isNaN(score) ? score : 0;
   const normalizedScore =
-    score <= 6
-      ? score
-      : score <= 18
-      ? Math.min(maxScore, Math.round((score / 18) * maxScore))
-      : score <= 24
-      ? Math.min(maxScore, Math.round((score / 24) * maxScore))
-      : Math.min(maxScore, Math.round((score / 32) * maxScore));
+    rawScore <= 6
+      ? rawScore
+      : rawScore <= 18
+      ? Math.min(maxScore, Math.round((rawScore / 18) * maxScore))
+      : rawScore <= 24
+      ? Math.min(maxScore, Math.round((rawScore / 24) * maxScore))
+      : Math.min(maxScore, Math.round((rawScore / 32) * maxScore));
   const percent = Math.min(100, Math.round((normalizedScore / maxScore) * 100));
 
   const getStatus = (lvl: number) => {
@@ -34,28 +35,28 @@ function AreaItem({ label, score, level, bg, border, text, bar }: AreaItemProps)
   };
 
   return (
-    <div className={`rounded-[2rem] ${bg} border ${border} p-6 flex flex-col gap-4 shadow-sm transition-all duration-300 hover:shadow-md`}>
-      <div className="flex items-center justify-between">
-        <span className={`text-sm font-black uppercase tracking-widest ${text}`}>{label}</span>
-        <span className={`font-display text-xl font-black ${text}`}>Level {level}</span>
+    <div className={`rounded-2xl sm:rounded-[2rem] ${bg} border ${border} p-4 sm:p-6 flex flex-col gap-3 sm:gap-4 shadow-sm transition-all duration-300 hover:shadow-md`}>
+      <div className="flex items-center justify-between gap-2">
+        <span className={`text-xs sm:text-sm font-black uppercase tracking-wider sm:tracking-widest ${text} truncate`}>{label}</span>
+        <span className={`font-display text-base sm:text-xl font-black ${text} shrink-0`}>Level {level}</span>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <div className="flex flex-col">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Section Score</span>
-          <span className="text-lg font-black text-slate-800 leading-none">{normalizedScore} / 6</span>
+          <span className="text-base sm:text-lg font-black text-slate-800 leading-none">{normalizedScore} / 6</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 justify-end">
           <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/70 border border-slate-200 text-slate-500">
             6 Qs
           </span>
-          <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/60 border border-white ${text}`}>
+          <div className={`px-2.5 sm:px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-white/60 border border-white ${text} shrink-0`}>
             {getStatus(level)}
           </div>
         </div>
       </div>
 
-      <div className="h-2 rounded-full bg-white/60 overflow-hidden shadow-inner mt-2">
+      <div className="h-2 rounded-full bg-white/60 overflow-hidden shadow-inner mt-1 sm:mt-2">
         <div
           className={`h-full rounded-full ${bar} transition-all duration-700`}
           style={{ width: `${percent}%` }}

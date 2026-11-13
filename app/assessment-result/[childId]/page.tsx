@@ -47,14 +47,15 @@ function AreaScoreCard({
   delay,
 }: AreaCardProps) {
   // Gracefully normalize legacy scores to the 6-point section scale
+  const rawScore = typeof score === "number" && !isNaN(score) ? score : 0;
   const normalizedScore =
-    score <= 6
-      ? score
-      : score <= 18
-      ? Math.min(maxScore, Math.round((score / 18) * maxScore))
-      : score <= 24
-      ? Math.min(maxScore, Math.round((score / 24) * maxScore))
-      : Math.min(maxScore, Math.round((score / 32) * maxScore));
+    rawScore <= 6
+      ? rawScore
+      : rawScore <= 18
+      ? Math.min(maxScore, Math.round((rawScore / 18) * maxScore))
+      : rawScore <= 24
+      ? Math.min(maxScore, Math.round((rawScore / 24) * maxScore))
+      : Math.min(maxScore, Math.round((rawScore / 32) * maxScore));
 
   const percent = Math.min(100, Math.round((normalizedScore / maxScore) * 100));
 
@@ -72,37 +73,56 @@ function AreaScoreCard({
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
       whileHover={{ scale: 1.02 }}
-      className={`rounded-[2.5rem] ${bg} ${border} border-2 p-6 flex flex-col justify-between space-y-4 shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden`}
+      className={`rounded-2xl sm:rounded-3xl ${bg} ${border} border-2 p-4 sm:p-6 flex flex-col justify-between gap-3.5 sm:gap-4 shadow-md sm:shadow-lg hover:shadow-xl transition-all duration-300 relative overflow-hidden`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-2xl ${badgeBg} flex items-center justify-center text-2xl shadow-sm shrink-0`}>
+      {/* Top row: Icon + Label + Dedicated High-Contrast Score Marks Box */}
+      <div className="flex items-start justify-between gap-2.5">
+        <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+          <div className={`w-11 h-11 sm:w-13 sm:h-13 rounded-2xl ${badgeBg} flex items-center justify-center text-xl sm:text-2xl shadow-sm shrink-0`}>
             {emoji}
           </div>
-          <div>
-            <span className={`text-xs sm:text-sm font-black uppercase tracking-widest ${text}`}>{label}</span>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/80 border border-slate-200 text-slate-600 shadow-2xs">
-                {questionCount} Questions
-              </span>
-              <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border ${levelTag.badge}`}>
-                {levelTag.label}
-              </span>
-            </div>
+          <div className="min-w-0">
+            <span className={`text-xs sm:text-sm font-black uppercase tracking-wider sm:tracking-widest ${text} block truncate`}>
+              {label}
+            </span>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-500 block">
+              Section Assessment
+            </span>
           </div>
         </div>
-        <div className="text-right shrink-0">
-          <div className="flex items-baseline justify-end gap-1">
-            <span className={`font-display text-3xl font-black ${text}`}>{normalizedScore}</span>
-            <span className="text-xs font-bold text-slate-400">/{maxScore}</span>
+
+        {/* Dedicated Area Score Marks Box - always clearly visible on mobile */}
+        <div className="shrink-0 flex flex-col items-end justify-center bg-white/95 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl sm:rounded-2xl border border-slate-200/90 shadow-xs">
+          <div className="flex items-baseline gap-0.5">
+            <span className={`font-display text-2xl sm:text-3xl font-black ${text} leading-none`}>
+              {normalizedScore}
+            </span>
+            <span className="text-xs sm:text-sm font-black text-slate-400 leading-none">
+              /{maxScore}
+            </span>
           </div>
-          <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block">Out of 6</span>
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block mt-0.5">
+            Area Marks
+          </span>
         </div>
       </div>
-      
+
+      {/* Badges row: Question count, Level tag & Mastery percent */}
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 sm:py-1 rounded-full bg-white/90 border border-slate-200 text-slate-600 shadow-2xs">
+          {questionCount} Questions
+        </span>
+        <span className={`text-[10px] sm:text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 sm:py-1 rounded-full border ${levelTag.badge} shadow-2xs`}>
+          {levelTag.label}
+        </span>
+        <span className="text-[10px] sm:text-[11px] font-black text-slate-600 bg-white/80 border border-slate-200/80 px-2.5 py-0.5 sm:py-1 rounded-full shadow-2xs ml-auto">
+          {percent}% Mastery
+        </span>
+      </div>
+
       {/* Progress bar */}
-      <div className="space-y-1.5">
-        <div className="h-3.5 rounded-full bg-white/90 overflow-hidden p-0.5 border border-slate-200/80 shadow-inner">
+      <div className="space-y-1.5 pt-0.5">
+        <div className="h-3 sm:h-3.5 rounded-full bg-white/90 overflow-hidden p-0.5 border border-slate-200/80 shadow-inner">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${percent}%` }}
@@ -110,12 +130,11 @@ function AreaScoreCard({
             className={`h-full rounded-full ${bar} shadow-xs`}
           />
         </div>
-        <div className="flex items-center justify-between text-[11px] font-black text-slate-600">
-          <span className="flex items-center gap-1">
-            <span>Developmental Mastery</span>
-            <span className="text-slate-400 font-normal">({questionCount} Questions)</span>
+        <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-bold text-slate-600">
+          <span className="truncate">Area Progress ({questionCount} Questions)</span>
+          <span className="font-extrabold text-slate-700 shrink-0 ml-2">
+            {normalizedScore} of {maxScore} Points
           </span>
-          <span className="px-2.5 py-0.5 rounded-full bg-white/80 border border-slate-200 shadow-2xs font-extrabold">{percent}%</span>
         </div>
       </div>
     </motion.div>
@@ -201,7 +220,7 @@ export default function AssessmentResultPage() {
     : Math.min(maxTotalScore, Math.round((assessment.total_score / 96) * maxTotalScore));
 
   return (
-    <main className="min-h-screen relative overflow-hidden bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40 pb-28 md:pb-16">
+    <main className="min-h-screen relative overflow-x-hidden overflow-y-auto bg-gradient-to-br from-fuchsia-50 via-rose-50/60 to-amber-50/40 pb-32 sm:pb-20">
       {/* Dedicated Calm Assessment Background */}
       <AssessmentBackground />
 
@@ -217,7 +236,7 @@ export default function AssessmentResultPage() {
         @keyframes drift { 0%,100% { transform: translate(0,0); } 25% { transform: translate(15px,-25px); } 50% { transform: translate(-10px,15px); } 75% { transform: translate(20px,10px); } }
       `}} />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8 relative z-10">
+      <div className="max-w-4xl mx-auto px-3.5 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8 relative z-10">
 
         {/* Back link */}
         <motion.div
@@ -227,7 +246,7 @@ export default function AssessmentResultPage() {
         >
           <Link
             href={`/children/${params.childId}`}
-            className="group inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/90 backdrop-blur-md border border-fuchsia-200/80 text-xs font-black uppercase tracking-widest text-fuchsia-700 hover:text-fuchsia-900 hover:bg-white hover:border-fuchsia-300 shadow-sm transition-all duration-300"
+            className="group inline-flex items-center gap-2 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white/90 backdrop-blur-md border border-fuchsia-200/80 text-xs font-black uppercase tracking-widest text-fuchsia-700 hover:text-fuchsia-900 hover:bg-white hover:border-fuchsia-300 shadow-sm transition-all duration-300"
           >
             <svg className="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
@@ -241,7 +260,7 @@ export default function AssessmentResultPage() {
 
         {/* Error */}
         {!isLoading && errorMessage && (
-          <div className="rounded-[2.5rem] border-2 border-rose-200 bg-rose-50/90 backdrop-blur-md p-10 text-center shadow-xl space-y-4">
+          <div className="rounded-2xl sm:rounded-[2.5rem] border-2 border-rose-200 bg-rose-50/90 backdrop-blur-md p-6 sm:p-10 text-center shadow-xl space-y-4">
             <div className="w-14 h-14 rounded-2xl bg-rose-100 border border-rose-200 flex items-center justify-center text-2xl mx-auto shadow-sm">⚠️</div>
             <p className="font-display text-xl font-black text-rose-900">Something went wrong</p>
             <p className="text-sm text-rose-700 font-extrabold">{errorMessage}</p>
@@ -262,42 +281,42 @@ export default function AssessmentResultPage() {
               initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="relative rounded-[3rem] bg-white/95 backdrop-blur-xl border-2 border-fuchsia-200/90 shadow-2xl shadow-purple-900/10 p-8 sm:p-12 space-y-8 overflow-hidden group"
+              className="relative rounded-2xl sm:rounded-[3rem] bg-white/95 backdrop-blur-xl border-2 border-fuchsia-200/90 shadow-2xl shadow-purple-900/10 p-5 sm:p-12 space-y-6 sm:space-y-8 overflow-hidden group"
             >
-              <div className="text-center space-y-4">
+              <div className="text-center space-y-3 sm:space-y-4">
                 {/* Completed badge */}
-                <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-emerald-50 border-2 border-emerald-200 text-xs font-black uppercase tracking-[0.2em] text-emerald-700 shadow-xs">
+                <span className="inline-flex items-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-emerald-50 border-2 border-emerald-200 text-[11px] sm:text-xs font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-emerald-700 shadow-xs">
                   <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                   Survey Completed
                 </span>
 
-                <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-2xl sm:text-5xl font-black text-slate-900 tracking-tight">
                   Great job, {child.child_name.split(" ")[0]}!
                 </h1>
-                <p className="text-base sm:text-lg text-slate-600 font-extrabold max-w-xl mx-auto leading-relaxed">
+                <p className="text-sm sm:text-lg text-slate-600 font-extrabold max-w-xl mx-auto leading-relaxed">
                   Here is the suggested activity level based on the supportive learning survey.
                 </p>
 
                 {/* Level + total score pills */}
-                <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto">
+                <div className="pt-2 sm:pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-xl mx-auto">
                   <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className={`${lvl.bg} rounded-[2rem] p-7 border-2 text-center shadow-md flex flex-col justify-center space-y-1 relative overflow-hidden`}
+                    className={`${lvl.bg} rounded-2xl sm:rounded-[2rem] p-5 sm:p-7 border-2 text-center shadow-md flex flex-col justify-center space-y-1 relative overflow-hidden`}
                   >
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Suggested Support Level</p>
-                    <p className={`font-display text-5xl sm:text-6xl font-black ${lvl.color}`}>{assessment.predicted_level}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500">Suggested Support Level</p>
+                    <p className={`font-display text-4xl sm:text-6xl font-black ${lvl.color}`}>{assessment.predicted_level}</p>
                     <span className={`inline-block px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${lvl.color} bg-white/80 backdrop-blur-sm shadow-xs border border-current/20`}>
                       {lvl.desc}
                     </span>
                   </motion.div>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
-                    className="bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 rounded-[2rem] border-2 border-slate-200/80 p-7 text-center shadow-md flex flex-col justify-center space-y-1"
+                    className="bg-gradient-to-br from-white via-slate-50/80 to-slate-100/60 rounded-2xl sm:rounded-[2rem] border-2 border-slate-200/80 p-5 sm:p-7 text-center shadow-md flex flex-col justify-center space-y-1"
                   >
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Total Developmental Score</p>
-                    <p className="font-display text-5xl sm:text-6xl font-black text-slate-900">{normalizedTotalScore}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-400">Total Developmental Score</p>
+                    <p className="font-display text-4xl sm:text-6xl font-black text-slate-900">{normalizedTotalScore}</p>
                     <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold text-slate-600 bg-white/80 border border-slate-200 shadow-2xs">
                       out of {maxTotalScore} Total Points (24 Questions)
                     </span>
@@ -306,14 +325,14 @@ export default function AssessmentResultPage() {
 
                 {/* 24 Questions Structure Explanation */}
                 <div className="pt-2 max-w-xl mx-auto">
-                  <div className="flex flex-wrap items-center justify-center gap-2 p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/80 text-xs font-bold text-slate-600">
-                    <span className="text-purple-700 font-black">📋 24 Questions Assessed:</span>
-                    <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-extrabold">💖 Emotion (out of 6)</span>
-                    <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-extrabold">🧩 Cognitive (out of 6)</span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-extrabold">🌱 Sensory (out of 6)</span>
-                    <span className="px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 font-extrabold">💡 Logic (out of 6)</span>
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 p-2.5 sm:p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/80 text-[11px] sm:text-xs font-bold text-slate-600">
+                    <span className="text-purple-700 font-black">📋 24 Questions Evaluated:</span>
+                    <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-extrabold shadow-2xs">💖 Emotion ({Math.min(6, assessment.emotion_score)}/6)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-extrabold shadow-2xs">🧩 Cognitive ({Math.min(6, assessment.cognitive_score)}/6)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold shadow-2xs">🌱 Sensory ({Math.min(6, assessment.self_awareness_score)}/6)</span>
+                    <span className="px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 font-extrabold shadow-2xs">💡 Logic ({Math.min(6, assessment.math_score)}/6)</span>
                   </div>
-                  <p className="text-[11px] text-slate-400 font-semibold text-center mt-1.5">
+                  <p className="text-[10px] sm:text-[11px] text-slate-400 font-semibold text-center mt-1.5">
                     Each of the 4 sections is evaluated out of 6 points, giving a total score out of 24 points across all 24 questions.
                   </p>
                 </div>
@@ -329,55 +348,67 @@ export default function AssessmentResultPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5 }}
-                  className="rounded-[2.5rem] border-2 border-fuchsia-200/90 bg-white/95 backdrop-blur-xl p-7 sm:p-9 shadow-xl space-y-6"
+                  className="rounded-2xl sm:rounded-[2.5rem] border-2 border-fuchsia-200/90 bg-white/95 backdrop-blur-xl p-5 sm:p-9 shadow-xl space-y-4 sm:space-y-6"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-fuchsia-400 to-purple-500 text-white flex items-center justify-center shrink-0 shadow-md">
-                      <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-fuchsia-400 to-purple-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <div className="flex-1 space-y-4">
-                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                    <div className="flex-1 space-y-3 sm:space-y-4 min-w-0">
+                      <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
                         Personalized Area Recommendation
                       </h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 rounded-2xl bg-fuchsia-50/80 border border-fuchsia-200 space-y-1 shadow-xs">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-fuchsia-50/80 border border-fuchsia-200 space-y-1 shadow-xs">
                           <p className="text-[10px] font-black uppercase tracking-widest text-fuchsia-600">
                             Learning Focus 🎯
                           </p>
-                          <p className="text-base font-black text-fuchsia-900">
+                          <p className="text-sm sm:text-base font-black text-fuchsia-900">
                             {getAreaLabel(assessment.main_support_area)}
                           </p>
                         </div>
-                        <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1 shadow-xs">
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 space-y-1 shadow-xs">
                           <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
                             Stronger Area 🚀
                           </p>
-                          <p className="text-base font-black text-emerald-900">
+                          <p className="text-sm sm:text-base font-black text-emerald-900">
                             {getAreaLabel(assessment.strongest_area)}
                           </p>
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                        <div className="p-2.5 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-1 shadow-2xs">
                           <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider truncate" title="Communication & Emotion">Comm & Emotion</p>
-                          <p className="text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.emotion_score)}</p>
+                          <p className="text-xs sm:text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.emotion_score)}</p>
+                          <p className="text-[10px] font-extrabold text-rose-600 bg-rose-50 rounded-md py-0.5 border border-rose-100">
+                            {Math.min(6, assessment.emotion_score)} / 6 pts
+                          </p>
                         </div>
-                        <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                        <div className="p-2.5 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-1 shadow-2xs">
                           <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider truncate" title="Social & Cognitive">Social & Cog</p>
-                          <p className="text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.cognitive_score)}</p>
+                          <p className="text-xs sm:text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.cognitive_score)}</p>
+                          <p className="text-[10px] font-extrabold text-blue-600 bg-blue-50 rounded-md py-0.5 border border-blue-100">
+                            {Math.min(6, assessment.cognitive_score)} / 6 pts
+                          </p>
                         </div>
-                        <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                        <div className="p-2.5 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-1 shadow-2xs">
                           <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider truncate" title="Behavior & Sensory">Behavior & Sensory</p>
-                          <p className="text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.self_awareness_score)}</p>
+                          <p className="text-xs sm:text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.self_awareness_score)}</p>
+                          <p className="text-[10px] font-extrabold text-emerald-600 bg-emerald-50 rounded-md py-0.5 border border-emerald-100">
+                            {Math.min(6, assessment.self_awareness_score)} / 6 pts
+                          </p>
                         </div>
-                        <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                        <div className="p-2.5 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-1 shadow-2xs">
                           <p className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-wider truncate" title="Learning & Logic">Learning & Logic</p>
-                          <p className="text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.math_score)}</p>
+                          <p className="text-xs sm:text-sm font-black text-slate-800">Lvl {calculateAreaLevel(assessment.math_score)}</p>
+                          <p className="text-[10px] font-extrabold text-violet-600 bg-violet-50 rounded-md py-0.5 border border-violet-100">
+                            {Math.min(6, assessment.math_score)} / 6 pts
+                          </p>
                         </div>
                       </div>
-                      <p className="text-slate-600 text-sm font-semibold leading-relaxed bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 italic">
+                      <p className="text-slate-600 text-xs sm:text-sm font-semibold leading-relaxed bg-slate-50/80 p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 italic">
                         &quot;Based on the survey, {getAreaLabel(assessment.main_support_area)} may benefit from more guided practice, while {getAreaLabel(assessment.strongest_area)}{" "}appears to be a stronger area. We suggest starting with foundational activities in the support area and continuing suitable activities in the stronger area.&quot;
                       </p>
                     </div>
@@ -386,12 +417,12 @@ export default function AssessmentResultPage() {
               )}
 
             {/* ── Area scores ── */}
-            <div className="space-y-4">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-                <span className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 text-white flex items-center justify-center text-lg shadow-sm">📊</span>
+            <div className="space-y-3 sm:space-y-4">
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5 sm:gap-3">
+                <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 text-white flex items-center justify-center text-base sm:text-lg shadow-sm">📊</span>
                 Area Scores Breakdowns
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                 <AreaScoreCard
                   label="Communication & Emotion"
                   score={assessment.emotion_score}
@@ -457,17 +488,17 @@ export default function AssessmentResultPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="rounded-[2.5rem] border-2 border-fuchsia-100/90 bg-white/95 backdrop-blur-xl p-7 sm:p-9 shadow-xl space-y-4"
+              className="rounded-2xl sm:rounded-[2.5rem] border-2 border-fuchsia-100/90 bg-white/95 backdrop-blur-xl p-5 sm:p-9 shadow-xl space-y-3 sm:space-y-4"
             >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 text-white flex items-center justify-center shrink-0 shadow-md">
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 text-white flex items-center justify-center shrink-0 shadow-md">
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
-                <div className="space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Recommendation Summary</h2>
-                  <p className="text-slate-600 font-extrabold leading-relaxed text-base sm:text-lg">
+                <div className="space-y-1.5 sm:space-y-2 min-w-0">
+                  <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">Recommendation Summary</h2>
+                  <p className="text-slate-600 font-extrabold leading-relaxed text-sm sm:text-lg">
                     {assessment.recommendation ||
                       `Based on the survey results, we suggest starting with Level ${assessment.predicted_level} activities. These are designed to be supportive, engaging, and suitable for ${child.child_name}'s current development stage.`}
                   </p>
@@ -481,23 +512,23 @@ export default function AssessmentResultPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="rounded-3xl bg-gradient-to-r from-emerald-50/90 via-teal-50/80 to-emerald-50/90 border-2 border-emerald-200 p-6 flex items-center gap-4 shadow-md"
+              className="rounded-2xl sm:rounded-3xl bg-gradient-to-r from-emerald-50/90 via-teal-50/80 to-emerald-50/90 border-2 border-emerald-200 p-4 sm:p-6 flex items-center gap-3 sm:gap-4 shadow-md"
             >
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-2xl shrink-0 shadow-sm">🎮</div>
-              <p className="text-sm sm:text-base font-extrabold text-emerald-950">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-sm">🎮</div>
+              <p className="text-xs sm:text-base font-extrabold text-emerald-950">
                 <strong>Level {assessment.predicted_level} games are now unlocked</strong> for {child.child_name}.
                 {assessment.predicted_level > 1 && ` All levels up to Level ${assessment.predicted_level} are available.`}
               </p>
             </motion.div>
 
             {/* ── CTA buttons ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5 pt-1 sm:pt-2">
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.96 }}>
                 <Link
                   href={`/games/${params.childId}`}
-                  className="group inline-flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-indigo-500 text-white text-sm font-black uppercase tracking-widest shadow-lg shadow-purple-500/25 transition-all duration-300"
+                  className="group inline-flex items-center justify-center gap-2.5 sm:gap-3 w-full py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-indigo-500 text-white text-xs sm:text-sm font-black uppercase tracking-widest shadow-lg shadow-purple-500/25 transition-all duration-300"
                 >
-                  <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                   </svg>
                   Continue to Games
@@ -506,9 +537,9 @@ export default function AssessmentResultPage() {
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.96 }}>
                 <Link
                   href={`/survey/${params.childId}`}
-                  className="group inline-flex items-center justify-center gap-3 w-full py-5 rounded-2xl bg-white border-2 border-fuchsia-200 text-fuchsia-700 text-sm font-black uppercase tracking-widest shadow-sm hover:bg-fuchsia-50 hover:border-fuchsia-300 transition-all duration-300"
+                  className="group inline-flex items-center justify-center gap-2.5 sm:gap-3 w-full py-4 sm:py-5 rounded-xl sm:rounded-2xl bg-white border-2 border-fuchsia-200 text-fuchsia-700 text-xs sm:text-sm font-black uppercase tracking-widest shadow-sm hover:bg-fuchsia-50 hover:border-fuchsia-300 transition-all duration-300"
                 >
-                  <svg className="w-5 h-5 transition-transform group-hover:rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                   Retake Survey
@@ -517,9 +548,9 @@ export default function AssessmentResultPage() {
             </div>
 
             {/* Disclaimer */}
-            <div className="rounded-3xl bg-amber-50/90 border-2 border-amber-200 p-6 flex items-start gap-4 shadow-sm">
-              <span className="flex-shrink-0 text-amber-500 text-xl">💙</span>
-              <p className="text-xs sm:text-sm font-extrabold text-amber-900 leading-relaxed">
+            <div className="rounded-2xl sm:rounded-3xl bg-amber-50/90 border-2 border-amber-200 p-4 sm:p-6 flex items-start gap-3 sm:gap-4 shadow-sm">
+              <span className="flex-shrink-0 text-amber-500 text-lg sm:text-xl">💙</span>
+              <p className="text-[11px] sm:text-sm font-extrabold text-amber-900 leading-relaxed">
                 <strong className="font-black uppercase tracking-wider text-amber-700">Platform Note: </strong>
                 This platform provides supportive learning activities and progress tracking. It is not a medical diagnosis tool. Results reflect a suggested activity level only.
               </p>

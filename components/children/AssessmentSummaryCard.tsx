@@ -39,36 +39,36 @@ export function AssessmentSummaryCard({ assessment, childId }: AssessmentSummary
       : Math.min(MAX_TOTAL, Math.round((assessment.total_score / 96) * MAX_TOTAL));
 
   return (
-    <div className="rounded-[2rem] bg-white border border-slate-100 p-8 shadow-sm">
-      <h2 className="font-display text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
-        <span className="w-8 h-8 rounded-xl bg-green-100 flex items-center justify-center text-sm">✓</span>
+    <div className="rounded-2xl sm:rounded-[2rem] bg-white border border-slate-100 p-5 sm:p-8 shadow-sm">
+      <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900 mb-4 sm:mb-6 flex items-center gap-2">
+        <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-green-100 flex items-center justify-center text-xs sm:text-sm">✓</span>
         Current Assessment Summary
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="p-6 rounded-3xl bg-blue-50/50 border border-blue-100">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-blue-50/50 border border-blue-100">
+          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
             Suggested Support Level
           </p>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-4xl font-bold text-blue-700">
+            <span className="font-display text-3xl sm:text-4xl font-bold text-blue-700">
               {assessment.predicted_level}
             </span>
-            <span className="text-sm font-bold text-blue-600/60 uppercase">
+            <span className="text-xs sm:text-sm font-bold text-blue-600/60 uppercase">
               {assessment.predicted_level === 1 ? "Foundational" : assessment.predicted_level === 2 ? "Developing" : "Advanced"}
             </span>
           </div>
         </div>
 
-        <div className="p-6 rounded-3xl bg-violet-50/50 border border-violet-100">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
+        <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-violet-50/50 border border-violet-100">
+          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">
             Total Score
           </p>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-4xl font-bold text-violet-700">
+            <span className="font-display text-3xl sm:text-4xl font-bold text-violet-700">
               {normalizedTotal}
             </span>
-            <span className="text-sm font-bold text-violet-600/60 uppercase">
+            <span className="text-xs sm:text-sm font-bold text-violet-600/60 uppercase">
               out of {MAX_TOTAL}
             </span>
           </div>

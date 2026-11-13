@@ -24,78 +24,85 @@ export function EmotionAnswerGrid({
   options,
   onAnswer,
   disabled,
-  level,
+  level: _level,
   showImages = true,
 }: EmotionAnswerGridProps) {
-  const compact = level > 1;
+  const optionCount = options.length;
+
+  // Responsive grid layout:
+  // - 2 options (Level 1): 2 columns
+  // - 4 options (Level 2): 2 columns on mobile (2x2 grid), 4 columns on tablet/desktop
+  // - 5 options (Level 3): 2 columns on mobile, 3 on tablet, 5 on desktop
+  const gridLayout =
+    optionCount <= 2
+      ? "grid grid-cols-2 gap-3 max-w-md mx-auto"
+      : optionCount === 4
+        ? "grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5 max-w-4xl mx-auto"
+        : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 max-w-5xl mx-auto";
 
   return (
-    <div
-      className={`mx-auto w-full ${compact
-        ? "flex flex-row justify-center items-stretch gap-2 sm:gap-3.5"
-        : "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:flex lg:flex-wrap lg:justify-center"
-        }`}
-    >
+    <div className={`w-full ${gridLayout}`}>
       {options.map((emotion, index) => {
+        const isOddLastInTwoCol = optionCount === 5 && index === 4;
+
         return (
           <motion.button
             key={emotion.id}
-            initial={{ opacity: 0, scale: compact ? 1 : 0.95 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{
-              delay: compact ? 0 : index * 0.05,
-              duration: compact ? 0.25 : 0.8,
-              ease: "easeInOut",
+              delay: index * 0.04,
+              duration: 0.25,
+              ease: "easeOut",
             }}
-            whileHover={!disabled && !compact ? { scale: 1.02 } : {}}
-            whileTap={!disabled ? { scale: 0.98 } : {}}
+            whileHover={!disabled ? { scale: 1.025, y: -2 } : {}}
+            whileTap={!disabled ? { scale: 0.97 } : {}}
             disabled={disabled}
             onClick={() => onAnswer(emotion.label)}
             aria-label={emotion.label}
             className={`
-              group relative flex items-center transition-all flex-1 min-w-0
+              group relative flex items-center transition-all min-w-0
               disabled:cursor-not-allowed disabled:opacity-40
               ${emotion.color} border-white
-              ${compact
-                ? `min-h-[76px] ${showImages ? "flex-row justify-start" : "flex-col justify-center"} gap-2.5 rounded-2xl border-2 px-3 py-2 duration-300 sm:min-h-[88px] md:py-2.5`
-                : "flex-col rounded-[2rem] border-4 p-6 shadow-xl duration-500 sm:rounded-[3rem] sm:p-12 lg:p-16"
-              }
+              rounded-2xl border-2 shadow-xs hover:shadow-md
+              px-2.5 py-2 sm:px-3.5 sm:py-2.5 md:px-4 md:py-3
+              ${showImages ? "flex-row justify-start" : "flex-col justify-center text-center"}
+              gap-2 sm:gap-3
+              min-h-[64px] sm:min-h-[76px] md:min-h-[82px]
+              ${isOddLastInTwoCol ? "col-span-2 sm:col-span-1 max-w-[220px] mx-auto w-full" : "w-full"}
             `}
           >
             {showImages ? (
               <div
-                className={`relative shrink-0 overflow-hidden rounded-[1.25rem] bg-white shadow-sm ${compact
-                  ? "size-[52px] sm:size-[60px]"
-                  : "size-24 sm:size-28"
-                  }`}
+                className="relative shrink-0 overflow-hidden rounded-xl bg-white shadow-xs size-10 sm:size-12 md:size-13"
               >
                 {MOOD_IMAGES[emotion.id] ? (
                   <Image
                     src={MOOD_IMAGES[emotion.id] as string}
                     alt={`${emotion.label} feeling`}
                     fill
-                    sizes={compact ? "96px" : "112px"}
+                    sizes="(max-width: 640px) 44px, 56px"
                     className="object-cover"
                   />
                 ) : (
-                  <span className="flex h-full items-center justify-center text-4xl sm:text-5xl">
+                  <span className="flex h-full items-center justify-center text-2xl sm:text-3xl">
                     {emotion.emoji}
                   </span>
                 )}
               </div>
             ) : null}
-            <span
-              className={`relative z-10 font-black text-slate-800/80 whitespace-nowrap tracking-tight ${compact
-                ? `${showImages ? "text-sm sm:text-base" : "text-base sm:text-lg"} leading-none`
-                : "text-2xl uppercase tracking-[0.2em] sm:text-3xl"
-                }`}
-            >
-              {emotion.label}
-            </span>
 
-            {!compact && (
-              <div className="absolute inset-0 rounded-[3rem] border-8 border-transparent transition-colors group-hover:border-white/40" />
-            )}
+            <div className={`flex-1 min-w-0 ${showImages ? "text-left" : "text-center"}`}>
+              <span
+                className={`block font-black text-slate-800 tracking-tight leading-tight truncate sm:whitespace-normal ${
+                  showImages
+                    ? "text-xs sm:text-sm md:text-base"
+                    : "text-sm sm:text-base md:text-lg"
+                }`}
+              >
+                {emotion.label}
+              </span>
+            </div>
           </motion.button>
         );
       })}

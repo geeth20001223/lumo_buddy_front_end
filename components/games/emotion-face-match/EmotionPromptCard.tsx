@@ -97,17 +97,17 @@ export function EmotionPromptCard({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.8 }}
-          className="flex w-full flex-col items-center gap-6"
+          transition={{ duration: 0.5 }}
+          className="flex w-full flex-col items-center gap-2.5 sm:gap-5"
         >
-          <div className="flex h-28 items-center justify-center text-7xl sm:h-32 sm:text-8xl">
+          <div className="flex h-16 sm:h-24 md:h-28 items-center justify-center text-5xl sm:text-7xl md:text-8xl">
             {isFace && moodImage ? (
               <motion.div
                 key={moodImage}
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.8 }}
-                className="relative h-28 w-28 overflow-hidden rounded-[2rem] bg-white shadow-sm sm:h-32 sm:w-32"
+                transition={{ duration: 0.5 }}
+                className="relative h-20 w-20 sm:h-28 sm:w-28 overflow-hidden rounded-2xl sm:rounded-[2rem] bg-white shadow-sm"
               >
                 <Image
                   src={moodImage}
@@ -123,7 +123,7 @@ export function EmotionPromptCard({
                 key={question.visual || question.situation || "text"}
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.5 }}
               >
                 {isFace ? question.visual : getSituationIcon(question.situation, question.visual)}
               </motion.span>
@@ -131,15 +131,15 @@ export function EmotionPromptCard({
           </div>
 
           {!isFace && (
-            <div className="px-6 text-center">
-              <h2 className="text-2xl font-black leading-tight text-slate-900 sm:text-3xl">
+            <div className="px-3 sm:px-6 text-center">
+              <h2 className="text-lg font-black leading-tight text-slate-900 sm:text-2xl md:text-3xl">
                 &ldquo;{question.situation}&rdquo;
               </h2>
             </div>
           )}
 
-          <div className="pt-2">
-            <span className="rounded-full bg-slate-100 px-6 py-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+          <div className="pt-0.5 sm:pt-2">
+            <span className="rounded-full bg-slate-100 px-4 py-1 sm:px-6 sm:py-2 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-slate-500">
               How do they feel?
             </span>
           </div>

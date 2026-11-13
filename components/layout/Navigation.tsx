@@ -106,6 +106,12 @@ export default function Navigation() {
       pathname.split("/").filter(Boolean).length > 2
   );
 
+  // Hide mobile bottom nav on survey and assessment result pages to give 100% viewport to content & results
+  const isSurveyOrResultPage = Boolean(
+    pathname &&
+      (pathname.startsWith("/survey/") || pathname.startsWith("/assessment-result/"))
+  );
+
   if (isGamePlayPage) {
     return null;
   }
@@ -132,7 +138,7 @@ export default function Navigation() {
           )}
         </div>
       </header>
-      {showAuth && <MobileBottomNav />}
+      {showAuth && !isSurveyOrResultPage && <MobileBottomNav />}
     </>
   );
 }

@@ -105,15 +105,19 @@ export function StoryAnswerGrid({
   correctEmotion,
   feedbackType,
 }: StoryAnswerGridProps) {
-  const isManyOptions = options.length > 4;
+  const optionCount = options.length;
+  const gridLayout =
+    optionCount <= 2
+      ? "grid-cols-2 max-w-lg"
+      : optionCount === 4
+        ? "grid-cols-2 sm:grid-cols-4 max-w-4xl"
+        : "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 max-w-5xl";
 
   return (
     <div
-      className={`mx-auto grid w-full max-w-4xl gap-2.5 sm:gap-3 xl:max-w-5xl xl:gap-3.5 ${
-        isManyOptions ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5" : "grid-cols-2 sm:grid-cols-2"
-      }`}
+      className={`mx-auto grid w-full gap-2 sm:gap-3 xl:max-w-5xl xl:gap-3.5 ${gridLayout}`}
     >
-      {options.map((emotionId) => {
+      {options.map((emotionId, index) => {
         const emotion = EMOTIONS[emotionId];
         const moodImage = MOOD_IMAGES[emotionId];
         const accent = ANSWER_ACCENTS[emotionId] || "from-white via-orange-50/40 to-white";
@@ -123,6 +127,7 @@ export function StoryAnswerGrid({
         const isIncorrectSelection = isSelected && feedbackType === "incorrect";
         const showCorrectAnswer =
           feedbackType === "incorrect" && emotionId === correctEmotion;
+        const isOddLast = optionCount === 5 && index === 4;
 
         return (
           <motion.button
@@ -142,16 +147,17 @@ export function StoryAnswerGrid({
             onClick={() => onAnswer(emotionId)}
             aria-label={emotion.label}
             className={`
-              relative flex items-center gap-2.5 sm:gap-3 overflow-hidden rounded-[1.25rem] border-2 bg-gradient-to-br ${accent} xl:rounded-[1.5rem]
-              px-3 sm:px-4 py-2 sm:py-2.5 text-left shadow-[0_8px_22px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_14px_32px_rgba(251,146,60,0.14)]
+              relative flex items-center gap-2 sm:gap-2.5 overflow-hidden rounded-[1.25rem] border-2 bg-gradient-to-br ${accent} xl:rounded-[1.5rem]
+              px-2.5 sm:px-3.5 py-2 sm:py-2.5 text-left shadow-[0_8px_22px_rgba(15,23,42,0.04)] transition-all duration-300 hover:shadow-[0_14px_32px_rgba(251,146,60,0.14)]
               focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200
               disabled:cursor-default hover:ring-4 hover:ring-orange-100/70 xl:px-4 xl:py-2.5
-              ${isManyOptions ? "min-h-[64px] sm:min-h-[72px] xl:min-h-[80px]" : "min-h-[72px] sm:min-h-[80px] xl:min-h-[90px]"}
+              ${optionCount > 2 ? "min-h-[64px] sm:min-h-[72px] xl:min-h-[80px]" : "min-h-[72px] sm:min-h-[80px] xl:min-h-[90px]"}
               ${emotion.color}
               ${isCorrectSelection ? "border-emerald-300 bg-yellow-50 ring-4 ring-yellow-100/90 shadow-[0_24px_60px_rgba(250,204,21,0.32)]" : ""}
               ${showCorrectAnswer ? "border-emerald-300 bg-emerald-50 ring-2 ring-emerald-100" : ""}
               ${isIncorrectSelection ? "border-sky-200 bg-sky-50 ring-4 ring-sky-100/80 shadow-[0_20px_52px_rgba(147,197,253,0.28)]" : ""}
               ${disabled && !isSelected && !showCorrectAnswer ? "opacity-60" : "border-white/80 hover:border-orange-200 hover:bg-orange-50/70 hover:shadow-orange-100/80"}
+              ${isOddLast ? "col-span-2 sm:col-span-1 max-w-[220px] mx-auto w-full" : "w-full"}
             `}
           >
             {isCorrectSelection && <AnswerFeedbackParticles type="correct" />}
@@ -161,8 +167,8 @@ export function StoryAnswerGrid({
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(254,240,138,0.34),transparent_45%)]" />
             )}
             <div className="pointer-events-none absolute bottom-4 left-8 size-2 rounded-full bg-white/80 shadow-[28px_10px_0_rgba(255,255,255,0.55),72px_-12px_0_rgba(255,255,255,0.45)]" />
-            
-            <div className={`relative z-10 shrink-0 overflow-hidden rounded-[0.85rem] bg-white shadow-sm xl:rounded-[1rem] ${isManyOptions ? "size-10 sm:size-11 xl:size-13" : "size-11 sm:size-12 md:size-13 xl:size-15"}`}>
+
+            <div className={`relative z-10 shrink-0 overflow-hidden rounded-[0.85rem] bg-white shadow-xs xl:rounded-[1rem] ${optionCount > 2 ? "size-9 sm:size-11 xl:size-12" : "size-11 sm:size-12 md:size-13 xl:size-15"}`}>
               {moodImage ? (
                 <Image
                   src={moodImage}
@@ -178,9 +184,11 @@ export function StoryAnswerGrid({
               )}
             </div>
 
-            <span className={`relative z-10 font-black text-slate-900 tracking-tight whitespace-nowrap ${isManyOptions ? "text-xs sm:text-sm xl:text-base" : "text-sm sm:text-base md:text-lg xl:text-xl"}`}>
-              {emotion.label}
-            </span>
+            <div className="relative z-10 flex-1 min-w-0 text-left">
+              <span className={`block font-black text-slate-900 tracking-tight leading-tight truncate sm:whitespace-normal ${optionCount > 2 ? "text-xs sm:text-sm xl:text-base" : "text-sm sm:text-base md:text-lg xl:text-xl"}`}>
+                {emotion.label}
+              </span>
+            </div>
           </motion.button>
         );
       })}

@@ -55,6 +55,7 @@ export function calculateSurveyScores(
           // Secondary: keyword-based semantic fallback
           if (
             trimmedAnswer.includes("always") ||
+            trimmedAnswer.includes("easily") ||
             trimmedAnswer.includes("naturally") ||
             trimmedAnswer.includes("comfortably") ||
             trimmedAnswer.includes("confidently") ||
@@ -62,7 +63,12 @@ export function calculateSurveyScores(
             trimmedAnswer.includes("precision") ||
             trimmedAnswer.includes("pride") ||
             trimmedAnswer.includes("smoothly") ||
-            trimmedAnswer.includes("quickly understands")
+            trimmedAnswer.includes("quickly understands") ||
+            trimmedAnswer.includes("reacts right away") ||
+            trimmedAnswer.includes("talks about it") ||
+            trimmedAnswer.includes("on their own") ||
+            trimmedAnswer.includes("great balance") ||
+            trimmedAnswer.includes("clearly asks")
           ) {
             score = 3;
           } else if (
@@ -71,17 +77,27 @@ export function calculateSurveyScores(
             trimmedAnswer.includes("often") ||
             trimmedAnswer.includes("quite well") ||
             trimmedAnswer.includes("reasonably") ||
-            trimmedAnswer.includes("navigates")
+            trimmedAnswer.includes("navigates") ||
+            trimmedAnswer.includes("shows concern") ||
+            trimmedAnswer.includes("simple words") ||
+            trimmedAnswer.includes("familiar") ||
+            trimmedAnswer.includes("adjusts well")
           ) {
             score = 2;
           } else if (
+            trimmedAnswer.includes("sometimes") ||
+            trimmedAnswer.includes("with help") ||
             trimmedAnswer.includes("hint") ||
             trimmedAnswer.includes("reminder") ||
             trimmedAnswer.includes("guidance") ||
             trimmedAnswer.includes("alongside") ||
             trimmedAnswer.includes("explained") ||
             trimmedAnswer.includes("prompted") ||
-            trimmedAnswer.includes("slowly")
+            trimmedAnswer.includes("slowly") ||
+            trimmedAnswer.includes("recounts") ||
+            trimmedAnswer.includes("cooperates") ||
+            trimmedAnswer.includes("watches quietly") ||
+            trimmedAnswer.includes("points")
           ) {
             score = 1;
           } else {
@@ -114,10 +130,10 @@ export function calculateSurveyScores(
   }
 
   // Calculate clean score out of 6 for each section (raw max is 18 -> raw / 3 = 0 to 6)
-  const emotion_score        = Math.min(6, Math.max(0, Math.round(emotion_raw / 3)));
-  const cognitive_score      = Math.min(6, Math.max(0, Math.round(cognitive_raw / 3)));
+  const emotion_score = Math.min(6, Math.max(0, Math.round(emotion_raw / 3)));
+  const cognitive_score = Math.min(6, Math.max(0, Math.round(cognitive_raw / 3)));
   const self_awareness_score = Math.min(6, Math.max(0, Math.round(self_awareness_raw / 3)));
-  const math_score           = Math.min(6, Math.max(0, Math.round(math_raw / 3)));
+  const math_score = Math.min(6, Math.max(0, Math.round(math_raw / 3)));
 
   // Total score out of 24 (4 sections × 6 max points = 24 total points)
   const total_score =
